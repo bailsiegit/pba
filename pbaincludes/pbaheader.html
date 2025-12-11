@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head><meta charset="UTF-8">
+<title><?php echo $page_title;?></title>
+<link rel="stylesheet" href="pbaincludes/pbastyle.css">
+</head>
+<body>
+
+<header>
+<h1 style="vertical-align:center;"><img src="images/Redbacks.png" style="width:50px;height:50px;">  Perth Basketball Association</h1></header>
+<ul id="topmenu"> 
+	<li><a <?php echo ('Home' == $page_title) ? 'class="active"' : ''; ?> href="pbahome.php">Home</a></li>
+	<li><a <?php echo ('People' == $page_title) ? 'class="active"' : ''; ?> href="pbasearch.php">People</a></li>
+	<li><a <?php echo ('Activity' == $page_title) ? 'class="active"' : ''; ?> href="pbaactivityteams.php">Activity</a></li>
+	<li><a <?php echo ('Documents' == $page_title) ? 'class="active"' : ''; ?> href="pbadocsearch.php">Documents</a></li>
+	<li><a <?php echo ('Reports' == $page_title) ? 'class="active"' : ''; ?> href="pbareports.php">Reports</a></li>
+	<li><a <?php echo ('Tables' == $page_title) ? 'class="active"' : ''; ?> href="pbatableupdate.php">Maintenance</a></li>
+
+<?php
+if(isset($_SESSION['userid']))
+{echo '<li><a ';
+	echo ('Login' == $page_title) ? 'class="active"' : '';
+	echo ' href="pbalogout.php"> Logout</a></li>';
+	}
+else
+{echo '<li><a ';
+	echo ('Login' == $page_title) ? 'class="active"' : '';
+	echo ' href="pbalogin.php"> Login</a></li>';}
+?>
+<li><a <?php echo ('Admin' == $page_title) ? 'class="active"' : ''; ?> href="pbaadmin.php">Admin</a></li>
+
+<li style="float: right;">
+
+<?php
+//display username and access level
+if(isset($_SESSION['userid'])){
+	$hfn = $_SESSION['first_name'];
+	$hln = $_SESSION['last_name'];
+	//echo '<style="float: right"';
+	echo "$hfn $hln logged in as ";
+	switch ($_SESSION['accesslevel']){
+		case 0:
+			echo "No Access";
+			break;
+		case 1:
+			echo "Basic";
+			break;
+		case 2:
+			echo "Read Only";
+			break;
+		case 3:
+			echo "Read/Write";
+			break;
+		case 4:
+			echo "All Powerful";
+			}
+}
+?>
+</li></ul>
+<hr style="border:1px dashed black;">

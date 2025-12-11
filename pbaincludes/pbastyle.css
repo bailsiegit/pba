@@ -1,0 +1,155 @@
+html * { font-family:Arial !important; }
+
+header > h1 {border-bottom: none; font-style : italic ; font-size : x-large ;}
+
+/*footer {
+	position:fixed;
+	left:0;
+	bottom:0;
+	height:80px;
+}*/
+
+.grid-container /*{
+	display: grid;
+	grid-template-columns: repeat(3, minmax(200px, 1fr));
+	gap: 2px;
+}*/
+{
+  --auto-grid-min-size: 24rem;
+  display: grid;
+  /*grid-template-columns: repeat(auto-fill, minmax(var(--auto-grid-min-size), 1fr));*/
+  grid-template-columns: repeat(auto-fill, minmax(var(--auto-grid-min-size), 1fr));
+  grid-gap: 2px;
+}
+
+.item1 {
+background-color: #f7cb2a;
+}
+ 
+.item2 {
+background-color: #00407b;
+}
+ 
+.item3 {
+background-color: #469c07;
+}
+.item1 {
+background-color: black;
+color: white;
+}
+ 
+.item2 {
+background-color: black;
+color: white;
+}
+ 
+.item3 {
+background-color: black;
+color: white;
+}
+	
+
+/*table { border-spacing : 5px ; width : 530px ; }*/
+th { color : #FFF ; background : #000 ; text-align : left ; }
+td { border : 1px solid blue ; border-radius: 3px;
+	padding : 3px ; background : #F0F0F0 ;
+	text-align : left ; vertical-align : top ; }
+	
+.invisibletable {
+border:0px; background:white;}
+
+p#err_msg { color : #F00 ; font-weight : bold ; }
+
+.pagelink {
+	background-color: grey;
+	border: 1px solid black;
+	border-radius: 3px;
+	padding: 0px 0px 0px 0px;
+	margin: 0px 0px 0px 20px;
+	background-clip: content-box;
+}
+.pagelink:hover {
+	background-color: white;
+	border: 1px solid black;
+}
+/* this next bit is for class menuitem for top
+menu hyperlinks*/
+.menuitem {
+	background-color: darkblue;
+	color: white;
+}
+.menuitem:link {
+	color:white;
+}
+.menuitem:visited {
+	color:white;
+}
+.menuitem:hover {
+	background-color: lightblue;
+	color:black;
+}
+.menuitem:active {
+	color:white;
+}
+/* this next bit is for using a unnumbered list for the top menu*/
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+li {
+  float: left;
+}
+
+li a:hover:not(.active) {
+	background-color: white;
+    }
+
+li a {
+  display: block;
+  padding: 8px;
+  background-color: red;
+  text-decoration: none;
+  color: black;
+}
+.active {
+	background-color:pink;
+}
+
+button, input[type="submit"] {
+	background-color:red;
+	border:none;
+	font-weight:bold;
+	color:black;
+	text-align: center;
+	text-decoration: none;
+	border-radius:3px;
+	padding:8px;
+}
+button hover {
+	background-color:pink;
+}
+/* make an A tag look like a button */
+.buttonlink {
+	color:black;
+	text-decoration:none;
+	font-weight:bold;
+	background:red;
+	padding:2px;
+	border-radius:3px;
+}
+
+/* sub menu style */
+.submenu {
+	border-left:1px solid black;
+	border-right:1px solid black;
+	background:red;
+	color:black;
+	text-decoration:none;
+	padding:1px 4px;
+}
+.submenu:hover {
+	background:white;
+}
