@@ -199,6 +199,7 @@ if($_SESSION['accesslevel'] > 2) // read write and above get access to add membe
 <?php
 	$q = "SELECT FirstName, LastName, MemberID 
 	FROM members 
+	WHERE InactivePerson = 0 
 	ORDER BY LastName, FirstName";
 	require('../connecttopba.php');
 	$r = mysqli_query($link, $q);
