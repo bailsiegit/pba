@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 12/12/2025 - accolades added
 //this page is callled from the dlete buttons on the various activity pages
 //the selected record is deleted and the same activity list is refreshed on screen
 session_start();
@@ -95,6 +95,21 @@ if(isset($_GET['vid'])) //check task is to delete an volunteer
 	$r = mysqli_stmt_get_result($stmt);
 	require('pbalogin_tools.php');
 	load("pbaactivityvolunteers.php?yid=$yearid");
+	exit();
+}
+
+if(isset($_GET['acid'])) //check task is to elete accolade
+{
+	$accid = htmlentities($_GET['acid']);
+	$yearid = htmlentities($_GET['yid']);
+	$q = "DELETE FROM accolades WHERE AccoladeId = ?";
+	require('../connecttopba.php');
+	$stmt = mysqli_prepare($link, $q);
+	mysqli_stmt_bind_param($stmt, "i", $accid);
+	mysqli_stmt_execute($stmt);
+	$r = mysqli_stmt_get_result($stmt);
+	require('pbalogin_tools.php');
+	load("pbaactivityaccolades.php?yid=$yearid");
 	exit();
 }
 ?>
