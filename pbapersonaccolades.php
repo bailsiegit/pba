@@ -50,7 +50,7 @@ echo '<h2>'.$person['FirstName'].' '.$person['LastName'].'</h2>';
 require('pbaincludes/pbapersonmenu.php');
 
 // get a list of all the accolades the person has received
-$q = 'SELECT Accolade, Details, years.YearText FROM accolades 
+$q = 'SELECT Accolade, Details, years.YearText, years.YearId FROM accolades 
 INNER JOIN years ON accolades.YearId = years.YearId
  WHERE MembId = ? ORDER BY YearText DESC';
 $stmt = mysqli_prepare($link, $q);
@@ -66,10 +66,11 @@ else
 {
 	echo '<p> </p><table width="90%">';
 		
-	echo '<tr><th width="15%">Year</th><th width="30%">Accolade</th><th>Deatils</tr>';
+	echo '<tr><th width="15%">Year</th><th width="30%">Accolade</th><th>Details</th></tr>';
 	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
 	{
-		echo '<tr><td>'.$row['YearText'].'</td><td>' . $row['Accolade'] . '</td><td>'.$row['Details'].'</td></tr>';
+		echo '<tr><td><a href="pbaactivityaccolades.php?yid='.$row['YearId'].'">'.$row['YearText'].'</a></td>
+		<td><a href="pbaactivityaccolades.php?yid='.$row['YearId'].'">' . $row['Accolade'] . '</a></td><td>'.$row['Details'].'</td></tr>';
 	}
 		echo '</table>';
 }
