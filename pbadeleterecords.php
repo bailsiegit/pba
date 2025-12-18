@@ -4,7 +4,7 @@
 //the selected record is deleted and the same activity list is refreshed on screen
 session_start();
 //delete award record
-if(isset($_GET['aid'])) //check the task is to delete an award
+if(isset($_GET['aid'])) //check the task is to delete an award recipient
 {
 	$awardid = htmlentities($_GET['aid']);
 	$yearid = htmlentities($_GET['yid']);
@@ -83,7 +83,7 @@ if(isset($_GET['eid'])) //check task is to delete an employee
 	exit();
 }
 
-if(isset($_GET['vid'])) //check task is to delete an volunteer
+if(isset($_GET['vid'])) //check task is to delete a volunteer
 {
 	$volid = htmlentities($_GET['vid']);
 	$yearid = htmlentities($_GET['yid']);
@@ -98,7 +98,7 @@ if(isset($_GET['vid'])) //check task is to delete an volunteer
 	exit();
 }
 
-if(isset($_GET['acid'])) //check task is to elete accolade
+if(isset($_GET['acid'])) //check task is to delete an accolade
 {
 	$accid = htmlentities($_GET['acid']);
 	$yearid = htmlentities($_GET['yid']);

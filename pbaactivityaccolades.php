@@ -1,7 +1,7 @@
 <?php
 //Rev 1 12/12/2025
 //this page displays the accolade activities
-//the user can select accolades by year
+//the user can only select accolades by year
 //accolades can be added
 //activity entries can be deleted by authorised users
 session_start();
@@ -169,7 +169,7 @@ mysqli_close($link);
 ?>
 <div id="addarea">
 <?php
-if($_SESSION['accesslevel'] > 2) // read write and above get access to add memberships
+if($_SESSION['accesslevel'] > 2) // read write and above get access to add accolades
 {
 ?>
 	<br>Name:
@@ -189,7 +189,7 @@ if($_SESSION['accesslevel'] > 2) // read write and above get access to add membe
 </select>
 <br>Accolade: 
 <select name="accoladerole" id="selectaccrole" onchange="checkCustomOptionAcc()">
-<option value="0" selected="selected">Select role...</option>
+<option value="0" selected="selected">Select accolade...</option>
     <?php
     require('../connecttopba.php');
     $q = 'SELECT Accolade FROM accolades GROUP BY Accolade ORDER BY Accolade';
@@ -205,7 +205,7 @@ if($_SESSION['accesslevel'] > 2) // read write and above get access to add membe
 <input type="text" id="customaccrole" name="customaccrole" style="display:none;" placeholder="Enter new accolade">
 <br>Additional Details: <input style="margin:5px 0px" size="40" type="text" id="accdetails" name="accdetails"><br>
 <?php
-	echo '<input type="submit" value="Add Person to Accolades" name="addperson">';
+	echo '<input type="submit" value="Add Accolade" name="addperson">';
 }
 ?>
 </div>
@@ -216,7 +216,7 @@ if($_SESSION['accesslevel'] > 2) // read write and above get access to add membe
 <div id="displaydata">
 
 <?php
-//process year selection - all volunteers for the selected year
+//process year selection - all accolades for the selected year
 $y = $formyear;
 //$rl = (isset($formrole)) ? $formrole : 0;
 include('pbadisplay_accolades.php');

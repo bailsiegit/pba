@@ -70,13 +70,15 @@ if (mysqli_num_rows($accoladeResult) > 0)
 //	{
 //		echo '<tr><th>Year</th><th>Name</th><th>Role</th></tr>'; //header for role based list
 //	}
+
+	
 	if($_SESSION['accesslevel'] > 3)
 	{
-		echo '<tr><th>Name</th><th>Accolade</th><th>Details</th><th>Delete</th></tr>'; //headers for year based list with delete
+		echo '<tr><th>Name</th><th>Accolade</th><th>Details</th><th>Document</th><th>Delete</th></tr>'; //headers for year based list with delete
 	}
 	else
 	{
-		echo '<tr><th>Name</th><th>Accolade</th><th>Details</th></tr>'; //headers for year based list
+		echo '<tr><th>Name</th><th>Accolade</th><th>Details</th><th>Document</th></tr>'; //headers for year based list
 	}
 
 	while ($accolade = mysqli_fetch_assoc($accoladeResult)) 
@@ -87,16 +89,30 @@ if (mysqli_num_rows($accoladeResult) > 0)
 		//		<td><a href="pbaperson.php?pid='.$accolade['MemberId'].'">'.$accolade['FirstName'].' '.$accolade['LastName'].'</a></td>
 		//		<td>'.$accolade['Accolade'].'</td><td>'.$accolade['Details'].'</tr>';
 		//}
+		//find how many documents are associated with the Accolade
+		$curracc = $accolade['AccoladeId'];
+		$qdocs = "SELECT COUNT(FileName) AS NumbFiles FROM documents WHERE ActivityRef = $curracc AND Activity = 'ac'";
+		$rdocs = mysqli_query($link, $qdocs, MYSQLI_STORE_RESULT);
+		$rdocarray = mysqli_fetch_array($rdocs, MYSQLI_ASSOC);
+		$numdocs = $rdocarray['NumbFiles'];
+		$deletestring = ($numdocs > 0) ? 'Delete' : '<a onclick="return confirm(\'Are you sure?\');" 
+				class="buttonlink" href="pbadeleterecords.php?acid='.$accolade['AccoladeId'].'&yid='.$getyear.'">Delete</a>';
+		
 		if($_SESSION['accesslevel'] > 3)
 		{
 			echo '<tr><td><a href="pbaperson.php?pid='.$accolade['MemberId'].'">'.$accolade['FirstName'].' '.$accolade['LastName'].'</a></td>
 				<td>'.$accolade['Accolade'].'</td><td>'.$accolade['Details'].'</td>
-				<td><a onclick="return confirm(\'Are you sure?\');" class="buttonlink" href="pbadeleterecords.php?acid='.$accolade['AccoladeId'].'&yid='.$getyear.'">Delete</a></td></tr>';
+				<td><a class="buttonlink" href="pbainddocslist.php?actid=ac&refid='.$accolade['AccoladeId'].'&yid='.$getyear.'">Documents 
+				<span style="font-weight:normal; font-size:0.8em;">('.$numdocs.')</span></a></td>
+				<td>'.$deletestring.'</td></tr>';
 		}
 		else
 		{
 			echo '<tr><td><a href="pbaperson.php?pid='.$accolade['MemberId'].'">'.$accolade['FirstName'].' '.$accolade['LastName'].'</a></td>
-				<td>'.$accolade['Accolade'].'</td><td>'.$accolade['Details'].'</td></tr>';
+				<td>'.$accolade['Accolade'].'</td><td>'.$accolade['Details'].'</td>
+				<td><a class="buttonlink" href="pbainddocslist.php?actid=ac&refid='.$accolade['AccoladeId'].'&yid='.$getyear.'">Documents 
+				<span style="font-weight:normal; font-size:0.8em;">('.$numdocs.')</span></a></td>
+				</tr>';
 		}
 	}		
 }

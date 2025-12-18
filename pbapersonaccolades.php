@@ -65,7 +65,6 @@ if(mysqli_num_rows($r)<1)
 else
 {
 	echo '<p> </p><table width="90%">';
-		
 	echo '<tr><th width="15%">Year</th><th width="30%">Accolade</th><th>Details</th></tr>';
 	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
 	{
