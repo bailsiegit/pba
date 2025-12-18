@@ -66,6 +66,7 @@ else
 {
 	echo '<p> </p><table width="90%">';
 	echo '<tr><th width="15%">Year</th><th width="30%">Accolade</th><th>Details</th></tr>';
+
 	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
 	{
 		echo '<tr><td><a href="pbaactivityaccolades.php?yid='.$row['YearId'].'">'.$row['YearText'].'</a></td>
