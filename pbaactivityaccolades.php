@@ -116,13 +116,14 @@ if(isset($_GET['yid']))
 //table to layout top area
 echo '<table style="width:100%;"><tr>';
 echo '<td style="width:50%; border:0px; background-color:white;">';
+//add the sub menu	
+require('pbaincludes/pbaactivitiesmenu.php');
 // page header
 echo '<h2 style="margin-bottom:0px; padding-bottom:0px;" >Display Accolades List</h2>';
 echo '<p style="font-size:0.7em; margin-bottom:20px;">An accolade is an external recognition related to club activities</p>';
 //echo '<br style="line-height:1.5;">';
 
-//add the sub menu	
-require('pbaincludes/pbaactivitiesmenu.php');
+
 ?>
 <!--search criteria form-->
 <div><br>
