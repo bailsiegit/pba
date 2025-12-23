@@ -1,7 +1,7 @@
 <?php
-//Rev 1 19/11/2025
-//this page is part of the people group
-//this page lists disciplinary incidents of the person
+//Rev 1 12/12/2025
+//this age is part of the people group
+//this page lists all the volunteer roles the person has had
 
 session_start();
 if(!isset($_SESSION['userid']) || time() - $_SESSION['timeoutstart'] > $_SESSION['timeoutlimit']) //check if user is logged in
@@ -41,37 +41,38 @@ $stmt = mysqli_prepare($link, $q);
 mysqli_stmt_bind_param($stmt, "i", $pid);
 mysqli_stmt_execute($stmt);
 $r = mysqli_stmt_get_result($stmt);
+//$r = mysqli_query($link, $q, MYSQLI_STORE_RESULT);
 $person = mysqli_fetch_array($r, MYSQLI_ASSOC);
-// add persons name to top of page
+// add persons name at top of page
 echo '<h2>'.$person['FirstName'].' '.$person['LastName'].'</h2>';
+
 //add sub menu
 require('pbaincludes/pbapersonmenu.php');
 
-// get a list of all the disciplinary events for the person
-$q = 'SELECT * FROM incident
- WHERE MembId = ? 
- ORDER BY IncidentDate DESC';
+// get a list of all the accolades the person has received
+$q = 'SELECT Accolade, Details, years.YearText, years.YearId FROM accolades 
+INNER JOIN years ON accolades.YearId = years.YearId
+ WHERE MembId = ? ORDER BY YearText DESC';
 $stmt = mysqli_prepare($link, $q);
 mysqli_stmt_bind_param($stmt, "i", $pid);
 mysqli_stmt_execute($stmt);
 $r = mysqli_stmt_get_result($stmt);
-
+//$r = mysqli_query($link, $q, MYSQLI_STORE_RESULT);
 if(mysqli_num_rows($r)<1)
 {
-	echo '<p><br>No record of '.$person['FirstName'].' having any incidents.<br><br></p>';
+	echo '<p><br>No record of '.$person['FirstName'].' receiving an accolade.<br><br></p>';
 }
 else
 {
 	echo '<p> </p><table width="90%">';
-		
-	echo '<tr><th>Date</th><th>Incident</th><th>Outcome</th><th>Expiry</th></tr>';
+	echo '<tr><th width="15%">Year</th><th width="30%">Accolade</th><th>Details</th></tr>';
+
 	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
 	{
-		$row['ExpiryDate'] = ($row['ExpiryDate'] == NULL) ? "" : date("d/m/Y", strtotime($row['ExpiryDate']));
-		echo '<tr><td>'.date("d/m/Y", strtotime($row['IncidentDate'])).'</td><td>' . $row['IncidentDetails'] . '</td>
-		<td>'.$row['TribunalResult'].'</td><td>'.$row['ExpiryDate'].'</td></tr>';
-	} //
-	echo '</table>';
+		echo '<tr><td><a href="pbaactivityaccolades.php?yid='.$row['YearId'].'">'.$row['YearText'].'</a></td>
+		<td><a href="pbaactivityaccolades.php?yid='.$row['YearId'].'">' . $row['Accolade'] . '</a></td><td>'.$row['Details'].'</td></tr>';
+	}
+		echo '</table>';
 }
 
 mysqli_close($link);

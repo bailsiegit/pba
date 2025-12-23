@@ -67,9 +67,11 @@ else
 	echo '<tr><th>Date</th><th>Incident</th><th>Outcome</th><th>Expiry</th></tr>';
 	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
 	{
-		$row['ExpiryDate'] = ($row['ExpiryDate'] == NULL) ? "" : date("d/m/Y", strtotime($row['ExpiryDate']));
+		$row['ExpiryDate'] = ($row['ExpiryDate'] == "0000-00-00") ? "" : date("d/m/Y", strtotime($row['ExpiryDate']));
+		$row['ExpiryDate'] = (!empty($row['ExpiryDate']) && strtotime($row['ExpiryDate']) > time()) ? '<span Style="color:red;">'.$row['ExpiryDate'].'</span>' : $row['ExpiryDate'];
 		echo '<tr><td>'.date("d/m/Y", strtotime($row['IncidentDate'])).'</td><td>' . $row['IncidentDetails'] . '</td>
-		<td>'.$row['TribunalResult'].'</td><td>'.$row['ExpiryDate'].'</td></tr>';
+		<td>'.$row['TribunalResult'].'</td>
+		<td>'.$row['ExpiryDate'].'</td></tr>';
 	} //
 	echo '</table>';
 }
