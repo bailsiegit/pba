@@ -1,5 +1,5 @@
 <?php
-//Rev 1 12/12/2025
+//Rev 2 19/02/2026 corrected delete hyperlink parameter
 //this page is called either directly or via javascript from the incident activity page
 //this page creates the table of results to display on that page
 if(isset($_GET['java']) && $_GET['java'] == 1)
@@ -69,7 +69,7 @@ if (mysqli_num_rows($incidentResult) > 0)
 				<td>'.$expdate.'</td>
 				<td><a class="buttonlink" href="pbainddocslist.php?actid=in&yid='.$incident['YearId'].'&refid='.$incident['IncidentId'].'">Docs</a></td>
 				<td><a class="buttonlink" href="pbaeditincident.php?iid='.$incident['IncidentId'].'">Edit</a></td>
-				<td><a onclick="return confirm(\'Are you sure?\');" class="buttonlink" href="pbadeleterecords.php?acid='.$incident['IncidentId'].'">Delete</a></td></tr>';
+				<td><a onclick="return confirm(\'Are you sure?\');" class="buttonlink" href="pbadeleterecords.php?inid='.$incident['IncidentId'].'">Delete</a></td></tr>';
 		}
 		elseif($_SESSION['accesslevel'] > 2)
 		{

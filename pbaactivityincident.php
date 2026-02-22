@@ -1,7 +1,6 @@
 <?php
-//Rev 1 12/12/2025
-//this page displays the disciplinary activities
-//the user can only select activities by year
+//Rev 2 19/02/2026 general update
+//this page displays the incidents
 //activities can be added by authorised users
 //activity entries can be deleted by authorised users
 session_start();
@@ -20,7 +19,7 @@ $_SESSION['timeoutstart'] = time();
 ?>
 
 <?php
-if($_SESSION['accesslevel'] < 1)
+if($_SESSION['accesslevel'] < 2)
 {
 	echo '<br><br>You do not have permission to access this page.';
 	exit();
@@ -28,66 +27,12 @@ if($_SESSION['accesslevel'] < 1)
 ?>
 
 <?php
-//!!incident needs an edit page and the ability to print from there!!
-//download accolade List
-if(isset($_POST['downloadaccolades'])) 
-{
-	$formrole = htmlentities($_POST['selectedaccolade']);
-	$formyear = htmlentities($_POST['selectedyear']);
-	$titles = array("Year", "Accolade", "First Name", "Last Name", "Phone", "Email", "Address", "Suburb");
-	$path = 'downloads/pbavolunteerlist.csv';
-	$emailsfile = fopen($path, "w");
-	fputcsv($emailsfile, $titles); //put titles in output file
-		require('../connecttopba.php');
-		if(strlen($formrole) == 1) // if role is not selected then show roles the year
-		{
-			$q = "SELECT years.YearText, acolades.Accolade, accolades.Details, members.FirstName, members.LastName, 
-			members.Mobile, members.Email, members.Numberandstreet, members.Suburb 
-			FROM accolades 
-			INNER JOIN members ON accolades.MembId = members.MemberId
-			INNER JOIN years ON accolades.YearId = years.YearId 
-			WHERE accolades.YearId = ?";
-			$stmt = mysqli_prepare($link, $q);
-			mysqli_stmt_bind_param($stmt, "i", $formyear);
-		}
-		//else // if role is selected, find role for all years
-		//{
-		//	$q = "SELECT years.YearText, volunteers.Role, members.FirstName, members.LastName, 
-		//	members.Mobile, members.Email, members.Numberandstreet, members.Suburb 
-		//	FROM volunteers 
-		//	INNER JOIN members ON volunteers.MembId = members.MemberId
-		//	INNER JOIN years ON volunteers.Year = years.YearId 
-		//	WHERE volunteers.Role = ? 
-		//	ORDER BY years.YearId DESC";
-		//	$stmt = mysqli_prepare($link, $q);
-		//	mysqli_stmt_bind_param($stmt, "s", $formrole);
-		//}
-		mysqli_stmt_execute($stmt);
-		$r = mysqli_stmt_get_result($stmt);
-		//$r = mysqli_query($link, $q);
+//!!incident needs the ability to print from the edit page!!
 
-		while($row = mysqli_fetch_array($r,MYSQLI_ASSOC))
-		{
-			$row['Mobile'] = "'".$row['Mobile'];
-			fputcsv($emailsfile, $row);
-		}
-	$footnotes1[] = "This file may contain sensitive personal information";
-	$footnotes2[] = "Please abide by the PBA Privacy Policy.";
-	fputcsv($emailsfile, []);
-	fputcsv($emailsfile, $footnotes1);
-	fputcsv($emailsfile, $footnotes2);
-	fclose($emailsfile); // close csv file
-	//mysqli_free_result($r);
-	mysqli_stmt_close($stmt); // close sql
-	mysqli_close($link); // close database
-	header('Location: pbadownloadcsv.php?fn=pbaaccoladelist');
-	//exit;
-
-}
 ?>
 
 <?php
-//add person to displayed list
+//add incident and refresh list
 if(isset($_POST['addperson']) && $_POST['selectname'] > 0 && !empty($_POST['discdate']) && !empty($_POST['discdetails']))
 {
 	$formperson = htmlentities($_POST['selectname']);
@@ -111,11 +56,6 @@ if(isset($_POST['addperson']) && $_POST['selectname'] > 0 && !empty($_POST['disc
 ?>
 
 <?php
-
-if(isset($_GET['yid']))
-{
-	$formyear = htmlentities($_GET['yid']);
-}
 
 //table to layout top area
 echo '<table style="width:100%;"><tr>';
