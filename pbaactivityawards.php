@@ -1,5 +1,5 @@
 <?php
-//Rev 3 11/12/2025
+//Rev 4 23/12/2025
 //this page is part of the activity group
 //it displays award winners either by award of by year
 //it provides for adding award winners
@@ -55,18 +55,19 @@ if(isset($_POST['addedname']) && $_POST['addedname'] > 0 && isset($_POST['addeda
 ?>
 <!-- page header-->
 <table style="width:100%;"><tr>
-<td style="background:white; width:50%; border:0px;"><h2>Display Awards List</h2>
+<td style="background:white; width:50%; border:0px;">
 <?php
 //add the sub menu
 require('pbaincludes/pbaactivitiesmenu.php');
 ?>
-<!--search criteria form-->
+<h2>Display Awards List</h2>
 
-Select an award or a year<br>
+<!--search criteria form-->
 
 <form action="pbaactivityawards.php" method = "POST">
 <!-- //create year select combo box -->
-<select name="selectedyear" id="selectedyear" style="margin:5px;" onclick="displayByYear()">	
+Show all awards for 
+<select name="selectedyear" id="selectedyear" style="margin:2px;" onclick="displayByYear()">	
 <?php
 // get all years for combo box
 require('../connecttopba.php');
@@ -96,10 +97,11 @@ while($pbayears = mysqli_fetch_array($r, MYSQLI_ASSOC))
 }
 ?>
 </select>
- to see all award recipients for that year.
-<br>
+ or<br>
 <!-- //create award select combo box -->
-<select name="selectedaward" id="selectedaward" style="margin:5px;" onchange="displayByAward()">
+Show all recipients of the 
+<select name="selectedaward" id="selectedaward" style="margin:2px;" onchange="displayByAward()">
+
 <option value = "0" selected="selected">Select an award...</option> <!--first row of combo provides instruction-->
 <?php
 // get all awards for combo box
@@ -129,7 +131,6 @@ while($pbaawards = mysqli_fetch_array($r, MYSQLI_ASSOC))
 }
 ?>
 </select>
- to see all recipients of that award.
 </td><td style="background:white; width:50%; border:0px;">
 <div id="addwinner">
 <?php

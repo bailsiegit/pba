@@ -97,12 +97,13 @@ if(isset($_GET['mid']))
 <!--table to layout top area-->
 <table style="width:100%;"><tr>
 <td style="width:50%; border:0px; background-color:white;">
-<!-- page header-->
-<h2>Display Members List</h2>
 <?php
 //add the sub menu	
 require('pbaincludes/pbaactivitiesmenu.php');
 ?>
+<!-- page header-->
+<h2>Display Members List</h2>
+
 <!--search criteria form-->
 <div>
 <form action="pbaactivitymemberships.php" method = "POST">

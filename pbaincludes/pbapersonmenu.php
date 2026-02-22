@@ -8,6 +8,7 @@ echo '<a class="submenu" href="pbapersonawards.php?pid='.$pid.'">Awards</a>';
 echo '<a class="submenu" href="pbapersonaccolades.php?pid='.$pid.'">Accolades</a>';
 echo '<a class="submenu" href="pbapersonvoluntary.php?pid='.$pid.'">Volunteer</a>';
 echo '<a class="submenu" href="pbapersonemployee.php?pid='.$pid.'">Employee</a>';
+echo '<a class="submenu" href="pbapersonincident.php?pid='.$pid.'">Incident</a>';
 echo '<a class="submenu" href="pbapersonaddactivity.php?pid='.$pid.'">Add Activity for '.$person['FirstName'].'</a>';
 
 ?>

@@ -102,11 +102,10 @@ if(isset($_GET['cid']))
 //table to layout top area
 echo '<table style="width:100%;"><tr>';
 echo '<td style="width:50%; border:0px; background-color:white;">';
-// page header
-echo '<h2>Display Committee List</h2>';
-
 //add the sub menu	
 require('pbaincludes/pbaactivitiesmenu.php');
+// page header
+echo '<h2>Display Committee List</h2>';
 ?>
 <!--search criteria form-->
 <div>

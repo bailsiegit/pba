@@ -1,5 +1,5 @@
 <?php
-//Rev 2 12/12/2025 - accolades added
+//Rev 3 19/02/2026 - incidents added
 //this page is callled from the dlete buttons on the various activity pages
 //the selected record is deleted and the same activity list is refreshed on screen
 session_start();
@@ -110,6 +110,32 @@ if(isset($_GET['acid'])) //check task is to delete an accolade
 	$r = mysqli_stmt_get_result($stmt);
 	require('pbalogin_tools.php');
 	load("pbaactivityaccolades.php?yid=$yearid");
+	exit();
+}
+
+// delete incident
+if(isset($_GET['inid']))
+{
+	$incidentid = htmlentities($_GET['inid']);
+	//check if any documents have been attached
+	$q = 'SELECT DocumentId FROM documents WHERE Activity = "in" AND ActivityRef = ?';
+	require('../connecttopba.php');
+	$stmt = mysqli_prepare($link, $q);
+	mysqli_stmt_bind_param($stmt, "i", $incidentid);
+	mysqli_stmt_execute($stmt);
+	$r = mysqli_stmt_get_result($stmt);
+	// if no docs, delete record
+	if(mysqli_num_rows($r) < 1)
+	{
+		$q = "DELETE FROM incident WHERE IncidentId = ?";
+		$stmt = mysqli_prepare($link, $q);
+		mysqli_stmt_bind_param($stmt, "i", $incidentid);
+		mysqli_stmt_execute($stmt);
+		$r = mysqli_stmt_get_result($stmt);
+	}
+	//reload incident list page
+	require('pbalogin_tools.php');
+	load("pbaactivityincident.php");
 	exit();
 }
 ?>

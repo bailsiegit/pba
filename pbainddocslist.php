@@ -28,11 +28,11 @@ if($_SESSION['accesslevel'] < 1)
 
 <?php
 // set up cross reference fields
-$activity = array("aw" => "awards", "em" => "employees", "vl" => "volunteers", "mb" => "members", "ac" => "accolades");
-$fields = array("aw" => "AwardName", "em" => "employees", "vl" => "volunteers", "mb" => "members", "ac" => "Accolade");
-$actref = array("aw" => "AwardId", "em" => "EmployeeId", "vl" => "VolunteerId", "mb" => "MemberId", "ac" => "AccoladeId");
-$type = array("ac" => "Accolade", "vl" => "Volunteer", "aw" => "Awards", "mb" => "Member");
-//$membref = array("aw" => "AwardId", "em" => "EmployeeId", "vl" => "VolunteerId", "mb" => "MemberId", ac => "MembId");
+$activity = array("aw" => "awards", "em" => "employees", "vl" => "volunteers", "mb" => "members", "ac" => "accolades", "in" => "incident");
+$fields = array("aw" => "AwardName", "em" => "employees", "vl" => "volunteers", "mb" => "members", "ac" => "Accolade", "in" => "IncidentDate");
+$actref = array("aw" => "AwardId", "em" => "EmployeeId", "vl" => "VolunteerId", "mb" => "MemberId", "ac" => "AccoladeId", "in" => "IncidentId");
+$type = array("ac" => "Accolade", "vl" => "Volunteer", "aw" => "Awards", "mb" => "Member", "in" => "Incident");
+//$membref = array("aw" => "AwardId", "em" => "EmployeeId", "vl" => "VolunteerId", "mb" => "MemberId", ac => "MembId", "in" => "MembId");
 
 if(isset($_GET['actid'])) //is the page called by a GET link?
 {
@@ -52,11 +52,11 @@ if(isset($_GET['actid'])) //is the page called by a GET link?
 	}	
 	
 	$qyr = "SELECT * FROM years WHERE YearId = ?"; //get the year text for display
-	$qact = "SELECT members.FirstName AS fn,
-	members.LastName AS ln, 
-	$fields[$getactivity] AS Accolade
+	$qact = "SELECT members.FirstName,
+	members.LastName, 
+	$fields[$getactivity] 
 	FROM $activity[$getactivity] 
-	INNER JOIN members ON accolades.MembId = members.MemberID
+	INNER JOIN members ON $activity[$getactivity].MembId = members.MemberID
 	WHERE $actref[$getactivity] = ?";
 	require('../connecttopba.php');
 	$stmt = mysqli_prepare($link, $qyr);
@@ -70,7 +70,7 @@ if(isset($_GET['actid'])) //is the page called by a GET link?
 	$ract = mysqli_stmt_get_result($stmt);
 	$actrow = mysqli_fetch_array($ract, MYSQLI_ASSOC);
 	$yrtxt = $yrrow['YearText'];
-	$actname = $actrow['fn'].' '.$actrow['ln'].' - '.$actrow[$fields[$getactivity]];
+	$actname = $actrow['FirstName'].' '.$actrow['LastName'].' - '.$actrow[$fields[$getactivity]];
 }
 
 // process document Upload
@@ -82,11 +82,11 @@ if(isset($_POST['uploadfile']) && !empty($_POST['docname']) && !empty($_FILES['f
 	$getactref = htmlentities($_POST['actrefid']);
 	$postfiltitle = htmlentities($_POST['docname']);
 	$qyr = "SELECT * FROM years WHERE YearId = ?";
-	$qact = "SELECT members.FirstName AS fn,
-	members.LastName AS ln, 
-	$fields[$getactivity] AS Accolade
+	$qact = "SELECT members.FirstName,
+	members.LastName, 
+	$fields[$getactivity] 
 	FROM $activity[$getactivity] 
-	INNER JOIN members ON accolades.MembId = members.MemberID
+	INNER JOIN members ON $activity[$getactivity].MembId = members.MemberID
 	WHERE $actref[$getactivity] = ?";
 	require('../connecttopba.php');
 	$stmt = mysqli_prepare($link, $qyr);
@@ -100,7 +100,7 @@ if(isset($_POST['uploadfile']) && !empty($_POST['docname']) && !empty($_FILES['f
 	$ract = mysqli_stmt_get_result($stmt);
 	$actrow = mysqli_fetch_array($ract, MYSQLI_ASSOC);
 	$yrtxt = $yrrow['YearText'];
-	$actname = $actrow['fn'].' '.$actrow['ln'].' - '.$actrow[$fields[$getactivity]];
+	$actname = $actrow['FirstName'].' '.$actrow['LastName'].' - '.$actrow[$fields[$getactivity]];
 	// work out document number
 	$q = "SELECT MAX(DocIndex) as maxindex FROM documents WHERE Activity = ?";
 	$stmt = mysqli_prepare($link, $q);
@@ -135,11 +135,11 @@ elseif(isset($_POST['uploadfile'])) //if doc name and/or upload file not entered
 	// get text for year and activity
 	$qyr = "SELECT * FROM years WHERE YearId = ?";
 	// redo doc query
-	$qact = "SELECT members.FirstName AS fn,
-	members.LastName AS ln, 
-	$fields[$getactivity] AS Accolade
+	$qact = "SELECT members.FirstName,
+	members.LastName, 
+	$fields[$getactivity]
 	FROM $activity[$getactivity] 
-	INNER JOIN members ON accolades.MembId = members.MemberID
+	INNER JOIN members ON $activity[$getactivity].MembId = members.MemberID
 	WHERE $actref[$getactivity] = ?";
 	require('../connecttopba.php');
 	$stmt = mysqli_prepare($link, $qyr);
@@ -153,13 +153,14 @@ elseif(isset($_POST['uploadfile'])) //if doc name and/or upload file not entered
 	$ract = mysqli_stmt_get_result($stmt);
 	$actrow = mysqli_fetch_array($ract, MYSQLI_ASSOC);
 	$yrtxt = $yrrow['YearText'];
-	$actname = $actrow['fn'].' '.$actrow['ln'].' - '.$actrow[$fields[$getactivity]];
+	$actname = $actrow['FirstName'].' '.$actrow['LastName'].' - '.$actrow[$fields[$getactivity]];
 }
 // page header
 echo '<h2>Document List</h2>';
 
 // array of return urls for back button add here for each new activity
-$returnto = array("ac" => "pbaactivityaccolades.php?yid=$getyear", "tm" => "pbaactivityteams.php?yid=$getyear&tid=$getactref");
+$returnto = array("ac" => "pbaactivityaccolades.php?yid=$getyear", "tm" => "pbaactivityteams.php?yid=$getyear&tid=$getactref",
+"in" => "pbaactivityincident.php");
 echo '<a class="buttonlink" href="'.$returnto[$getactivity].'">Back</a>';
 ?>
 

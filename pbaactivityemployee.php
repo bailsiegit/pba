@@ -114,11 +114,12 @@ if(isset($_GET['yid']))
 //table to layout top area
 echo '<table style="width:100%;"><tr>';
 echo '<td style="width:50%; border:0px; background-color:white;">';
+//add the sub menu	
+require('pbaincludes/pbaactivitiesmenu.php');
 // page header
 echo '<h2>Display Employees List</h2>';
 
-//add the sub menu	
-require('pbaincludes/pbaactivitiesmenu.php');
+
 ?>
 <!--search criteria form-->
 <div><br>

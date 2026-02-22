@@ -8,6 +8,7 @@ echo '<a href="pbaactivityawards.php" class="submenu">Awards</a>';
 echo '<a href="pbaactivityaccolades.php" class="submenu">Accolades</a>';
 echo '<a href="pbaactivityvolunteers.php" class="submenu">Volunteers</a>';
 echo '<a href="pbaactivityemployee.php" class="submenu">Employees</a>';
+echo '<a href="pbaactivityincident.php" class="submenu">Incident</a>';
 
 ?>
 </div>

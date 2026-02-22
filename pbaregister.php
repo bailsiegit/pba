@@ -67,7 +67,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 				<p><a href="pbalogin.php">Login</a></p>';
 			}
 			mysqli_close($link);
-			include('pbaincludes/pbafooter.html"');
+			include('pbaincludes/pbafooter.html');
 			echo '</body>';
 			echo '</html>';
 			exit();
