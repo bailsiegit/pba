@@ -18,6 +18,9 @@ include('pbaincludes/pbaheader.html');
 $_SESSION['timeoutstart'] = time(); //reset login timeout marker
 
 ?>
+<?php
+include('pbaincludes/pbadocsmenu.php');
+?>
 <h2>Document Search</h2>
 <?php
 # check the user has access to this page
@@ -30,13 +33,19 @@ if($_SESSION['accesslevel'] < 1)
 
 <!-- search form -->
 <form action="pbadocsearch.php" method = "POST"> 
-Keyword/s: <input size="60" type="text" name="keywords">
-Document Year <span style="font-size:0.7em">(Optional)</span>: <input type="number" name="searchyear" min="1963" max="2050">
-<input type="submit" name="searchbutton" value="Search">
+Keyword/s: <input size="60" type="text" name="keywords"><br>
+Document Year: <span style="font-size:0.7em">(Optional)</span>: <input type="number" name="searchyear" min="1963" max="2050">
+Category <span style="font-size:0.7em">(Optional)</span>: <select name="doccategory" id="doccategory">
+<option value="a">Select a category...</option>
+<option value="tm">Team</option>
+<option value="cm">Committee</option>
+<option value="in">Incident</option>
+<option value="gn">General</option>
+<option value="vl">Volunteer</option>
+</select>
+<input style="margin:2px" type="submit" name="searchbutton" value="Search">
 </form>
-<?php
-include('pbaincludes/pbadocsmenu.php');
-?>
+
 <hr>
 
 <?php
@@ -46,64 +55,108 @@ if(isset($_POST['searchbutton']))
 	require("../connecttopba.php"); //connect to database
 	// sanitise inputs
 	$kw = mysqli_real_escape_string($link,trim($_POST['keywords']));
+	$sy = mysqli_real_escape_string($link,trim($_POST['searchyear']));
+	$sc = mysqli_real_escape_string($link,trim($_POST['doccategory']));
+
 	// split keywords into array of separate words
+	// get first keyword
 	$word = strtok($kw, " ");
-	//$keywords = array();
+	// work through collecting all keywords
 	while($word !== false)
 	{
 		$keywords[] = $word;
 		$word = strtok(" ");
 	}
-	// if no search criteria entered, abandon Search
-	if(isset($keywords))
+	//convert text year input to YearId
+	if(isset($_POST['searchyear']))
+	{
+		$q = "SELECT YearId FROM years WHERE YearText = ?";
+		$stmt = mysqli_prepare($link, $q);
+		mysqli_stmt_bind_param($stmt, "i", $_POST['searchyear']);
+		mysqli_stmt_execute($stmt);
+		$ry = mysqli_stmt_get_result($stmt);
+		$rowy = mysqli_fetch_array($ry, MYSQLI_ASSOC);
+		// search YearId is now $rowy['YearId']
+	}
+	$qkw = "";
+	$datatype = "";
+	
+	// if any criteria has been entered, process search, otherwise abandon Search
+	if(!empty($keywords) || !empty($_POST['searchyear']) || $_POST['doccategory'] !== "a")
 	{
 		// search query
-		// category translation array
-		$activity = array("cm" => "committees", "aw" => "awards", "tm" => "teams", "em" => "employees", 
-		"vl" => "volunteers", "mb" => "members", "gn" => "general");
-		// for each keyword find matching records
-		foreach($keywords as $index => $value)
+		// search with no keywords
+
+		if(!empty($_POST['searchyear']))
 		{
-			if(!empty($_POST['searchyear'])) //if year field entered, add to search criteria
-			{
-				$q = "SELECT YearId FROM years WHERE YearText = ?";
-				$stmt = mysqli_prepare($link, $q);
-				mysqli_stmt_bind_param($stmt, "i", $_POST['searchyear']);
-				mysqli_stmt_execute($stmt);
-				$ry = mysqli_stmt_get_result($stmt);
-				$rowy = mysqli_fetch_array($ry, MYSQLI_ASSOC);
-				$wildvalue = "%$value%";
-				$q = 'SELECT DocumentId FROM documents WHERE DocName LIKE ? AND YearId = ?';
-				$stmt = mysqli_prepare($link, $q);
-				mysqli_stmt_bind_param($stmt, "si", $wildvalue, $rowy['YearId']);
-				mysqli_stmt_execute($stmt);
-				$r = mysqli_stmt_get_result($stmt);
-				if(mysqli_num_rows($r) > 0) //did the search return any results?
-				{
-					while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
-					{
-						$alldocids[] = $row['DocumentId']; //put all found document ids into array
-					}
-				}
-			}
-			else //if year not set only search doc name
-			{
-				$wildvalue = "%$value%";
-				$q = 'SELECT DocumentId FROM documents WHERE DocName LIKE ?';
-				$stmt = mysqli_prepare($link, $q);
-				mysqli_stmt_bind_param($stmt, "s", $wildvalue);
-				mysqli_stmt_execute($stmt);
-				$r = mysqli_stmt_get_result($stmt);
-				if(mysqli_num_rows($r) > 0) //did the search return any results?
-				{
-					while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
-					{
-						$alldocids[] = $row['DocumentId']; //put all found document ids into array
-					}
-				}
-			}
-		}	
+			$where[] = "YearId = ?";
+			$datatype .= "i";
+			$criteria[] = $rowy['YearId'];
+		}
 		
+		if($_POST['doccategory'] !== "a")
+		{
+			$where[] = "Activity = ?";
+			$datatype .= "s";
+			$criteria[] = $sc;
+		}
+		
+		if(!isset($keywords))
+		{	
+			$q = 'SELECT DocumentId FROM documents WHERE '.implode(" AND ", $where);
+			$stmt = mysqli_prepare($link, $q);
+			mysqli_stmt_bind_param($stmt, $datatype, ...$criteria);
+			mysqli_stmt_execute($stmt);
+			$r = mysqli_stmt_get_result($stmt);
+			if(mysqli_num_rows($r) > 0) //did the search return any results?
+			{
+				while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
+				{
+					$alldocids[] = $row['DocumentId']; //put all found document ids into array
+				}
+			}
+		}
+		else
+		{
+			// for each keyword find matching records
+			foreach($keywords as $index => $value)
+			{
+				if(isset($where)) //if year and/or category field entered, add to search criteria
+				{
+					//$wildvalue = "%$value%";
+					array_unshift($criteria, "%$value%");
+					$datatype = "s".$datatype;
+					$q = 'SELECT DocumentId FROM documents WHERE DocName LIKE ? AND '.implode(" AND ",$where);
+					$stmt = mysqli_prepare($link, $q);
+					mysqli_stmt_bind_param($stmt, $datatype, ...$criteria);
+					mysqli_stmt_execute($stmt);
+					$r = mysqli_stmt_get_result($stmt);
+					if(mysqli_num_rows($r) > 0) //did the search return any results?
+					{
+						while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
+						{
+							$alldocids[] = $row['DocumentId']; //put all found document ids into array
+						}
+					}
+				}
+				else //if year and category not set only search doc name
+				{
+					$wildvalue = "%$value%";
+					$q = 'SELECT DocumentId FROM documents WHERE DocName LIKE ?';
+					$stmt = mysqli_prepare($link, $q);
+					mysqli_stmt_bind_param($stmt, "s", $wildvalue);
+					mysqli_stmt_execute($stmt);
+					$r = mysqli_stmt_get_result($stmt);
+					if(mysqli_num_rows($r) > 0) //did the search return any results?
+					{
+						while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
+						{
+							$alldocids[] = $row['DocumentId']; //put all found document ids into array
+						}
+					}
+				}
+			}	
+		}
 		if(!isset($alldocids)) //if alldocids not set, nothing found
 		{
 			echo "<br>No results found<br><br>";
@@ -111,6 +164,9 @@ if(isset($_POST['searchbutton']))
 		else
 		{
 			array_unique($alldocids); //remove duplicate doc ids from array
+			// category translation array
+			$activity = array("cm" => "committees", "aw" => "awards", "tm" => "teams", "em" => "employees", 
+			"vl" => "volunteers", "mb" => "members", "gn" => "general");
 			$docids = "";
 			foreach($alldocids as $index => $value)
 			{
