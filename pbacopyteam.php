@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 9/3/2026 - fixed query populating select box
 //this page is for copying a team from one year to the next
 //the person and role is copied across to the new team
 //when doen the new team is displayed
@@ -170,12 +170,19 @@ while($pbateams = mysqli_fetch_array($r, MYSQLI_ASSOC))
 
 <?php
 // load team details
-$teamQuery = "SELECT tmbid, rl, gp, tn, mbid, members.FirstName, members.LastName, tmid, yrid FROM
-	(SELECT teammembers.TeamMembId, Role, GamesPlayed, teams.TeamName, MembId, teammembers.TeamId, teammembers.Year FROM ((teammembers 
-	INNER JOIN years ON teammembers.Year = years.YearId)
-	INNER JOIN teams ON teammembers.TeamId = teams.TeamId) WHERE teammembers.Year = ? AND teammembers.TeamId = ?) 
-	teamdata (tmbid, rl, gp, tn, mbid, tmid, yrid) 
-	INNER JOIN members ON teamdata.mbid = members.MemberID";
+$teamQuery = "
+SELECT
+tm.TeamMembId,
+tm.Role,
+tm.MembId,
+m.FirstName,
+m.LastName
+FROM teammembers tm
+INNER JOIN members m
+ON tm.MembId = m.MemberID
+WHERE tm.Year = ?
+AND tm.TeamId = ?";
+
 require('../connecttopba.php');
 $stmt = mysqli_prepare($link, $teamQuery);
 mysqli_stmt_bind_param($stmt, "ii", $formyear, $formteam);
@@ -191,15 +198,15 @@ if (mysqli_num_rows($teamResult) > 0)
 	echo '<select size="10" name="selectedcopy[]" id="selectedcopy" multiple>';
 	while ($team = mysqli_fetch_assoc($teamResult)) 
 	{
-		if(empty($team['rl']))
+		if(empty($team['Role']))
 		{
 			//if no role, show only names
-			echo '<option value='.$team['tmbid'].'>'.$team['FirstName'].' '.$team['LastName'].'</option>';
+			echo '<option value='.$team['TeamMembId'].'>'.$team['FirstName'].' '.$team['LastName'].'</option>';
 		}
 		else
 		{
 			//if role exists add hyphen and role to names
-			echo '<option value='.$team['tmbid'].'>'.$team['FirstName'].' '.$team['LastName'].' - '.$team['rl'].'</option>';
+			echo '<option value='.$team['TeamMembId'].'>'.$team['FirstName'].' '.$team['LastName'].' - '.$team['Role'].'</option>';
 		}
 	}
 	echo '</select>';
