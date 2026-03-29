@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/1/2025
+//Rev 2 29/3/2026 - fixed upload path issue
 //this page is in the documents group 
 //it provides an upload facility for general Documents
 // general documents are those not associated with a specific activity
@@ -88,7 +88,11 @@ if(isset($_POST['uploadfile']) && !empty($_POST['docname']) && !empty($_FILES['f
 	$tmpfullpath = $_FILES['filname']['tmp_name'];
 	$fileextension = pathinfo($_FILES['filname']['name'], PATHINFO_EXTENSION);
 	$newfilename = 'gn'.$newfileindex.'.'.$fileextension;
-	$newfullpath = "C:\wamp64\www\\documents\\gn\\$newfilename";
+	//$newfullpath = "C:\wamp64\www\\documents\\gn\\$newfilename";
+	$root = dirname($_SERVER['DOCUMENT_ROOT']); // one level above public_html
+	$uploadDir = $root . "/documents/gn/";
+	$newfullpath = $uploadDir . $newfilename;
+	
 	date_default_timezone_set("Australia/Perth");
 	$lastsaved = date("Y-m-d H:i", time());
 	rename($tmpfullpath, $newfullpath);
