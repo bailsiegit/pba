@@ -56,7 +56,7 @@ if(isset($_POST['update'])) //has form been submitted
 	if($addedgames != 0)
 	{
 		require('../connecttopba.php');
-		$q = "UPDATE teammembers SET GamesPlayed = ? WHERE TeamId = ? AND MembId = ? AND Year = ?";
+		$q = "UPDATE teammembers SET GamesPlayed = ? WHERE TeamId = ? AND MembId = ? AND YearId = ?";
 		$stmt = mysqli_prepare($link, $q);
 		mysqli_stmt_bind_param($stmt, "iiii", $games, $formteam, $formpid, $formyear);
 		mysqli_stmt_execute($stmt);

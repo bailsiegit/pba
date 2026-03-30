@@ -25,7 +25,7 @@ if(isset($_GET['tid'])) //check task is to delete a team member
 	$yearid = htmlentities($_GET['yid']);
 	$personid = htmlentities($_GET['pid']);
 	$teamid = htmlentities($_GET['tid']);
-	$q = "DELETE FROM teammembers WHERE TeamId = ? AND Year = ? AND MembId = ?";
+	$q = "DELETE FROM teammembers WHERE TeamId = ? AND YearId = ? AND MembId = ?";
 	require('../connecttopba.php');
 	$stmt = mysqli_prepare($link, $q);
 	mysqli_stmt_bind_param($stmt, "iii", $teamid, $yearid, $personid);
@@ -57,7 +57,7 @@ if(isset($_GET['cid'])) //check task is to delete a committee member
 	$yearid = htmlentities($_GET['yid']);
 	$personid = htmlentities($_GET['pid']);
 	$commid = htmlentities($_GET['cid']);
-	$q = "DELETE FROM committeememb WHERE CommId = ? AND Year = ? AND MembId = ?";
+	$q = "DELETE FROM committeememb WHERE CommId = ? AND YearId = ? AND MembId = ?";
 	require('../connecttopba.php');
 	$stmt = mysqli_prepare($link, $q);
 	mysqli_stmt_bind_param($stmt, "iii", $commid, $yearid, $personid);

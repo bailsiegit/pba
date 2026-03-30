@@ -76,7 +76,7 @@ class PDF extends FPDF
 		$pdf->SetFont('Arial', '', 10);
 		
 		$q = "SELECT years.YearText, membertypes.Type FROM ((memberships 
-		INNER JOIN years ON memberships.Year = years.YearId)
+		INNER JOIN years ON memberships.YearId = years.YearId)
 		INNER JOIN membertypes ON membertypes.MemBTypeId = memberships.Mtype) WHERE MembId = ? ORDER BY YearText DESC";
 		require('../connecttopba.php');
 		$stmt = mysqli_prepare($link, $q);
@@ -115,7 +115,7 @@ class PDF extends FPDF
 		$pdf->SetFont('Arial', '', 10);
 		
 		$q = "SELECT Role, GamesPlayed, years.YearText, teams.TeamName FROM ((teammembers 
-		INNER JOIN years ON teammembers.Year = years.YearId)
+		INNER JOIN years ON teammembers.YearId = years.YearId)
 		INNER JOIN teams ON teammembers.TeamId = teams.TeamId) WHERE MembId = ? ORDER BY YearText DESC";
 		require('../connecttopba.php');
 		$stmt = mysqli_prepare($link, $q);
@@ -155,7 +155,7 @@ class PDF extends FPDF
 		$pdf->SetFont('Arial', '', 10);
 		
 		$q = "SELECT Role, years.YearText, years.YearId, committees.CommitteeName FROM ((committeememb 
-		INNER JOIN years ON committeememb.Year = years.YearId)
+		INNER JOIN years ON committeememb.YearId = years.YearId)
 		INNER JOIN committees ON committeememb.CommId = Committees.CommitteeId) WHERE MembId = ? ORDER BY YearText DESC";		
 		require('../connecttopba.php');
 		$stmt = mysqli_prepare($link, $q);
@@ -194,7 +194,7 @@ class PDF extends FPDF
 		$pdf->SetFont('Arial', '', 10);
 		
 		$q = "SELECT Role, years.YearText FROM volunteers 
-		INNER JOIN years ON volunteers.Year = years.YearId
+		INNER JOIN years ON volunteers.YearId = years.YearId
 		WHERE MembId = ? ORDER BY YearText DESC";	
 		require('../connecttopba.php');
 		$stmt = mysqli_prepare($link, $q);
@@ -271,7 +271,7 @@ class PDF extends FPDF
 		$pdf->SetFont('Arial', '', 10);
 		
 		$q = "SELECT Role, years.YearText FROM employees 
-		INNER JOIN years ON employees.Year = years.YearId
+		INNER JOIN years ON employees.YearId = years.YearId
 		WHERE MembId = ? ORDER BY YearText DESC";
 		require('../connecttopba.php');
 		$stmt = mysqli_prepare($link, $q);

@@ -44,9 +44,9 @@ if(isset($_POST['downloadteam']) && $_POST['selectedteam'] > 0) {
 		teams.TeamName AS tn, 
 		MembId AS mbid 
 		FROM teammembers 
-		INNER JOIN years ON teammembers.Year = years.YearId
+		INNER JOIN years ON teammembers.YearId = years.YearId
 		INNER JOIN teams ON teammembers.TeamId = teams.TeamId 
-		WHERE teammembers.Year = ? AND teammembers.TeamId = ?)  
+		WHERE teammembers.YearId = ? AND teammembers.TeamId = ?)  
 		AS teamdata  
 		INNER JOIN members ON teamdata.mbid = members.MemberID';
 		$stmt = mysqli_prepare($link, $q);
@@ -82,7 +82,7 @@ if(isset($_POST['addperson']) && $_POST['selectname'] > 0 && $_POST['selectedtea
 	$formteam = htmlentities($_POST['selectedteam']);
 	require('../connecttopba.php');
 	// use IGNORE to prevent errors if new record is a duplicate	
-	$q = "INSERT IGNORE INTO teammembers (MembId, Role, TeamId, Year) VALUES (?, ?, ?, ?)";
+	$q = "INSERT IGNORE INTO teammembers (MembId, Role, TeamId, YearId) VALUES (?, ?, ?, ?)";
 	$stmt = mysqli_prepare($link, $q);
 	mysqli_stmt_bind_param($stmt, "isii", $formperson, $formrole, $formteam, $formyear);
 	mysqli_stmt_execute($stmt);

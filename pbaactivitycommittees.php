@@ -45,9 +45,9 @@ if(isset($_POST['downloadcommittee']) && $_POST['selectedcommittee'] > 0)
 		committees.CommitteeName AS cn, 
 		MembId AS mbid 
 		FROM committeememb 
-		INNER JOIN years ON committeememb.Year = years.YearId
+		INNER JOIN years ON committeememb.YearId = years.YearId
 		INNER JOIN committees ON committeememb.CommId = committees.CommitteeId 
-		WHERE committeememb.Year = ? AND committeememb.CommId = ?) 
+		WHERE committeememb.YearId = ? AND committeememb.CommId = ?) 
 		AS committeedata 
 		INNER JOIN members ON committeedata.mbid = members.MemberID';
 		$stmt = mysqli_prepare($link, $q);
@@ -82,7 +82,7 @@ if(isset($_POST['addperson']) && $_POST['selectname'] > 0 && $_POST['selectedcom
 	$formcommittee = htmlentities($_POST['selectedcommittee']);
 	require('../connecttopba.php');
 	//add record use IGNORE to prevent error if record is a duplicate
-	$q = "INSERT IGNORE INTO committeememb (MembId, Role, CommId, Year) VALUES (?, ?, ?, ?)";
+	$q = "INSERT IGNORE INTO committeememb (MembId, Role, CommId, YearId) VALUES (?, ?, ?, ?)";
 	$stmt = mysqli_prepare($link, $q);
 	mysqli_stmt_bind_param($stmt, "isii", $formperson, $formrole, $formcommittee, $formyear);
 	mysqli_stmt_execute($stmt);

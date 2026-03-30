@@ -52,7 +52,7 @@ if(isset($_POST['copyteam']))
 			$r = mysqli_stmt_get_result($stmt);
 			$record = mysqli_fetch_assoc($r);
 			//create new record
-			$q = "INSERT IGNORE INTO teammembers (MembId, Role, TeamId, Year) VALUES (?, ?, ?, ?)";
+			$q = "INSERT IGNORE INTO teammembers (MembId, Role, TeamId, YearId) VALUES (?, ?, ?, ?)";
 			$stmt = mysqli_prepare($link, $q);
 			mysqli_stmt_bind_param($stmt, "isii", $record['MembId'], $record['Role'], $_POST['selectedteam'], $_POST['selectedyear']);
 			mysqli_stmt_execute($stmt);
@@ -165,9 +165,9 @@ while($pbateams = mysqli_fetch_array($r, MYSQLI_ASSOC))
 <?php
 // load team details
 $teamQuery = "SELECT tmbid, rl, gp, tn, mbid, members.FirstName, members.LastName, tmid, yrid FROM
-	(SELECT teammembers.TeamMembId, Role, GamesPlayed, teams.TeamName, MembId, teammembers.TeamId, teammembers.Year FROM ((teammembers 
-	INNER JOIN years ON teammembers.Year = years.YearId)
-	INNER JOIN teams ON teammembers.TeamId = teams.TeamId) WHERE teammembers.Year = ? AND teammembers.TeamId = ?) 
+	(SELECT teammembers.TeamMembId, Role, GamesPlayed, teams.TeamName, MembId, teammembers.TeamId, teammembers.YearId FROM ((teammembers 
+	INNER JOIN years ON teammembers.YearId = years.YearId)
+	INNER JOIN teams ON teammembers.TeamId = teams.TeamId) WHERE teammembers.YearId = ? AND teammembers.TeamId = ?) 
 	teamdata (tmbid, rl, gp, tn, mbid, tmid, yrid) 
 	INNER JOIN members ON teamdata.mbid = members.MemberID";
 require('../connecttopba.php');

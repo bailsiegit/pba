@@ -58,7 +58,7 @@ if(isset($_POST['copycommittee']))
 			$r = mysqli_stmt_get_result($stmt);
 			$record = mysqli_fetch_assoc($r);
 			//create new record
-			$q = "INSERT IGNORE INTO committeememb (MembId, Role, CommId, Year) VALUES (?, ?, ?, ?)";
+			$q = "INSERT IGNORE INTO committeememb (MembId, Role, CommId, YearId) VALUES (?, ?, ?, ?)";
 			$stmt = mysqli_prepare($link, $q);
 			mysqli_stmt_bind_param($stmt, "isii", $record['MembId'], $record['Role'], $selectedcommittee, $selectedyear);
 			mysqli_stmt_execute($stmt);
@@ -171,9 +171,9 @@ while($pbacommittees = mysqli_fetch_array($r, MYSQLI_ASSOC))
 <?php
 // load committee details
 $committeeQuery = "SELECT cmbid, rl, cn, mbid, members.FirstName, members.LastName, cmid, yrid FROM
-	(SELECT committeememb.CommMembId, Role, committees.CommitteeName, MembId, committeememb.CommId, committeememb.Year FROM ((committeememb 
-	INNER JOIN years ON committeememb.Year = years.YearId)
-	INNER JOIN committees ON committeememb.CommId = committees.CommitteeId) WHERE committeememb.Year = ? AND committeememb.CommId = ?) 
+	(SELECT committeememb.CommMembId, Role, committees.CommitteeName, MembId, committeememb.CommId, committeememb.YearId FROM ((committeememb 
+	INNER JOIN years ON committeememb.YearId = years.YearId)
+	INNER JOIN committees ON committeememb.CommId = committees.CommitteeId) WHERE committeememb.YearId = ? AND committeememb.CommId = ?) 
 	committeedata (cmbid, rl, cn, mbid, cmid, yrid) 
 	INNER JOIN members ON committeedata.mbid = members.MemberID";
 require('../connecttopba.php');

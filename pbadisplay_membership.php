@@ -50,9 +50,9 @@ $membershipQuery = "SELECT mbid, mn, st, msid, end, rc, members.FirstName, membe
 	receipt AS rc, 
 	MshipId AS msid 
 	FROM memberships 
-	INNER JOIN years ON memberships.Year = years.YearId
+	INNER JOIN years ON memberships.YearId = years.YearId
 	INNER JOIN membertypes ON memberships.Mtype = membertypes.MemBTypeId 
-	WHERE memberships.Year = ? AND memberships.Mtype = ?) 
+	WHERE memberships.YearId = ? AND memberships.Mtype = ?) 
 	AS membershipdata 
 	INNER JOIN members ON membershipdata.mbid = members.MemberID";
 $stmt = mysqli_prepare($link, $membershipQuery);
