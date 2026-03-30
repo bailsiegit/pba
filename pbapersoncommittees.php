@@ -51,12 +51,9 @@ echo '<h2>'.$person['FirstName'].' '.$person['LastName'].'</h2>';
 require('pbaincludes/pbapersonmenu.php');
 
 // get a list of all the committees the person has been on
-//$q = 'SELECT Role, years.YearText, years.YearId, committees.CommitteeName, committees.CommitteeId FROM ((committeememb 
-//INNER JOIN years ON committeememb.Year = years.YearId)
-// INNER JOIN committees ON committeememb.CommId = Committees.CommitteeId) WHERE MembId = '.$pid.' ORDER BY YearText DESC';
 $q = 'SELECT Role, years.YearText, years.YearId, committees.CommitteeName, committees.CommitteeId 
 FROM committeememb 
-INNER JOIN years ON committeememb.Year = years.YearId
+INNER JOIN years ON committeememb.YearId = years.YearId
  INNER JOIN committees ON committeememb.CommId = committees.CommitteeId 
  WHERE MembId = ? 
  ORDER BY YearText DESC';

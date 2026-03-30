@@ -48,7 +48,7 @@ echo '<h2>'.$person['FirstName'].' '.$person['LastName'].'</h2>';
 require('pbaincludes/pbapersonmenu.php');
 
 // get a list of all the employee roles the person has done
-$q = 'SELECT Role, years.YearText FROM employees INNER JOIN years ON employees.Year = years.YearId
+$q = 'SELECT Role, years.YearText FROM employees INNER JOIN years ON employees.YearId = years.YearId
  WHERE MembId = ? ORDER BY YearText DESC';
 $stmt = mysqli_prepare($link, $q);
 mysqli_stmt_bind_param($stmt, "i", $pid);

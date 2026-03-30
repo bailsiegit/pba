@@ -29,7 +29,7 @@ $yeartext = mysqli_fetch_assoc($ryear);
 //find all committees for the yearid in the selectedyear combo (year parameter)
 $committeeQuery = "SELECT committeememb.CommId, CommitteeName FROM (committees 
 INNER JOIN committeememb ON committees.CommitteeId = committeememb.CommId) 
-WHERE committeememb.Year = ? GROUP BY CommitteeName";
+WHERE committeememb.YearId = ? GROUP BY CommitteeName";
 $stmt = mysqli_prepare($link, $committeeQuery);
 mysqli_stmt_bind_param($stmt, "i", $year);
 mysqli_stmt_execute($stmt);

@@ -31,7 +31,7 @@ $yeartext = mysqli_fetch_assoc($ryear);
 //get membership types with members for the selected year to populate combo box    
 $membtypesQuery = "SELECT memberships.Mtype, Type FROM (membertypes 
 INNER JOIN memberships ON membertypes.MemBTypeId = memberships.Mtype) 
-WHERE memberships.Year = ? GROUP BY Type";
+WHERE memberships.YearId = ? GROUP BY Type";
 $stmt = mysqli_prepare($link, $membtypesQuery);
 mysqli_stmt_bind_param($stmt, "i", $year);
 mysqli_stmt_execute($stmt);

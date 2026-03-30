@@ -53,9 +53,9 @@ $committeeQuery = 'SELECT rl, mbid, members.FirstName, members.LastName FROM
 	committees.CommitteeName AS cn, 
 	MembId AS mbid 
 	FROM committeememb 
-	INNER JOIN years ON committeememb.Year = years.YearId
+	INNER JOIN years ON committeememb.YearId = years.YearId
 	INNER JOIN committees ON committeememb.CommId = committees.CommitteeId 
-	WHERE committeememb.Year = ? AND committeememb.CommId = ?) 
+	WHERE committeememb.YearId = ? AND committeememb.CommId = ?) 
 	AS committeedata 
 	INNER JOIN members ON committeedata.mbid = members.MemberID';
 $stmt = mysqli_prepare($link, $committeeQuery);

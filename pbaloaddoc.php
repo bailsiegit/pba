@@ -86,9 +86,11 @@ if(isset($_POST['uploadfile']) && !empty($_POST['docname']) && !empty($_FILES['f
 	$maxfileindex = (is_null($maxrow['maxindex'])) ? 0 : $maxrow['maxindex'];
 	$newfileindex = str_pad((string) $maxfileindex + 1, 6, "0", STR_PAD_LEFT);
 	$tmpfullpath = $_FILES['filname']['tmp_name'];
+	echo 'tempname '.$_FILES['filname']['tmp_name'];
+	echo 'name '.$_FILES['filname']['name'];
 	$fileextension = pathinfo($_FILES['filname']['name'], PATHINFO_EXTENSION);
 	$newfilename = 'gn'.$newfileindex.'.'.$fileextension;
-	//$newfullpath = "C:\wamp64\www\\documents\\gn\\$newfilename";
+	//$newfullpath = "C:\wamp64\www\\documents\\gn\\$newfilename"; //use this in wamp64 and thenext 3 lines live
 	$root = dirname($_SERVER['DOCUMENT_ROOT']); // one level above public_html
 	$uploadDir = $root . "/documents/gn/";
 	$newfullpath = $uploadDir . $newfilename;

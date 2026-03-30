@@ -45,7 +45,7 @@ echo '<td style="width:50%; background:white; border:0px;">';
 //	$volunteerQuery = "SELECT years.YearText, volunteers.Role, volunteers.VolId, members.MemberId, members.FirstName, members.LastName 
 	//FROM members	 
 //	INNER JOIN volunteers ON members.MemberId = volunteers.MembId
-//	INNER JOIN years ON volunteers.Year = years.YearId 
+//	INNER JOIN years ON volunteers.YearId = years.YearId 
 //	WHERE volunteers.Role = ? 
 //	ORDER BY years.YearId DESC";
 //	$stmt = mysqli_prepare($link, $volunteerQuery);

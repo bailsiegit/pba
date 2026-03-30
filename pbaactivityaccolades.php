@@ -55,7 +55,7 @@ if(isset($_POST['downloadaccolades']))
 		//	members.Mobile, members.Email, members.Numberandstreet, members.Suburb 
 		//	FROM volunteers 
 		//	INNER JOIN members ON volunteers.MembId = members.MemberId
-		//	INNER JOIN years ON volunteers.Year = years.YearId 
+		//	INNER JOIN years ON volunteers.YearId = years.YearId 
 		//	WHERE volunteers.Role = ? 
 		//	ORDER BY years.YearId DESC";
 		//	$stmt = mysqli_prepare($link, $q);
