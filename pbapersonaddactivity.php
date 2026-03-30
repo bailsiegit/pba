@@ -62,7 +62,7 @@ if(isset($_POST['savechanges']))
 	$formteamrole = htmlentities(trim($_POST['teamrole']));
 	if($formteam > 0){
 		$countadds = $countadds + 1;
-		$sql = "INSERT IGNORE INTO teammembers (MembId, TeamId, Role, Year) VALUES (?, ?, ?, ?)";
+		$sql = "INSERT IGNORE INTO teammembers (MembId, TeamId, Role, YearId) VALUES (?, ?, ?, ?)";
 		//connect to database
 		require('../connecttopba.php');
 		// run insert query
@@ -76,7 +76,7 @@ if(isset($_POST['savechanges']))
 	$formmembershipstart = htmlentities(trim($_POST['membershipstart']));
 	if($formmembership > 0){
 		$countadds = $countadds + 1;
-		$sql = "INSERT IGNORE INTO memberships (MembId, Mtype, start, Year) VALUES (?, ?, ?, ?)";
+		$sql = "INSERT IGNORE INTO memberships (MembId, Mtype, start, YearId) VALUES (?, ?, ?, ?)";
 		//connect to database
 		require('../connecttopba.php');
 		// run insert query
@@ -90,7 +90,7 @@ if(isset($_POST['savechanges']))
 	$formcommitteerole = htmlentities(trim($_POST['committeerole']));
 	if($formcommittee > 0){
 		$countadds = $countadds + 1;
-		$sql = "INSERT IGNORE INTO committeememb (MembId, CommId, Role, Year) VALUES (?, ?, ?, ?)";
+		$sql = "INSERT IGNORE INTO committeememb (MembId, CommId, Role, YearId) VALUES (?, ?, ?, ?)";
 		//connect to database
 		require('../connecttopba.php');
 		// run insert query
@@ -104,7 +104,7 @@ if(isset($_POST['savechanges']))
 	$formawardcomment = htmlentities(trim($_POST['awardcomment']));
 	if($formaward > 0){
 		$countadds = $countadds + 1;
-		$sql = "INSERT IGNORE INTO awardwinners (MembId, AwardId, Comments, YearId) VALUES ($formmembid, $formaward, '$formawardcomment', $formyear)";
+		$sql = "INSERT IGNORE INTO awardwinners (MembId, AwardId, Comments, YearId) VALUES (?, ?, ?, ?)";
 		//connect to database
 		require('../connecttopba.php');
 		// run insert query
@@ -122,7 +122,7 @@ if(isset($_POST['savechanges']))
 	}
 	if(!empty($formvolunteerrole)){
 		$countadds = $countadds + 1;		
-		$sql = "INSERT INTO volunteers (MembId, Role, Year) VALUES (?, ?, ?)";
+		$sql = "INSERT INTO volunteers (MembId, Role, YearId) VALUES (?, ?, ?)";
 		//connect to database
 		require('../connecttopba.php');
 		// run insert query
@@ -140,7 +140,7 @@ if(isset($_POST['savechanges']))
 	}
 	if(!empty($formemployeerole)){
 		$countadds = $countadds + 1;		
-		$sql = "INSERT INTO employees (MembId, Role, Year) VALUES (?, ?, ?)";
+		$sql = "INSERT INTO employees (MembId, Role, YearId) VALUES (?, ?, ?)";
 		//connect to database
 		require('../connecttopba.php');
 		// run insert query

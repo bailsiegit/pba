@@ -58,7 +58,7 @@ if(isset($_POST['copyteam']))
 			$r = mysqli_stmt_get_result($stmt);
 			$record = mysqli_fetch_assoc($r);
 			//create new record
-			$q = "INSERT IGNORE INTO teammembers (MembId, Role, TeamId, Year) VALUES (?, ?, ?, ?)";
+			$q = "INSERT IGNORE INTO teammembers (MembId, Role, TeamId, YearId) VALUES (?, ?, ?, ?)";
 			$stmt = mysqli_prepare($link, $q);
 			mysqli_stmt_bind_param($stmt, "isii", $record['MembId'], $record['Role'], $selectedteam, $selectedyear);
 			mysqli_stmt_execute($stmt);
@@ -180,7 +180,7 @@ m.LastName
 FROM teammembers tm
 INNER JOIN members m
 ON tm.MembId = m.MemberID
-WHERE tm.Year = ?
+WHERE tm.YearId = ?
 AND tm.TeamId = ?";
 
 require('../connecttopba.php');

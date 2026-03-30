@@ -58,7 +58,7 @@ if(isset($_POST['copymembership']))
 			$r = mysqli_stmt_get_result($stmt);
 			$record = mysqli_fetch_assoc($r);
 			//create new record
-			$q = "INSERT IGNORE INTO memberships (MembId, start, Mtype, Year) VALUES (?, ?, ?, ?)";
+			$q = "INSERT IGNORE INTO memberships (MembId, start, Mtype, YearId) VALUES (?, ?, ?, ?)";
 			$stmt = mysqli_prepare($link, $q);
 			mysqli_stmt_bind_param($stmt, "isii", $record['MembId'], $strtoday, $selectedmembership, $selectedyear);
 			mysqli_stmt_execute($stmt);
@@ -172,9 +172,9 @@ while($pbamemberships = mysqli_fetch_array($r, MYSQLI_ASSOC))
 // load membership details
 $membershipQuery = "SELECT mbid, mn, st, msid, end, rc, members.FirstName, members.LastName FROM
 	(SELECT Mtype, MembId, start, end, receipt, MshipId FROM ((memberships 
-	INNER JOIN years ON memberships.Year = years.YearId)
+	INNER JOIN years ON memberships.YearId = years.YearId)
 	INNER JOIN membertypes ON memberships.Mtype = membertypes.MemBTypeId) 
-	WHERE memberships.Year = ? AND memberships.Mtype = ?) 
+	WHERE memberships.YearId = ? AND memberships.Mtype = ?) 
 	membershipdata (mn, mbid, st, end, rc, msid) 
 	INNER JOIN members ON membershipdata.mbid = members.MemberID";
 require('../connecttopba.php');

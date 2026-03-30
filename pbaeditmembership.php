@@ -49,9 +49,8 @@ if(isset($_POST['update'])) //has form been submitted
 	$formreceipt = htmlentities($_POST['receipt']);
 	$formstart = ($_POST['start'] == "") ? "0000-00-00" : htmlentities($_POST['start']);
 	$formend = ($_POST['end'] == "") ? "0000-00-00" : htmlentities($_POST['end']);
-	$formreceipt = (strlen($_POST['receipt']) > 0) ? ', receipt = "'.htmlentities($_POST['receipt']).'" ' : ', receipt = NULL';
 	require('../connecttopba.php');
-	$q = "UPDATE memberships SET start = ?, end = ?$formreceipt WHERE MshipId = ?";
+	$q = "UPDATE memberships SET start = ?, end = ?, receipt = ? WHERE MshipId = ?";
 	$stmt = mysqli_prepare($link, $q);
 	mysqli_stmt_bind_param($stmt, "sssi", $formstart, $formend, $formreceipt, $formmsid);
 	mysqli_stmt_execute($stmt);
@@ -74,8 +73,8 @@ require('../connecttopba.php');
 
 
 	$q = "SELECT mn, mbid, st, end, rc, members.FirstName, members.LastName, msid, yrid, yrtxt, mtid FROM 
-	(SELECT membertypes.Type, MembId, start, end, receipt, MshipId, Year, years.YearText, Mtype FROM ((memberships 
-	INNER JOIN years ON memberships.Year = years.YearId) 
+	(SELECT membertypes.Type, MembId, start, end, receipt, MshipId, memberships.YearId, years.YearText, Mtype FROM ((memberships 
+	INNER JOIN years ON memberships.YearId = years.YearId) 
 	INNER JOIN membertypes ON memberships.Mtype = membertypes.MemBTypeId) 
 	WHERE memberships.MshipId = ?) 
 	membershipdata (mn, mbid, st, end, rc, msid, yrid, yrtxt, mtid) 

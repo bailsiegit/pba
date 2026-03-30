@@ -43,8 +43,8 @@ if(isset($_POST['downloademployee']))
 			members.Email, members.Numberandstreet, members.Suburb 
 			FROM employees 
 			INNER JOIN members ON employees.MembId = members.MemberId
-			INNER JOIN years ON employees.Year = years.YearId 
-			WHERE employees.Year = ?";
+			INNER JOIN years ON employees.YearId = years.YearId 
+			WHERE employees.YearId = ?";
 			$stmt = mysqli_prepare($link, $q);
 			mysqli_stmt_bind_param($stmt, "i", $formyear);
 		}
@@ -54,7 +54,7 @@ if(isset($_POST['downloademployee']))
 			members.Email, members.Numberandstreet, members.Suburb 
 			FROM employees 
 			INNER JOIN members ON employees.MembId = members.MemberId
-			INNER JOIN years ON employees.Year = years.YearId
+			INNER JOIN years ON employees.YearId = years.YearId
 			WHERE employees.Role = ? 
 			ORDER BY years.YearId DESC";
 			$stmt = mysqli_prepare($link, $q);
@@ -94,7 +94,7 @@ if(isset($_POST['addperson']) && $_POST['selectname'] > 0 && !empty($_POST['volu
 	require('../connecttopba.php');
 	
 	//IGNORE will skip error if new entry is a duplicate
-	$q = "INSERT IGNORE INTO employees (MembId, Role, Year) VALUES (?, ?, ?)";
+	$q = "INSERT IGNORE INTO employees (MembId, Role, YearId) VALUES (?, ?, ?)";
 	$stmt = mysqli_prepare($link, $q);
 	mysqli_stmt_bind_param($stmt, "isi", $formperson, $formrole, $formyear);
 	mysqli_stmt_execute($stmt);
@@ -168,7 +168,7 @@ Select employees by role:
 $q = "SELECT COUNT(MembId) as Qty, Role 
 FROM employees
 INNER JOIN members ON employees.MembId = members.MemberId
-INNER JOIN years on employees.Year = years.YearId 
+INNER JOIN years on employees.YearId = years.YearId 
 GROUP BY Role 
 ORDER BY Qty DESC";
 require('../connecttopba.php');

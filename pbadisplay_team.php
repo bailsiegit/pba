@@ -41,10 +41,10 @@ $teamQuery = "SELECT rl, gp, tn, mbid, members.FirstName, members.LastName, tmid
 	teams.TeamName AS tn, 
 	MembId AS mbid, 
 	teammembers.TeamId AS tmid, 
-	teammembers.Year AS yrid 
+	teammembers.YearId AS yrid 
 	FROM teammembers 
-	INNER JOIN years ON teammembers.Year = years.YearId
-	INNER JOIN teams ON teammembers.TeamId = teams.TeamId WHERE teammembers.Year = ? AND teammembers.TeamId = ?) 
+	INNER JOIN years ON teammembers.YearId = years.YearId
+	INNER JOIN teams ON teammembers.TeamId = teams.TeamId WHERE teammembers.YearId = ? AND teammembers.TeamId = ?) 
 	AS teamdata 
 	INNER JOIN members ON teamdata.mbid = members.MemberID";
 $stmt = mysqli_prepare($link, $teamQuery);

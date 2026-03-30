@@ -52,7 +52,7 @@ class PDF extends FPDF
 		$q = "SELECT membertypes.Type, members.FirstName, members.LastName FROM ((members 
 		INNER JOIN memberships ON members.MemberId = memberships.MembId) 
 		INNER JOIN membertypes ON memberships.Mtype = membertypes.MemBTypeId) 
-		WHERE memberships.Year = ? AND memberships.end = '0000-00-00' AND (memberships.Mtype = 1 OR memberships.Mtype = 3) ORDER BY LastName";
+		WHERE memberships.YearId = ? AND memberships.end = '0000-00-00' AND (memberships.Mtype = 1 OR memberships.Mtype = 3) ORDER BY LastName";
 		$stmt = mysqli_prepare($link, $q);
 		mysqli_stmt_bind_param($stmt, "i", $formyear);
 		mysqli_stmt_execute($stmt);

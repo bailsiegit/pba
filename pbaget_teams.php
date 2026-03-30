@@ -30,7 +30,7 @@ $yeartext = mysqli_fetch_assoc($ryear);
 //find teams that have members for selected year
 $teamQuery = "SELECT teammembers.TeamId, TeamName FROM (teams 
 INNER JOIN teammembers ON teams.TeamId = teammembers.TeamId) 
-WHERE teammembers.Year = ? GROUP BY TeamName";
+WHERE teammembers.YearId = ? GROUP BY TeamName";
 $stmt = mysqli_prepare($link, $teamQuery);
 mysqli_stmt_bind_param($stmt, "i", $year);
 mysqli_stmt_execute($stmt);

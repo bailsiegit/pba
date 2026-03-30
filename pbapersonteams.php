@@ -50,7 +50,7 @@ require('pbaincludes/pbapersonmenu.php');
 
 // get a list of all the teams the person has been on
 $q = 'SELECT Role, GamesPlayed, years.YearText, years.YearId, teams.TeamId, teams.TeamName FROM ((teammembers 
-INNER JOIN years ON teammembers.Year = years.YearId)
+INNER JOIN years ON teammembers.YearId = years.YearId)
  INNER JOIN teams ON teammembers.TeamId = teams.TeamId) WHERE MembId = ? ORDER BY YearText DESC';
 $stmt = mysqli_prepare($link, $q);
 mysqli_stmt_bind_param($stmt, "i", $pid);

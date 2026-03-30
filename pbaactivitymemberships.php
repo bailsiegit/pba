@@ -39,9 +39,9 @@ if(isset($_POST['downloadmembership']) && $_POST['selectedmembership'] > 0) {
 		require('../connecttopba.php');
 		$q = 'SELECT yr, mn, members.FirstName, members.LastName, members.Mobile, members.Email, members.Numberandstreet, members.Suburb FROM	
 		(SELECT years.YearText, membertypes.Type, MembId FROM ((memberships 
-		INNER JOIN years ON memberships.Year = years.YearId)
+		INNER JOIN years ON memberships.YearId = years.YearId)
 		INNER JOIN membertypes ON memberships.Mtype = membertypes.MemBTypeId) 
-		WHERE memberships.Year = ? AND memberships.Mtype = ?) 
+		WHERE memberships.YearId = ? AND memberships.Mtype = ?) 
 		membershipdata (yr, mn, mbid) 
 		INNER JOIN members ON membershipdata.mbid = members.MemberID';
 		$stmt = mysqli_prepare($link, $q);
@@ -77,7 +77,7 @@ if(isset($_POST['addperson']) && $_POST['selectname'] > 0 && $_POST['selectedmem
 	require('../connecttopba.php');
 	//check if new entry is a duplicate
 	
-	$q = "INSERT IGNORE INTO memberships (MembId, Mtype, Year) VALUES (?, ?, ?)";
+	$q = "INSERT IGNORE INTO memberships (MembId, Mtype, YearId) VALUES (?, ?, ?)";
 	$stmt = mysqli_prepare($link, $q);
 	mysqli_stmt_bind_param($stmt, "iii", $formperson, $formmembership, $formyear);
 	mysqli_stmt_execute($stmt);

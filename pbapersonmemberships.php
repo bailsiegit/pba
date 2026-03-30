@@ -49,7 +49,7 @@ require('pbaincludes/pbapersonmenu.php');
 
 // get a list of all the teams the person has been on
 $q = 'SELECT start, end, years.YearText, membertypes.Type FROM ((memberships 
-INNER JOIN years ON memberships.Year = years.YearId)
+INNER JOIN years ON memberships.YearId = years.YearId)
  INNER JOIN membertypes ON membertypes.MemBTypeId = memberships.Mtype) WHERE MembId = ? ORDER BY YearText DESC';
 $stmt = mysqli_prepare($link, $q);
 mysqli_stmt_bind_param($stmt, "i", $pid);

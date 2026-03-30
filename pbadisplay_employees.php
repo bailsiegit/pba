@@ -33,25 +33,20 @@ echo '<table style="width:100%;"><tr>';
 echo '<td style="width:50%; background:white; border:0px;">';
 if(strlen($getrole) == 1)//if $getrole is zero then display for selected year
 {
-	//$volunteerQuery = "SELECT employees.Role, employees.EmpId, members.MemberId, members.FirstName, members.LastName FROM members	 
-	//INNER JOIN employees ON members.MemberId = employees.MembId WHERE employees.Year = $getyear";
 	$employeeQuery = "SELECT employees.Role, employees.EmpId, members.MemberId, members.FirstName, members.LastName 
 	FROM members	 
 	INNER JOIN employees ON members.MemberId = employees.MembId 
-	WHERE employees.Year = ?";
+	WHERE employees.YearId = ?";
 	$stmt = mysqli_prepare($link, $employeeQuery);
 	mysqli_stmt_bind_param($stmt, "i", $getyear);
 	echo '<h4>'.$yeartext['YearText'].' - Employees</h4>';
 }
 else //if $getrole has something other than zero, display for selected role
 {
-	//$employeeQuery = "SELECT years.YearText, employees.Role, employees.EmpId, members.MemberId, members.FirstName, members.LastName FROM ((members	 
-	//INNER JOIN employees ON members.MemberId = employees.MembId)
-	//INNER JOIN years ON employees.Year = years.YearId) WHERE employees.Role = '$getrole' ORDER BY years.YearId DESC";
 	$employeeQuery = "SELECT years.YearText, employees.Role, employees.EmpId, members.MemberId, members.FirstName, members.LastName 
 	FROM members	 
 	INNER JOIN employees ON members.MemberId = employees.MembId
-	INNER JOIN years ON employees.Year = years.YearId WHERE employees.Role = ?
+	INNER JOIN years ON employees.YearId = years.YearId WHERE employees.Role = ?
 	ORDER BY years.YearText DESC";
 	$stmt = mysqli_prepare($link, $employeeQuery);
 	mysqli_stmt_bind_param($stmt, "s", $getrole);

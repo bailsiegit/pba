@@ -35,7 +35,7 @@ if(strlen($getrole) == 1)//if $getrole is zero then display for selected year
 	members.LastName 
 	FROM members	 
 	INNER JOIN volunteers ON members.MemberId = volunteers.MembId 
-	WHERE volunteers.Year = ?";
+	WHERE volunteers.YearId = ?";
 	$stmt = mysqli_prepare($link, $volunteerQuery);
 	mysqli_stmt_bind_param($stmt, "i", $getyear);
 	echo '<h4>'.$yeartext['YearText'].' - Volunteers</h4>';
@@ -45,7 +45,7 @@ else //if $getrole has something other than zero, display for selected role
 	$volunteerQuery = "SELECT years.YearText, volunteers.Role, volunteers.VolId, members.MemberId, members.FirstName, members.LastName 
 	FROM members	 
 	INNER JOIN volunteers ON members.MemberId = volunteers.MembId
-	INNER JOIN years ON volunteers.Year = years.YearId 
+	INNER JOIN years ON volunteers.YearId = years.YearId 
 	WHERE volunteers.Role = ? 
 	ORDER BY years.YearId DESC";
 	$stmt = mysqli_prepare($link, $volunteerQuery);

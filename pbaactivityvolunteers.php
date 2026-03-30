@@ -44,8 +44,8 @@ if(isset($_POST['downloadvolunteer']))
 			members.Mobile, members.Email, members.Numberandstreet, members.Suburb 
 			FROM volunteers 
 			INNER JOIN members ON volunteers.MembId = members.MemberId
-			INNER JOIN years ON volunteers.Year = years.YearId 
-			WHERE volunteers.Year = ?";
+			INNER JOIN years ON volunteers.YearId = years.YearId 
+			WHERE volunteers.YearId = ?";
 			$stmt = mysqli_prepare($link, $q);
 			mysqli_stmt_bind_param($stmt, "i", $formyear);
 		}
@@ -55,7 +55,7 @@ if(isset($_POST['downloadvolunteer']))
 			members.Mobile, members.Email, members.Numberandstreet, members.Suburb 
 			FROM volunteers 
 			INNER JOIN members ON volunteers.MembId = members.MemberId
-			INNER JOIN years ON volunteers.Year = years.YearId 
+			INNER JOIN years ON volunteers.YearId = years.YearId 
 			WHERE volunteers.Role = ? 
 			ORDER BY years.YearId DESC";
 			$stmt = mysqli_prepare($link, $q);
@@ -95,7 +95,7 @@ if(isset($_POST['addperson']) && $_POST['selectname'] > 0 && !empty($_POST['volu
 	require('../connecttopba.php');
 	
 	//IGNORE will skip error if new entry is a duplicate
-	$q = "INSERT IGNORE INTO volunteers (MembId, Role, Year) VALUES (?, ?, ?)";
+	$q = "INSERT IGNORE INTO volunteers (MembId, Role, YearId) VALUES (?, ?, ?)";
 	$stmt = mysqli_prepare($link, $q);
 	mysqli_stmt_bind_param($stmt, "isi", $formperson, $formrole, $formyear);
 	mysqli_stmt_execute($stmt);
@@ -169,7 +169,7 @@ Select volunteers by role:
 $q = "SELECT COUNT(MembId) as Qty, Role 
 FROM volunteers
 INNER JOIN members ON volunteers.MembId = members.MemberId
-INNER JOIN years on volunteers.Year = years.YearId 
+INNER JOIN years on volunteers.YearId = years.YearId 
 GROUP BY Role 
 ORDER BY Qty DESC";
 require('../connecttopba.php');
