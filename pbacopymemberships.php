@@ -1,5 +1,5 @@
 <?php
-//Rev 2 - 9/4/2026 - improved sql for members select element.
+// Rev 2 17/3/2026 - change names list from select element to table
 //this page is for copying a membership group from one year to the next
 //the person is copied across to the new membership
 //when done the new membership group is displayed
@@ -35,33 +35,30 @@ if(isset($_POST['copymembership']))
 	$formmembership = htmlentities($_POST['frommembership']);
 	$formyear = htmlentities($_POST['fromyear']);
 	
-	if(empty($_POST['selectedcopy']))
+	if(!isset($_POST['checked']))
 	{
-		echo '<span style="color:red">Please make a selection or go </span><a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbaactivitymemberships.php?yid='.$formyear.'&cid='.$formmembership.'">Back</a>';
+		echo '<span style="color:red">Please make a selection or go </span><a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbaactivitymemberships.php?yid='.$formyear.'&mid='.$formmembership.'">Back</a>';
 	}
 	else
 	{
 		require('../connecttopba.php');
 		//clean data input
-		$selectedcopies = $_POST['selectedcopy'];
+		$selectedcopies = $_POST['checked'];
 		$selectedmembership = htmlentities($_POST['selectedmembership']);
 		$selectedyear = htmlentities($_POST['selectedyear']);
-		$strtoday = date("Y-m-d");
 		//work through selectedcopies array creating new records
 		foreach($selectedcopies as $value)
 		{
 			//get existing record to learn MemberID
-			$cleanvalue = htmlentities($value);
-			$q = "SELECT * FROM memberships WHERE MshipId = ?";
-			$stmt = mysqli_prepare($link, $q);
-			mysqli_stmt_bind_param($stmt, "i", $cleanvalue);
-			mysqli_stmt_execute($stmt);
-			$r = mysqli_stmt_get_result($stmt);
-			$record = mysqli_fetch_assoc($r);
+			$cleanvalue = htmlentities($value); //members id
+			$cleanstartdate = isset($_POST[$cleanvalue]) ? htmlentities($_POST[$cleanvalue]) : "0000-00-00";
+			$receiptindex = 'rc'.$cleanvalue;
+			$cleanreceipt = isset($_POST[$receiptindex]) ? $_POST[$receiptindex] : '';
+
 			//create new record
-			$q = "INSERT IGNORE INTO memberships (MembId, Mtype, YearId) VALUES (?, ?, ?)";
+			$q = "INSERT IGNORE INTO memberships (MembId, start, Mtype, Year, receipt) VALUES (?, ?, ?, ?,?)";
 			$stmt = mysqli_prepare($link, $q);
-			mysqli_stmt_bind_param($stmt, "iii", $record['MembId'], $selectedmembership, $selectedyear);
+			mysqli_stmt_bind_param($stmt, "isiis", $cleanvalue, $cleanstartdate, $selectedmembership, $selectedyear, $cleanreceipt);
 			mysqli_stmt_execute($stmt);
 			$r = mysqli_stmt_get_result($stmt);
 		}
@@ -168,18 +165,24 @@ while($pbamemberships = mysqli_fetch_array($r, MYSQLI_ASSOC))
 
 <hr>
 <table><tr><td style="border:0px; background-color:white;"> <!--table to layout lower page-->
+<table><tr><th>Select</th><th>Name</th><th>Start</th> <!--table to layout names list-->
 
 <?php
 // load membership details
-$membershipQuery = "SELECT
-ms.MshipId,
-mb.FirstName,
-mb.LastName
-FROM memberships ms
-INNER JOIN members mb
-ON mb.MemberID = ms.MembId
-WHERE ms.YearId = ? AND ms.Mtype = ?";
 
+$membershipQuery = "
+SELECT
+	mb.FirstName,
+	mb.LastName,
+	ms.MembId
+FROM
+	memberships ms
+INNER JOIN members mb
+ON ms.MembId = mb.MemberID
+WHERE ms.Year = ?
+AND ms.Mtype = ?
+ORDER BY mb.LastName, mb.FirstName
+";
 require('../connecttopba.php');
 $stmt = mysqli_prepare($link, $membershipQuery);
 mysqli_stmt_bind_param($stmt, "ii", $formyear, $formmembership);
@@ -192,18 +195,20 @@ if (!$membershipResult)
 }
 if (mysqli_num_rows($membershipResult) > 0) 
 {	
-	echo '<select size="10" name="selectedcopy[]" id="selectedcopy" multiple>';
 	while ($membership = mysqli_fetch_assoc($membershipResult)) 
 	{
-		echo '<option value='.$membership['MshipId'].'>'.$membership['FirstName'].' '.$membership['LastName'].'</option>';
+		echo '<tr><td style="border:0px; background-color:white;"><input type="checkbox" name="checked[]" value="'.$membership['MembId'].'"></td>';
+		echo '<td style="border:0px; background-color:white;">'.$membership['FirstName'].' '.$membership['LastName'].'</td>';
+		echo '<td style="border:0px; background-color:white;"><input type="date" name="'.$membership['MembId'].'" value=""></td>';
+		echo '<td style="border:0px; background-color:white;"><input type="text" name="rc'.$membership['MembId'].'" value=""></td></tr>';
 	}
 	echo '</select>';
 }
 ?>
 <br><br>
-
+</table>
 </td>
-<td style="border:0px; background-color:white;">Use ctrl or cmd to select mutliple people to copy to the target membership.
+<td style="border:0px; background-color:white;">
 <br><br><br>
 <input type="submit" value="Copy" name="copymembership">
 </form>

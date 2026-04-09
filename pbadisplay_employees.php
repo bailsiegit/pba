@@ -39,7 +39,11 @@ if(strlen($getrole) == 1)//if $getrole is zero then display for selected year
 	WHERE employees.YearId = ?";
 	$stmt = mysqli_prepare($link, $employeeQuery);
 	mysqli_stmt_bind_param($stmt, "i", $getyear);
-	echo '<h4>'.$yeartext['YearText'].' - Employees</h4>';
+	echo '<table style="width:100%"><tr><td style="width:50%; background:white; border:0px;">'; // set up layout table to show copy button
+	echo '<h4>'.$yeartext['YearText'].' - Employees</h4></td>';
+	echo '<td style="width:50%; background:white; border:0px;">';
+	echo '   <a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbacopyemployees.php?yid='.$getyear.'">Copy Employees</a>';
+	echo '</td></tr></table>';
 }
 else //if $getrole has something other than zero, display for selected role
 {
