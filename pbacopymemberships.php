@@ -1,4 +1,5 @@
 <?php
+//Rev 2 - 9/4/2026 - improved sql for members select element.
 //this page is for copying a membership group from one year to the next
 //the person is copied across to the new membership
 //when done the new membership group is displayed
@@ -58,9 +59,9 @@ if(isset($_POST['copymembership']))
 			$r = mysqli_stmt_get_result($stmt);
 			$record = mysqli_fetch_assoc($r);
 			//create new record
-			$q = "INSERT IGNORE INTO memberships (MembId, start, Mtype, YearId) VALUES (?, ?, ?, ?)";
+			$q = "INSERT IGNORE INTO memberships (MembId, Mtype, YearId) VALUES (?, ?, ?)";
 			$stmt = mysqli_prepare($link, $q);
-			mysqli_stmt_bind_param($stmt, "isii", $record['MembId'], $strtoday, $selectedmembership, $selectedyear);
+			mysqli_stmt_bind_param($stmt, "iii", $record['MembId'], $selectedmembership, $selectedyear);
 			mysqli_stmt_execute($stmt);
 			$r = mysqli_stmt_get_result($stmt);
 		}
@@ -170,13 +171,15 @@ while($pbamemberships = mysqli_fetch_array($r, MYSQLI_ASSOC))
 
 <?php
 // load membership details
-$membershipQuery = "SELECT mbid, mn, st, msid, end, rc, members.FirstName, members.LastName FROM
-	(SELECT Mtype, MembId, start, end, receipt, MshipId FROM ((memberships 
-	INNER JOIN years ON memberships.YearId = years.YearId)
-	INNER JOIN membertypes ON memberships.Mtype = membertypes.MemBTypeId) 
-	WHERE memberships.YearId = ? AND memberships.Mtype = ?) 
-	membershipdata (mn, mbid, st, end, rc, msid) 
-	INNER JOIN members ON membershipdata.mbid = members.MemberID";
+$membershipQuery = "SELECT
+ms.MshipId,
+mb.FirstName,
+mb.LastName
+FROM memberships ms
+INNER JOIN members mb
+ON mb.MemberID = ms.MembId
+WHERE ms.YearId = ? AND ms.Mtype = ?";
+
 require('../connecttopba.php');
 $stmt = mysqli_prepare($link, $membershipQuery);
 mysqli_stmt_bind_param($stmt, "ii", $formyear, $formmembership);
@@ -192,7 +195,7 @@ if (mysqli_num_rows($membershipResult) > 0)
 	echo '<select size="10" name="selectedcopy[]" id="selectedcopy" multiple>';
 	while ($membership = mysqli_fetch_assoc($membershipResult)) 
 	{
-		echo '<option value='.$membership['msid'].'>'.$membership['FirstName'].' '.$membership['LastName'].'</option>';
+		echo '<option value='.$membership['MshipId'].'>'.$membership['FirstName'].' '.$membership['LastName'].'</option>';
 	}
 	echo '</select>';
 }
