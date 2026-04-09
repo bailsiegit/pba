@@ -56,7 +56,7 @@ if(isset($_POST['copymembership']))
 			$cleanreceipt = isset($_POST[$receiptindex]) ? $_POST[$receiptindex] : '';
 
 			//create new record
-			$q = "INSERT IGNORE INTO memberships (MembId, start, Mtype, Year, receipt) VALUES (?, ?, ?, ?,?)";
+			$q = "INSERT IGNORE INTO memberships (MembId, start, Mtype, YearId, receipt) VALUES (?, ?, ?, ?,?)";
 			$stmt = mysqli_prepare($link, $q);
 			mysqli_stmt_bind_param($stmt, "isiis", $cleanvalue, $cleanstartdate, $selectedmembership, $selectedyear, $cleanreceipt);
 			mysqli_stmt_execute($stmt);
@@ -179,7 +179,7 @@ FROM
 	memberships ms
 INNER JOIN members mb
 ON ms.MembId = mb.MemberID
-WHERE ms.Year = ?
+WHERE ms.YearId = ?
 AND ms.Mtype = ?
 ORDER BY mb.LastName, mb.FirstName
 ";
