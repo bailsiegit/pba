@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 13/4/2026 - included password hash
 //this page is the administrator to reset a user password
 //this would be used after a request from a user is received and verified
 
@@ -28,9 +28,9 @@ include("pbaincludes/pbaadminmenu.php");
 if($_SESSION['accesslevel'] > 3) //check user has permissions for this page
 {
 		//if form to reset password submitted update user record
-	if(isset($_POST['pwreset']) && isset($_POST['newpw']) && isset($_POST['pwuserid']))
+	if(isset($_POST['pwreset']) && isset($_POST['newpw']) && isset($_POST['pwuserid']) && $_POST['pwuserid'] > 0)
 	{
-		$npw = htmlentities($_POST['newpw']);
+		$npw = password_hash(htmlentities($_POST['newpw']), PASSWORD_DEFAULT);
 		$user = htmlentities($_POST['pwuserid']);
 		//find users current access level
 		$q = "SELECT accesslevel FROM pbausers WHERE userid = ?";
@@ -43,7 +43,7 @@ if($_SESSION['accesslevel'] > 3) //check user has permissions for this page
 		$row = mysqli_fetch_array($r, MYSQLI_ASSOC);
 		$accesslevel = $row['accesslevel'];
 		// update temp password and set pwreset to old access level and set access to nil takes away access while password is in doubt
-		$q = "UPDATE pbausers SET accesslevel = 0, badlogins = 0, pwreset = ? , password = SHA2(?, 256) WHERE userid = ?";
+		$q = "UPDATE pbausers SET accesslevel = 0, badlogins = 0, pwreset = ? , password = ? WHERE userid = ?";
 		$stmt = mysqli_prepare($link, $q);
 		mysqli_stmt_bind_param($stmt, "isi", $accesslevel, $npw, $user);
 		mysqli_stmt_execute($stmt);
@@ -53,7 +53,7 @@ if($_SESSION['accesslevel'] > 3) //check user has permissions for this page
 ?>
 
 Reset User Password<br><br>
-<form Name="resetpassword" action="pbaresetpassword.php" method="POST">
+<form name="resetpassword" action="pbaresetpassword.php" method="POST">
 	<select name="pwuserid">
 
 <?php
@@ -66,7 +66,7 @@ Reset User Password<br><br>
 		// for each user, add a row to the combo box
 		$pid = $row['userid'];
 		$fullname = $row['lastname'] . ', ' . $row['firstname'].' - '.$row['email'];		
-		ECHO '<option value = ' . $pid . '>' . $fullname . '</option>'; //combo value is user id and display is users name and email
+		echo '<option value = ' . $pid . '>' . $fullname . '</option>'; //combo value is user id and display is users name and email
 	}
 ?>
 	</select><br><br>

@@ -1,4 +1,5 @@
 <?php
+// Rev 2 13/4/2026 - included password hash
 
 function load($page = 'pbalogin.php') #login.php is default if no file passed to function
 {
@@ -16,9 +17,11 @@ function validate($link, $email = '', $pwd = '') #empty string defaults
 {
 	$errors = array(); // establish array to store errors
 	
-	$finduserstmt = $link->prepare("SELECT userid, firstname, lastname, accesslevel, badlogins, pwreset  
-		FROM pbausers WHERE email = ? AND password = SHA2(?, 256) AND badlogins < 3");
-	$finduserstmt->bind_param("ss", $e, $p);
+	//$finduserstmt = $link->prepare("SELECT userid, firstname, lastname, accesslevel, badlogins, pwreset  
+	//	FROM pbausers WHERE email = ? AND password = SHA2(?, 256) AND badlogins < 3");
+	$finduserstmt = $link->prepare("SELECT userid, firstname, lastname, accesslevel, badlogins, pwreset, password  
+		FROM pbausers WHERE email = ? AND badlogins < 3");
+	$finduserstmt->bind_param("s", $e);
 	$zerobadloginstmt = $link->prepare("UPDATE pbausers SET badlogins = 0 WHERE userid = ?"); //reset bad login counter after good login
 	$zerobadloginstmt->bind_param("i", $uid);
 	$findbaduidstmt = $link->prepare("SELECT userid, badlogins FROM pbausers WHERE email = ?"); //find userid if pword wrong
@@ -40,10 +43,11 @@ function validate($link, $email = '', $pwd = '') #empty string defaults
 	{			
 		$finduserstmt->execute();
 		$r = mysqli_stmt_get_result($finduserstmt);
+		$row = mysqli_fetch_array($r, MYSQLI_ASSOC);
 		
-		if(mysqli_num_rows($r) == 1) // if there is a matching row then pass user data back
+		if(mysqli_num_rows($r) == 1 && password_verify($p,$row['password'])) // if there is a matching row then pass user data back
 		{
-			$row = mysqli_fetch_array($r, MYSQLI_ASSOC);
+			//$row = mysqli_fetch_array($r, MYSQLI_ASSOC);
 			$uid = $row['userid'];
 			$zerobadloginstmt->execute(); // reset bad login counter after good login
 			$zerobadloginstmt->close();

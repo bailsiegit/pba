@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 13/4/2026 - included password hash
 //this page is for users to register on the pba database
 //registered users must contact the administrator to be given permission to access any data
 //there are 4 levels of access
@@ -38,13 +38,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 	
 		# is user email already in the database users table?
 	
-		//$q = "SELECT userid FROM pbausers WHERE email = '$e'";
 		$q = "SELECT userid FROM pbausers WHERE email = ?";
 		$stmt = mysqli_prepare($link, $q);
 		mysqli_stmt_bind_param($stmt, "s", $e);
 		mysqli_stmt_execute($stmt);
 		$r = mysqli_stmt_get_result($stmt);
-		//$r = mysqli_query($link, $q);
 		$emm = mysqli_num_rows($r);
 		if(mysqli_num_rows($r) > 0)
 		{
@@ -53,11 +51,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 		else
 		{
 			# store new user in the database
-	
+			$pw = password_hash($p, PASSWORD_DEFAULT);
+			//$q = "INSERT INTO pbausers (firstname, lastname, email, password, registered) 
+			//	VALUES (?, ?, ?, SHA2(?,256), NOW())";
 			$q = "INSERT INTO pbausers (firstname, lastname, email, password, registered) 
-				VALUES (?, ?, ?, SHA2(?,256), NOW())";
+				VALUES (?, ?, ?, ?, NOW())";
 			$r = mysqli_prepare($link, $q);
-			mysqli_stmt_bind_param($r, "ssss", $fn, $ln, $e, $p);
+			mysqli_stmt_bind_param($r, "sssss", $fn, $ln, $e, $pw);
 			mysqli_stmt_execute($r);
 			if($r)
 			{
