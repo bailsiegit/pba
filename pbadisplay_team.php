@@ -71,11 +71,11 @@ if (mysqli_num_rows($teamResult) > 0)
 	echo '<p> </p><table width="90%">';
 	if($_SESSION['accesslevel'] > 3) // God access shows delete button column
 	{
-		echo '<tr><th width="40%">Name</th><th width="40%">Role</th><th>Games (click to add)</th><th>Delete</th></tr>';
+		echo '<tr><th width="40%">Name</th><th width="40%">Role</th><th>Games<br><span style="font-size:0.6em"> (click to add)</span></th><th>Delete</th></tr>';
 	}
 	elseif($_SESSION['accesslevel'] > 2)
 	{
-		echo '<tr><th width="40%">Name</th><th width="40%">Role</th><th>Games (click to add)</th></tr>';
+		echo '<tr><th width="40%">Name</th><th width="40%">Role</th><th>Games<br><span style="font-size:0.6em"> (click to add)</span></th></tr>';
 	}
 	else
 	{

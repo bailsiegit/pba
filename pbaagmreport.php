@@ -70,7 +70,5 @@ class PDF extends FPDF
 			}
 		$pdf->Output('D', 'pbaAGMlist.pdf');
 	}
-header(Location: 'pbareports.php');
-
 
 ?>

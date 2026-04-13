@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 13/4/2026 - included password hash
 //this page is available to all users
 //it allows the user to change their Password
 
@@ -44,33 +44,39 @@ if(isset($_POST['updatepassword']))
 	
 	if($pwerrors == 0) //no errors found
 	{
+		$npw = password_hash($newpw, PASSWORD_DEFAULT); //hash new password
 		require('../connecttopba.php');
 		$q = 'SELECT * FROM pbausers WHERE userid = '.$_SESSION['userid']; //get current users data
-		$q .= ' AND password = SHA2(?,256)';
-		$stmt = mysqli_prepare($link, $q);
-		mysqli_stmt_bind_param($stmt, "s", $cpw);
-		mysqli_stmt_execute($stmt);
-		$r = mysqli_stmt_get_result($stmt);
+		//$q .= ' AND password = SHA2(?,256)'; //delete this line for password_hash
+		$r = mysqli_query($link, $q);
+		//$stmt = mysqli_prepare($link, $q);
+		//mysqli_stmt_bind_param($stmt, "s", $cpw);
+		//mysqli_stmt_execute($stmt);
+		//$r = mysqli_stmt_get_result($stmt);
 
-		$row = mysqli_fetch_array($r, MYSQLI_ASSOC);
-		if(mysqli_num_rows($r) == 1) //if current password is correct 1 row will be returned
+		
+		if(mysqli_num_rows($r)) //userid query should return only 1 row
 		{
-			// check if password has been Reset if so, restore previous access level
-			if($row['pwreset'] > 0)
+			$row = mysqli_fetch_array($r, MYSQLI_ASSOC); //put query results in array
+			if(password_verify($cpw, $row['password'])) //check supplied password is correct
 			{
-				$reset = $row['pwreset'];
-				$user = $_SESSION['userid'];
-				$q = "UPDATE pbausers SET accesslevel = $reset, pwreset = 0, password = SHA2(?, 256) WHERE userid = ?";
+				// check if password has been Reset if so, restore previous access level
+				if($row['pwreset'] > 0)
+				{
+					$reset = $row['pwreset'];
+					$user = $_SESSION['userid'];
+					$q = "UPDATE pbausers SET accesslevel = $reset, pwreset = 0, password = ? WHERE userid = ?";
 				
-				$_SESSION['accesslevel'] = $reset; //update current access level
-			}
-			else
-			{			
-				$user = $_SESSION['userid'];
-				$q = "UPDATE pbausers SET password= SHA2(?, 256) WHERE userid = ?"; //update password
+					$_SESSION['accesslevel'] = $reset; //update current access level
+				}
+				else
+				{			
+					$user = $_SESSION['userid'];
+					$q = "UPDATE pbausers SET password = ? WHERE userid = ?"; //update password
+				}
 			}
 			$stmt = mysqli_prepare($link, $q);
-			mysqli_stmt_bind_param($stmt, "si", $newpw, $user);
+			mysqli_stmt_bind_param($stmt, "si", $npw, $user);
 			mysqli_stmt_execute($stmt);
 			echo '<p style="color:red">Your password has been updated</p>'; //confirmation message
 		}

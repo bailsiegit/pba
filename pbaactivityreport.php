@@ -298,7 +298,5 @@ class PDF extends FPDF
 		
 		$pdf->Output('D', 'pbaactivityreport.pdf');
 	}
-header(Location: 'pbareports.php');
-
 
 ?>

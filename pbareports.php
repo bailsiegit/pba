@@ -26,7 +26,9 @@ if($_SESSION['accesslevel'] > 0)//check user has access to Reports
 {
 
 ?>
-	<h4>Create AGM Sign in Report</h4>
+	<b>AGM Sign in Report</b>
+	<br><span style="font-size:0.7em;">Generates and downloads a pdf report of all members eligible to vote at a General Meeting of the club.<br>
+	There is a place for attendees to sign-in adjacent to their member type and name.</span>
 	<br><br>
 	<form action="pbaagmreport.php" method="POST">
 	Print report for year ending October 
@@ -78,7 +80,9 @@ echo "<br><hr><br>";
 if($_SESSION['accesslevel'] > 0) //check user has permissions for this page
 {
 ?>
-Member Activity Report<br><br>
+<b>Member Activity Report</b><br>
+<span style="font-size:0.7em;">Generates and downloads a pdf report of all activity records in the database for the selected person.</span>
+<br><br>
 <form name="activityreport" action="pbaactivityreport.php" method="POST"> 
 	<select name="personid">
 
@@ -100,7 +104,50 @@ Member Activity Report<br><br>
 <br>
 <input type="submit" name="dlactivityreport" value="Download Report">
 </form>
+<br><hr><br>
+<b>Club Activity Report</b>
+<br><span style="font-size:0.7em;">Generates and downloads a pdf summary report of all activities for the selected year.</span>
+<br><br>
+<form name="clubactivityreport" action="pbaclubactivityreport.php" method="POST"> 
+		<!-- //create year select combo box -->
+	<select name="clubyear" id="clubyear">	
+<?php
+	// get all year for combo box
+	$stickyselect = 0;
+	if(isset($_POST['year'])) $formyear = htmlentities($_POST['year']);
+	require('../connecttopba.php');
+	$q = 'SELECT * FROM years ORDER BY YearText';
+	$r = mysqli_query($link, $q, MYSQLI_STORE_RESULT);
+
+	// build years combo box from above query
+	while($pbayears = mysqli_fetch_array($r, MYSQLI_ASSOC))
+	{
+		$yearid = $pbayears['YearId'];
+		$pbayear = $pbayears['YearText'];
+		//make combobox sticky to current year or last selected Year
+		if(isset($formyear) && $formyear == $yearid)
+		{
+			$stickyselect = 1; //this is used to hold the sticky year rather than the current year
+			echo '<option value = ' . $yearid . ' selected="selected">' . $pbayear . '</option>';
+		}
+		elseif((int)date("Y") - 1 == $pbayear && $stickyselect < 1)
+		{
+			$formyear = $yearid;
+			echo '<option value = ' . $yearid . ' selected="selected">' . $pbayear . '</option>';
+		}
+		else
+		{
+			echo '<option value = ' . $yearid . '>' . $pbayear . '</option>';
+		}
+	}
+	$stickyselect = 0; //reset stickyselect
+	mysqli_close($link);
+?>
+	</select>
+	
 <br>
+<input type="submit" name="dlclubactivityreport" value="Download Report">
+</form>
 <?php
 }
 ?>
