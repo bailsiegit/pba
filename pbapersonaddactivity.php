@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 13/4/2026 bug fix with vol and emp and INSERT IGNORE for vol and emp now they are indexed
 //this page is called from the pbaperson page to add activities for that person
 //a year is selected and 1 activity can be added for each activity type
 //completion returns to the pbaperson page
@@ -117,12 +117,12 @@ if(isset($_POST['savechanges']))
 	if(isset($_POST['volunteerrole']) && $_POST['volunteerrole'] != "custom" && $_POST['volunteerrole'] != 0){
 		$formvolunteerrole = htmlentities(trim($_POST['volunteerrole']));
 	}
-	elseif(isset($_POST['customrole'])){
-		$formvolunteerrole = htmlentities(trim($_POST['customrole']));
+	elseif(isset($_POST['volcustomrole'])){
+		$formvolunteerrole = htmlentities(trim($_POST['volcustomrole']));
 	}
 	if(!empty($formvolunteerrole)){
 		$countadds = $countadds + 1;		
-		$sql = "INSERT INTO volunteers (MembId, Role, YearId) VALUES (?, ?, ?)";
+		$sql = "INSERT IGNORE INTO volunteers (MembId, Role, YearId) VALUES (?, ?, ?)";
 		//connect to database
 		require('../connecttopba.php');
 		// run insert query
@@ -140,7 +140,7 @@ if(isset($_POST['savechanges']))
 	}
 	if(!empty($formemployeerole)){
 		$countadds = $countadds + 1;		
-		$sql = "INSERT INTO employees (MembId, Role, YearId) VALUES (?, ?, ?)";
+		$sql = "INSERT IGNORE INTO employees (MembId, Role, YearId) VALUES (?, ?, ?)";
 		//connect to database
 		require('../connecttopba.php');
 		// run insert query
@@ -346,7 +346,7 @@ $stickyselect = 0; //reset sticky select for next combo box
     <option value="custom">-- Add New Role --</option>
 </select>
 
-<input type="text" id="customrole" name="customrole" style="display:none;" placeholder="Enter new role">
+<input type="text" id="volcustomrole" name="volcustomrole" style="display:none;" placeholder="Enter new role">
 
 
 
@@ -383,7 +383,7 @@ include('pbaincludes/pbafooter.html');
 <script>
 function checkCustomOptionVol() {
     var select = document.getElementById("selectvolrole");
-    var customInput = document.getElementById("customrole");
+    var customInput = document.getElementById("volcustomrole");
 
     if (select.value === "custom") {
         customInput.style.display = "inline";  // Show input box
