@@ -1,9 +1,17 @@
 <?php
-//Rev 2 10/12/2025
+//Rev 3 21/4/2026 - added timeout check
 //this is the home page of the application
 //it loads the header menu and acknowledges the current userid
 //it points them to the menu bar to take action
 session_start();
+if(!isset($_SESSION['userid']) || time() - $_SESSION['timeoutstart'] > $_SESSION['timeoutlimit']) //check if user is logged in
+{
+	require('pbalogin_tools.php');
+	session_unset();
+	session_destroy();
+	load(); //redirect to login page
+	exit;
+}
 
 $page_title = 'Home';
 include('pbaincludes/pbaheader.html');
