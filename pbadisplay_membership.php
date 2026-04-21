@@ -1,10 +1,18 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 21/4/2026 - added timeout check
 //this page is called either directly or via javascript from the membership activity page
 //this page creates the table of results to display on that page
 if(isset($_GET['java']) && $_GET['java'] == 1)
 {
 	session_start();
+}
+if(!isset($_SESSION['userid']) || time() - $_SESSION['timeoutstart'] > $_SESSION['timeoutlimit']) //check if user is logged in
+{
+	require('pbalogin_tools.php');
+	session_unset();
+	session_destroy();
+	load('pbalogin.php?disp=1'); //redirect to login page
+	exit;
 }
 
 error_reporting(E_ALL);

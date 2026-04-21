@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 21/4/2026 - added timeout check
 //this page is called by java script from pbaactivityawards.php
 //it produces the text file to fill the displaydata <div>
 //it produces either a list of all award winners for a given year
@@ -8,6 +8,15 @@ if(!isset($yid))
 {
 	session_start();
 }
+if(!isset($_SESSION['userid']) || time() - $_SESSION['timeoutstart'] > $_SESSION['timeoutlimit']) //check if user is logged in
+{
+	require('pbalogin_tools.php');
+	session_unset();
+	session_destroy();
+	load('pbalogin.php?disp=1'); //redirect to login page
+	exit;
+}
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
