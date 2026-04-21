@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 16/3/2026 - changed names list from select element to table
 //this page is for copying a committee from one year to the next
 //the person and role is copied across to the new committee
 //when done the new committee is displayed
@@ -35,7 +35,7 @@ if(isset($_POST['copycommittee']))
 	$formcommittee = htmlentities($_POST['fromcommittee']);
 	$formyear = htmlentities($_POST['fromyear']);
 	
-	if(empty($_POST['selectedcopy']))
+	if(!isset($_POST['checked']))
 	{
 		echo '<span style="color:red">Please make a selection or go </span><a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbaactivitycommittees.php?yid='.$formyear.'&cid='.$formcommittee.'">Back</a>';
 	}
@@ -43,24 +43,19 @@ if(isset($_POST['copycommittee']))
 	{
 		require('../connecttopba.php');
 		//clean data input
-		$selectedcopies = $_POST['selectedcopy'];
+		$selectedcopies = $_POST['checked'];
 		$selectedcommittee = htmlentities($_POST['selectedcommittee']);
 		$selectedyear = htmlentities($_POST['selectedyear']);
 		//work through selectedcopies array creating new records
 		foreach($selectedcopies as $value)
 		{
-			//get existing record to learn MemberID and Role
-			$cleanvalue = htmlentities($value);
-			$q = "SELECT * FROM committeememb WHERE CommMembId = ?";
-			$stmt = mysqli_prepare($link, $q);
-			mysqli_stmt_bind_param($stmt, "i", $cleanvalue);
-			mysqli_stmt_execute($stmt);
-			$r = mysqli_stmt_get_result($stmt);
-			$record = mysqli_fetch_assoc($r);
+			$cleanvalue = htmlentities($value); //this is the persons memberid
+			$cleanrole = htmlentities($_POST[$cleanvalue]);
+
 			//create new record
 			$q = "INSERT IGNORE INTO committeememb (MembId, Role, CommId, YearId) VALUES (?, ?, ?, ?)";
 			$stmt = mysqli_prepare($link, $q);
-			mysqli_stmt_bind_param($stmt, "isii", $record['MembId'], $record['Role'], $selectedcommittee, $selectedyear);
+			mysqli_stmt_bind_param($stmt, "isii", $cleanvalue, $cleanrole, $selectedcommittee, $selectedyear);
 			mysqli_stmt_execute($stmt);
 			$r = mysqli_stmt_get_result($stmt);
 		}
@@ -98,8 +93,8 @@ $rcommittee = mysqli_stmt_get_result($stmt);
 $committeename = mysqli_fetch_assoc($rcommittee);
 
 echo '<h3>'.$yeartext['YearText'].' - '.$committeename['CommitteeName'].'</h3>';
-echo '<h2>Copy Committee List to</h2>';
-echo "<h4>Select target committee:</h4>";
+echo '<h2>Copy Committee List to:</h2>';
+//echo "<h4>Select target committee:</h4>";
 
 ?>
 <!--search criteria form-->
@@ -167,15 +162,23 @@ while($pbacommittees = mysqli_fetch_array($r, MYSQLI_ASSOC))
 
 <hr>
 <table><tr><td style="border:0px; background-color:white;"> <!--table to layout lower page-->
+<table><tr><th>Select</th><th>Name</th><th>Role</th> <!--table to layout names and roles-->
 
 <?php
 // load committee details
-$committeeQuery = "SELECT cmbid, rl, cn, mbid, members.FirstName, members.LastName, cmid, yrid FROM
-	(SELECT committeememb.CommMembId, Role, committees.CommitteeName, MembId, committeememb.CommId, committeememb.YearId FROM ((committeememb 
-	INNER JOIN years ON committeememb.YearId = years.YearId)
-	INNER JOIN committees ON committeememb.CommId = committees.CommitteeId) WHERE committeememb.YearId = ? AND committeememb.CommId = ?) 
-	committeedata (cmbid, rl, cn, mbid, cmid, yrid) 
-	INNER JOIN members ON committeedata.mbid = members.MemberID";
+$committeeQuery = "
+SELECT
+	mb.FirstName,
+	mb.LastName,
+	cm.CommMembId,
+	cm.MembId,
+	cm.Role
+FROM committeememb cm
+INNER JOIN members mb
+ON cm.MembId = mb.MemberID
+WHERE
+	cm.Year = ? AND
+	cm.CommId = ?";
 require('../connecttopba.php');
 $stmt = mysqli_prepare($link, $committeeQuery);
 mysqli_stmt_bind_param($stmt, "ii", $formyear, $formcommittee);
@@ -188,27 +191,20 @@ if (!$committeeResult)
 }
 if (mysqli_num_rows($committeeResult) > 0) 
 {	
-	echo '<select size="10" name="selectedcopy[]" id="selectedcopy" multiple>';
 	while ($committee = mysqli_fetch_assoc($committeeResult)) 
 	{
-		if(empty($committee['rl']))
-		{
-			//if no role, show only names
-			echo '<option value='.$committee['cmbid'].'>'.$committee['FirstName'].' '.$committee['LastName'].'</option>';
-		}
-		else
-		{
-			//if role exists add hyphen and role to names
-			echo '<option value='.$committee['cmbid'].'>'.$committee['FirstName'].' '.$committee['LastName'].' - '.$committee['rl'].'</option>';
-		}
+		echo '<tr><td style="border:0px; background-color:white;"><input type="checkbox" name="checked[]" value="'.$committee['MembId'].'"></td>';
+		echo '<td style="border:0px; background-color:white;">'.$committee['FirstName'].' '.$committee['LastName'].'</td>';
+		echo '<td style="border:0px; background-color:white;"><input type="text" name="'.$committee['MembId'].'" value="'.$committee['Role'].'"></td></tr>';
+		
 	}
-	echo '</select>';
+	
 }
 ?>
 <br><br>
-
+</table>
 </td>
-<td style="border:0px; background-color:white;">Use ctrl or cmd to select mutliple people to copy to the target committee.
+<td style="border:0px; background-color:white;">
 <br><br><br>
 <input type="submit" value="Copy" name="copycommittee">
 </form>

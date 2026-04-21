@@ -1,5 +1,5 @@
 <?php
-//Rev 2 9/3/2026 - fixed query populating select box
+//Rev 3 17/3/2026 - changed names list from select element to table
 //this page is for copying a team from one year to the next
 //the person and role is copied across to the new team
 //when doen the new team is displayed
@@ -35,7 +35,7 @@ if(isset($_POST['copyteam']))
 	$formteam = htmlentities($_POST['fromteam']);
 	$formyear = htmlentities($_POST['fromyear']);
 	
-	if(empty($_POST['selectedcopy']))
+	if(empty($_POST['checked']))
 	{
 		echo '<span style="color:red">Please make a selection or go </span><a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbaactivityteams.php?yid='.$formyear.'&tid='.$formteam.'">Back</a>';
 	}
@@ -43,24 +43,20 @@ if(isset($_POST['copyteam']))
 	{
 		require('../connecttopba.php');
 		//clean data input
-		$selectedcopies = $_POST['selectedcopy'];
+		$selectedcopies = $_POST['checked'];
 		$selectedteam = htmlentities($_POST['selectedteam']);
 		$selectedyear = htmlentities($_POST['selectedyear']);
 		//work through selectedcopies array creating new records
 		foreach($selectedcopies as $value)
 		{
 			//get existing record to learn MemberID and Role
-			$cleanvalue = htmlentities($value);
-			$q = "SELECT * FROM teammembers WHERE TeamMembId = ?";
-			$stmt = mysqli_prepare($link, $q);
-			mysqli_stmt_bind_param($stmt, "i", $cleanvalue);
-			mysqli_stmt_execute($stmt);
-			$r = mysqli_stmt_get_result($stmt);
-			$record = mysqli_fetch_assoc($r);
+			$cleanvalue = htmlentities($value); //this is the persons memberid
+			$cleanrole = htmlentities($_POST[$cleanvalue]);
+
 			//create new record
 			$q = "INSERT IGNORE INTO teammembers (MembId, Role, TeamId, YearId) VALUES (?, ?, ?, ?)";
 			$stmt = mysqli_prepare($link, $q);
-			mysqli_stmt_bind_param($stmt, "isii", $record['MembId'], $record['Role'], $selectedteam, $selectedyear);
+			mysqli_stmt_bind_param($stmt, "isii", $cleanvalue, $cleanrole, $selectedteam, $selectedyear);
 			mysqli_stmt_execute($stmt);
 			$r = mysqli_stmt_get_result($stmt);
 		}
@@ -98,8 +94,8 @@ $rteam = mysqli_stmt_get_result($stmt);
 $teamname = mysqli_fetch_assoc($rteam);
 
 echo '<h3>'.$yeartext['YearText'].' - '.$teamname['TeamName'].'</h3>';
-echo '<h2>Copy Team List to</h2>';
-echo "<h4>Select target team:</h4>";
+echo '<h2>Copy Team List to:</h2>';
+//echo "<h4>Select target team:</h4>";
 
 ?>
 <!--search criteria form-->
@@ -167,6 +163,7 @@ while($pbateams = mysqli_fetch_array($r, MYSQLI_ASSOC))
 
 <hr>
 <table><tr><td style="border:0px; background-color:white;"> <!--table to layout lower page-->
+<table><tr><th>Select</th><th>Name</th><th>Role</th> <!--table to layout names list-->
 
 <?php
 // load team details
@@ -195,27 +192,20 @@ if (!$teamResult)
 }
 if (mysqli_num_rows($teamResult) > 0) 
 {	
-	echo '<select size="10" name="selectedcopy[]" id="selectedcopy" multiple>';
 	while ($team = mysqli_fetch_assoc($teamResult)) 
 	{
-		if(empty($team['Role']))
-		{
-			//if no role, show only names
-			echo '<option value='.$team['TeamMembId'].'>'.$team['FirstName'].' '.$team['LastName'].'</option>';
-		}
-		else
-		{
-			//if role exists add hyphen and role to names
-			echo '<option value='.$team['TeamMembId'].'>'.$team['FirstName'].' '.$team['LastName'].' - '.$team['Role'].'</option>';
-		}
+		echo '<tr><td style="border:0px; background-color:white;"><input type="checkbox" name="checked[]" value="'.$team['MembId'].'"></td>';
+		echo '<td style="border:0px; background-color:white;">'.$team['FirstName'].' '.$team['LastName'].'</td>';
+		echo '<td style="border:0px; background-color:white;"><input type="text" name="'.$team['MembId'].'" value="'.$team['Role'].'"></td></tr>';
+
 	}
-	echo '</select>';
+	
 }
 ?>
 <br><br>
-
+</table>
 </td>
-<td style="border:0px; background-color:white;">Use ctrl or cmd to select mutliple people to copy to the target team.
+<td style="border:0px; background-color:white;">
 <br><br><br>
 <input type="submit" value="Copy" name="copyteam">
 </form>

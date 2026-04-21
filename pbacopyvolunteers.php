@@ -30,43 +30,36 @@ if($_SESSION['accesslevel'] < 4)
 //has copy been submitted
 if(isset($_POST['copyteam']))
 {
-	$formteam = $_POST['fromteam'];
 	$formyear = $_POST['fromyear'];
 	
-	if(empty($_POST['selectedcopy']))
+	if(!isset($_POST['checked']))
 	{
-		echo '<span style="color:red">Please make a selection or go </span><a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbaactivityteams.php?yid='.$formyear.'&tid='.$formteam.'">Back</a>';
+		echo '<span style="color:red">Please make a selection or go </span><a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbaactivityvolunteers.php?yid='.$formyear.'">Back</a>';
 	}
 	else
 	{
 		require('../connecttopba.php');
-		$selectedcopies = $_POST['selectedcopy'];
+		$selectedcopies = $_POST['checked'];
 		foreach($selectedcopies as $value)
 		{
-			//get existing record
-			$q = "SELECT * FROM teammembers WHERE TeamMembId = ?";
-			$stmt = mysqli_prepare($link, $q);
-			mysqli_stmt_bind_param($stmt, "i", $value);
-			mysqli_stmt_execute($stmt);
-			$r = mysqli_stmt_get_result($stmt);
-			$record = mysqli_fetch_assoc($r);
+			$cleanvalue = htmlentities($value);
+			$cleanrole = htmlentities($_POST[$cleanvalue]);
 			//create new record
-			$q = "INSERT IGNORE INTO teammembers (MembId, Role, TeamId, YearId) VALUES (?, ?, ?, ?)";
+			$q = "INSERT IGNORE INTO volunteers (MembId, Role, Year) VALUES (?, ?, ?)";
 			$stmt = mysqli_prepare($link, $q);
-			mysqli_stmt_bind_param($stmt, "isii", $record['MembId'], $record['Role'], $_POST['selectedteam'], $_POST['selectedyear']);
+			mysqli_stmt_bind_param($stmt, "isi", $cleanvalue, $cleanrole, $formyear);
 			mysqli_stmt_execute($stmt);
 			$r = mysqli_stmt_get_result($stmt);
 		}
-		header('Location: pbaactivityteams.php?yid='.$_POST['selectedyear'].'&tid='.$_POST['selectedteam'].'');
+		header('Location: pbaactivityvolunteers.php?yid='.$formyear.'');
 		exit();
 	}
 }
 //save GET values if sent
 if(isset($_GET['yid']))
 {
-	$formteam = htmlentities($_GET['actid']);
 	$formyear = htmlentities($_GET['yid']);
-	echo '<a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbaactivityteams.php?yid='.$formyear.'&tid='.$formteam.'">Back</a>';
+	echo '<a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbaactivityvolunteers.php?yid='.$formyear.'">Back</a>';
 }
 //table to layout top area
 echo '<table style="width:100%;"><tr>';
@@ -80,23 +73,14 @@ mysqli_stmt_bind_param($stmt, "i", $formyear);
 mysqli_stmt_execute($stmt);
 $ryear = mysqli_stmt_get_result($stmt);
 $yeartext = mysqli_fetch_assoc($ryear);
-//get from-team name
-$qteam = "SELECT TeamName FROM teams WHERE TeamId = ?";
-$stmt = mysqli_prepare($link, $qteam);
-mysqli_stmt_bind_param($stmt, "i", $formteam);
-mysqli_stmt_execute($stmt);
-$rteam = mysqli_stmt_get_result($stmt);
-$teamname = mysqli_fetch_assoc($rteam);
 
-echo '<h3>'.$yeartext['YearText'].' - '.$teamname['TeamName'].'</h3>';
-echo '<h2>Copy Team List to</h2>';
-echo "<h4>Select target team:</h4>";
+echo '<h3>'.$yeartext['YearText'].' - Volunteers</h3>';
+echo '<h2>Copy Volunteers to</h2>';
 
 ?>
 <!--search criteria form-->
 <form action="pbacopyvolunteers.php" method = "POST">
-<!--hide fromteam info to retain it after in $POST-->
-<input type="hidden" name="fromteam" value="<?php echo $formteam; ?>">
+<!--hide from volunteer info to retain it after in $POST-->
 <input type="hidden" name="fromyear" value="<?php echo $formyear; ?>">
 <!-- //create year select combo box -->
 <select name="selectedyear" id="selectedyear">	
@@ -125,31 +109,7 @@ while($pbayears = mysqli_fetch_array($r, MYSQLI_ASSOC))
 }
 ?>
 </select>
-<!-- //create team select combo box -->
-<select name="selectedteam" id="selectedteam">
 
-<?php
-// populate teams combo box
-$q = "SELECT * FROM teams ORDER BY TeamName";
-$r = mysqli_query($link, $q, MYSQLI_STORE_RESULT);
-$pbateams = mysqli_fetch_array($r, MYSQLI_ASSOC);
-
-//build team selection combo
-while($pbateams = mysqli_fetch_array($r, MYSQLI_ASSOC))
-{
-	if($pbateams['TeamId'] == $formteam)
-	{
-		//select the from team as that is likely or close in the list of teams
-		echo '<option value = '.$pbateams['TeamId'].' selected="selected">'.$pbateams['TeamName'].'</option>';
-	}
-	else
-	{
-		echo '<option value='.$pbateams['TeamId'].'>'.$pbateams['TeamName'].'</option>';
-	}
-}
-
-?>
-</select>
 <br>
 	
 </td><td style="width:50%; background-color:white; border:0px;">
@@ -157,51 +117,51 @@ while($pbateams = mysqli_fetch_array($r, MYSQLI_ASSOC))
 	
 </td></tr></table>
 
-<!--</div>-->
 <hr>
 <table><tr><td style="border:0px; background-color:white;"> <!--table to layout lower page-->
+<table><tr><th>Select</th><th>Name</th><th>Role</th> <!--table to layout names list-->
 
 <?php
-// load team details
-$teamQuery = "SELECT tmbid, rl, gp, tn, mbid, members.FirstName, members.LastName, tmid, yrid FROM
-	(SELECT teammembers.TeamMembId, Role, GamesPlayed, teams.TeamName, MembId, teammembers.TeamId, teammembers.YearId FROM ((teammembers 
-	INNER JOIN years ON teammembers.YearId = years.YearId)
-	INNER JOIN teams ON teammembers.TeamId = teams.TeamId) WHERE teammembers.YearId = ? AND teammembers.TeamId = ?) 
-	teamdata (tmbid, rl, gp, tn, mbid, tmid, yrid) 
-	INNER JOIN members ON teamdata.mbid = members.MemberID";
+// load volunteer details
+$volunteerQuery = "
+SELECT
+	mb.FirstName,
+	mb.LastName,
+	vl.MembId,
+	vl.Role
+FROM volunteers cm
+INNER JOIN members mb
+ON vl.MembId = mb.MemberID
+WHERE
+	vl.Year = ?
+";
 require('../connecttopba.php');
-$stmt = mysqli_prepare($link, $teamQuery);
-mysqli_stmt_bind_param($stmt, "ii", $formyear, $formteam);
+$stmt = mysqli_prepare($link, $volunteerQuery);
+mysqli_stmt_bind_param($stmt, "i", $formyear);
 mysqli_stmt_execute($stmt);
-$teamResult = mysqli_stmt_get_result($stmt);
+$volunteerResult = mysqli_stmt_get_result($stmt);
 
-if (!$teamResult) 
+if (!$volunteerResult) 
 {
-	die('Team query failed: ' . mysqli_error($link));
+	die('volunteer query failed: ' . mysqli_error($link));
 }
-if (mysqli_num_rows($teamResult) > 0) 
+if (mysqli_num_rows($volunteerResult) > 0) 
 {	
-	echo '<select size="10" name="selectedcopy[]" id="selectedcopy" multiple>';
-	while ($team = mysqli_fetch_assoc($teamResult)) 
+	while ($volunteer = mysqli_fetch_assoc($volunteerResult)) 
 	{
-		if(empty($team['rl']))
-		{
-			echo '<option value='.$team['tmbid'].'>'.$team['FirstName'].' '.$team['LastName'].'</option>';
-		}
-		else
-		{
-			echo '<option value='.$team['tmbid'].'>'.$team['FirstName'].' '.$team['LastName'].' - '.$team['rl'].'</option>';
-		}
-		
+		echo '<tr><td style="border:0px; background-color:white;"><input type="checkbox" name="checked[]" value="'.$volunteer['MembId'].'"></td>';
+		echo '<td style="border:0px; background-color:white;">'.$volunteer['FirstName'].' '.$volunteer['LastName'].'</td>';
+		echo '<td style="border:0px; background-color:white;"><input type="text" name="'.$volunteer['MembId'].'" value="'.$volunteer['Role'].'"></td></tr>';
 		
 	}
-	echo '</select>';
+	
 }
 ?>
 <br><br>
+</table>
 
 </td>
-<td style="border:0px; background-color:white;">Use ctrl or cmd to select mutliple people to copy to the target team.
+<td style="border:0px; background-color:white;">
 <br><br><br>
 <input type="submit" value="Copy" name="copyvolunteers">
 </form>
