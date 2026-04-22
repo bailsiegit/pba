@@ -1,10 +1,11 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 21/4/2026 - added constant for timeout limit
 //this page provides tools to complete the login process
 if($_SERVER['REQUEST_METHOD'] == 'POST') #confirm button click
 {
 	require('../connecttopba.php');
 	require('pbalogin_tools.php');
+	require("../pbaconstants.php");
 	
 	#list function places returned values in the listed fields
 	list($check, $data) = 
@@ -19,7 +20,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') #confirm button click
 		$_SESSION['last_name'] = $data['lastname'];
 		$_SESSION['accesslevel'] = $data['accesslevel'];
 		$_SESSION['timeoutstart'] = time();
-		$_SESSION['timeoutlimit'] = 900;
+		$_SESSION['timeoutlimit'] = $PBAUSERTIMEOUT;
 		// if this is first login after pw reset, redirect to change pw
 		if($data['pwreset'] > 0)
 		{

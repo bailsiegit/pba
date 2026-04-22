@@ -1,9 +1,11 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 21/4/2026 - added GET checks for reduced version to show within activity pages
 //this is a simple login screen
 $page_title = "Login";
-include('pbaincludes/pbaheader.html');
-
+if(!isset($_GET['disp']))
+{
+	include('pbaincludes/pbaheader.html');
+}
 if(isset($errors) && !empty($errors)) #if any errors, list on screen
 {
 	echo '<p id="err_msg">Oops! There was a problem:<br>';
@@ -13,10 +15,21 @@ if(isset($errors) && !empty($errors)) #if any errors, list on screen
 	}
 	echo 'Please try again or <a href="pbaregister.php">Register</a>';
 }
-?>
 
-<h1>Login</h1>
-<p>or register <a href="pbaregister.php">here.</a></p>
+if(!isset($_GET['disp']))
+{
+	echo '<h1>Login</h1>';
+}
+else
+{
+	echo '<h4>Session expired. Please login.</h4>';
+}
+
+if(!isset($_GET['disp']))
+{
+	echo '<p>or register <a href="pbaregister.php">here.</a></p>';
+}
+?>
 <form action="pbalogin_action.php" method="POST">
 <p>
 Email Address: <input type="text" name = "email">
@@ -28,7 +41,10 @@ Password: <input type="password" name="pass">
 </form>
 
 <?php
-include('pbaincludes/pbafooter.html');
+if(!isset($_GET['disp']))
+{
+	include('pbaincludes/pbafooter.html');
+}
 ?>
 
 <script>
