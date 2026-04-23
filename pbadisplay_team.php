@@ -13,9 +13,6 @@ if(!isset($_SESSION['userid']) || time() - $_SESSION['timeoutstart'] > $_SESSION
 	header('Location: pbalogin.php?disp=1');
 }
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 require('../connecttopba.php');
 
 $getyear = (isset($_GET['yid'])) ? (int) $_GET['yid'] : $ty;
