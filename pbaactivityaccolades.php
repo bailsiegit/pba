@@ -7,10 +7,10 @@
 session_start();
 if(!isset($_SESSION['userid']) || time() - $_SESSION['timeoutstart'] > $_SESSION['timeoutlimit']) //check if user is logged in
 {
-	require('pbalogin_tools.php');
 	session_unset();
 	session_destroy();
-	load(); //redirect to login page
+	header('Location: pbalogin.php'); //redirect to login page
+	exit();
 }
 $page_title = 'Activity';
 include('pbaincludes/pbaheader.html');
@@ -120,13 +120,13 @@ echo '<td style="width:50%; border:0px; background-color:white;">';
 require('pbaincludes/pbaactivitiesmenu.php');
 // page header
 echo '<h2 style="margin-bottom:0px; padding-bottom:0px;" >Display Accolades List</h2>';
-echo '<p style="font-size:0.7em; margin-bottom:20px;">An accolade is an external recognition related to club activities</p>';
+echo '<p style="font-size:0.7em; margin-bottom:10px;">An accolade is an external recognition related to club activities</p>';
 //echo '<br style="line-height:1.5;">';
 
 
 ?>
 <!--search criteria form-->
-<div><br>
+<div>
 <form action="pbaactivityaccolades.php" method = "POST">
 Select accolades by year: 
 
@@ -162,7 +162,6 @@ while($pbayears = mysqli_fetch_array($r, MYSQLI_ASSOC))
 mysqli_close($link);
 ?>
 </select>
-<br>
 <br>
 </td><td style="width:50%; background-color:white; border:0px;">
 <?php

@@ -7,10 +7,10 @@ session_start();
 if(!isset($_SESSION['userid']) || time() - $_SESSION['timeoutstart'] > $_SESSION['timeoutlimit']) //check if user is logged in or session expired
 {
 	// if not logged in or session timed out redirect to login page
-	require('pbalogin_tools.php');
 	session_unset();
 	session_destroy();	
-	load(); //redirect to login page
+	header('Location: pbalogin.php'); //redirect to login page
+	exit();
 }
 $page_title = 'Activity'; //set page title for browser tab
 include('pbaincludes/pbaheader.html'); //start with header and main menu

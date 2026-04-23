@@ -7,8 +7,10 @@ session_start();
 
 if(!isset($_SESSION['userid']))
 {
-	require("pbalogin_tools.php");
-	load();
+	session_unset();
+	session_destroy();	
+	header('Location: pbalogin.php'); //redirect to login page
+	exit();
 }
 
 $page_title = "Goodbye";

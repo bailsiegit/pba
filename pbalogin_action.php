@@ -24,11 +24,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') #confirm button click
 		// if this is first login after pw reset, redirect to change pw
 		if($data['pwreset'] > 0)
 		{
-			load('pbachangepassword.php');
+			header('Location: pbachangepassword.php');
+			exit();
 		}
 		else // if not from pw reset, load home page
 		{
-			load('pbahome.php');
+			header('Location: pbahome.php');
+			exit();
 		}
 	}
 	else
