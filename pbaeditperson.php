@@ -8,10 +8,10 @@
 session_start();
 if(!isset($_SESSION['userid']) || time() - $_SESSION['timeoutstart'] > $_SESSION['timeoutlimit']) //check if user is logged in
 {
-	require('pbalogin_tools.php');
 	session_unset();
 	session_destroy();
-	load(); //redirect to login page
+	header('Location: pbalogin.php'); //redirect to login page
+	exit();
 }
 $page_title = 'People';
 include('pbaincludes/pbaheader.html');
@@ -112,8 +112,7 @@ if(isset($_POST['savechanges']))
 	
 	echo 'data write success';
 	//redirect to read only page
-	require('pbalogin_tools.php');
-	load("pbaperson.php?pid=$formmembid");
+	header('pbaperson.php?pid=$formmembid');
 }
 
 ?>

@@ -11,10 +11,8 @@ if(!isset($_SESSION['userid']) || time() - $_SESSION['timeoutstart'] > $_SESSION
 	session_unset();
 	session_destroy();
 	header('Location: pbalogin.php?disp=1');
+	exit();
 }
-
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 require('../connecttopba.php');
 
@@ -31,53 +29,30 @@ if (!$ryear)
 	die('Year query failed: ' . mysqli_error($link));
 }
 $yeartext = mysqli_fetch_assoc($ryear);
-    
 
-echo '<table style="width:100%;"><tr>';
-echo '<td style="width:50%; background:white; border:0px;">';
-//if(strlen($getrole) == 1)//if $getrole is zero then display for selected year
-//{
-	$accoladeQuery = "SELECT accolades.Accolade, accolades.Details, accolades.AccoladeId, members.MemberId, members.FirstName, 
-	members.LastName 
-	FROM members	 
-	INNER JOIN accolades ON members.MemberId = accolades.MembId 
-	WHERE accolades.YearId = ?";
-	$stmt = mysqli_prepare($link, $accoladeQuery);
-	mysqli_stmt_bind_param($stmt, "i", $getyear);
-	echo '<h4>'.$yeartext['YearText'].' - Accolades</h4>';
-//}
-//else //if $getrole has something other than zero, display for selected role
-//{
-//	$volunteerQuery = "SELECT years.YearText, volunteers.Role, volunteers.VolId, members.MemberId, members.FirstName, members.LastName 
-	//FROM members	 
-//	INNER JOIN volunteers ON members.MemberId = volunteers.MembId
-//	INNER JOIN years ON volunteers.YearId = years.YearId 
-//	WHERE volunteers.Role = ? 
-//	ORDER BY years.YearId DESC";
-//	$stmt = mysqli_prepare($link, $volunteerQuery);
-//	if ($stmt === false) {
-  //  die("Prepare failed: " . mysqli_error($link) . "<br>Query: $q");
-//}
-//	mysqli_stmt_bind_param($stmt, "s", $getrole);
-//	echo '<h4>'.$getrole.' - Volunteers</h4>';
-//}
-	
+
+// put a title above the results
+echo '<h4>'.$yeartext['YearText'].' - Accolades</h4>';
+
+//get all accolades for the selected year
+$accoladeQuery = "SELECT accolades.Accolade, accolades.Details, accolades.AccoladeId, members.MemberId, members.FirstName, 
+members.LastName 
+FROM members	 
+INNER JOIN accolades ON members.MemberId = accolades.MembId 
+WHERE accolades.YearId = ?";
+$stmt = mysqli_prepare($link, $accoladeQuery);
+mysqli_stmt_bind_param($stmt, "i", $getyear);
 mysqli_stmt_execute($stmt);
 $accoladeResult = mysqli_stmt_get_result($stmt);
 if (!$accoladeResult) 
 {
    die('accolade query failed: ' . mysqli_error($link));
 }
-echo '</td><td style="width:50%; background:white; border:0px;">  </td></tr></table>';
-echo '<p> </p><table width="90%">';
+
+//table for results
+echo '<table width="90%">';
 if (mysqli_num_rows($accoladeResult) > 0) 
 {
-//	if(strlen($getrole) > 1)
-//	{
-//		echo '<tr><th>Year</th><th>Name</th><th>Role</th></tr>'; //header for role based list
-//	}
-
-	
 	if($_SESSION['accesslevel'] > 3)
 	{
 		echo '<tr><th>Name</th><th>Accolade</th><th>Details</th><th>Document</th><th>Delete</th></tr>'; //headers for year based list with delete
@@ -89,12 +64,6 @@ if (mysqli_num_rows($accoladeResult) > 0)
 
 	while ($accolade = mysqli_fetch_assoc($accoladeResult)) 
 	{
-		//if(strlen($getrole) > 1)
-		//{
-		//	echo '<tr><td>'.$accolade['YearText'].'</td>
-		//		<td><a href="pbaperson.php?pid='.$accolade['MemberId'].'">'.$accolade['FirstName'].' '.$accolade['LastName'].'</a></td>
-		//		<td>'.$accolade['Accolade'].'</td><td>'.$accolade['Details'].'</tr>';
-		//}
 		//find how many documents are associated with the Accolade
 		$curracc = $accolade['AccoladeId'];
 		$qdocs = "SELECT COUNT(FileName) AS NumbFiles FROM documents WHERE ActivityRef = $curracc AND Activity = 'ac'";

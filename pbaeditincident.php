@@ -6,10 +6,10 @@
 session_start();
 if(!isset($_SESSION['userid']) || time() - $_SESSION['timeoutstart'] > $_SESSION['timeoutlimit']) //check if user is logged in
 {
-	require('pbalogin_tools.php');
 	session_unset();
 	session_destroy();
-	load(); //redirect to login page
+	header('Location: pbalogin.php'); //redirect to login page
+	exit();
 }
 $page_title = 'Activity';
 include('pbaincludes/pbaheader.html');
@@ -59,8 +59,7 @@ if(isset($_POST['update'])) //has form been submitted
 
 
 	//redirect back to incident list
-	require('pbalogin_tools.php');
-	load("pbaactivityincident.php");
+	header('pbaactivityincident.php');
 	exit();
 }
 ?>
