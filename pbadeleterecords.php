@@ -15,8 +15,7 @@ if(isset($_GET['aid'])) //check the task is to delete an award recipient
 	mysqli_stmt_bind_param($stmt, "iii", $awardid, $yearid, $personid);
 	mysqli_stmt_execute($stmt);
 	$r = mysqli_stmt_get_result($stmt);
-	require('pbalogin_tools.php');
-	load("pbaactivityawards.php?yid=$yearid");
+	header('Location: pbaactivityawards.php?yid=$yearid');
 	exit();
 }
 
@@ -31,8 +30,7 @@ if(isset($_GET['tid'])) //check task is to delete a team member
 	mysqli_stmt_bind_param($stmt, "iii", $teamid, $yearid, $personid);
 	mysqli_stmt_execute($stmt);
 	$r = mysqli_stmt_get_result($stmt);
-	require('pbalogin_tools.php');
-	load("pbaactivityteams.php?yid=$yearid&tid=$teamid");
+	header('pbaactivityteams.php?yid=$yearid&tid=$teamid');
 	exit();
 }
 
@@ -47,8 +45,7 @@ if(isset($_GET['msid'])) //check task is to delete a membership
 	mysqli_stmt_bind_param($stmt, "i", $membershipid);
 	mysqli_stmt_execute($stmt);
 	$r = mysqli_stmt_get_result($stmt);
-	require('pbalogin_tools.php');
-	load("pbaactivitymemberships.php?yid=$yearid&mid=$membtypeid");
+	header('Location: pbaactivitymemberships.php?yid=$yearid&mid=$membtypeid');
 	exit();
 }
 
@@ -63,8 +60,7 @@ if(isset($_GET['cid'])) //check task is to delete a committee member
 	mysqli_stmt_bind_param($stmt, "iii", $commid, $yearid, $personid);
 	mysqli_stmt_execute($stmt);
 	$r = mysqli_stmt_get_result($stmt);
-	require('pbalogin_tools.php');
-	load("pbaactivitycommittees.php?yid=$yearid&cid=$commid");
+	header('Location: pbaactivitycommittees.php?yid=$yearid&cid=$commid');
 	exit();
 }
 
@@ -78,8 +74,7 @@ if(isset($_GET['eid'])) //check task is to delete an employee
 	mysqli_stmt_bind_param($stmt, "i", $empid);
 	mysqli_stmt_execute($stmt);
 	$r = mysqli_stmt_get_result($stmt);
-	require('pbalogin_tools.php');
-	load("pbaactivityemployee.php?yid=$yearid");
+	header('pbaactivityemployee.php?yid=$yearid');
 	exit();
 }
 
@@ -93,8 +88,7 @@ if(isset($_GET['vid'])) //check task is to delete a volunteer
 	mysqli_stmt_bind_param($stmt, "i", $volid);
 	mysqli_stmt_execute($stmt);
 	$r = mysqli_stmt_get_result($stmt);
-	require('pbalogin_tools.php');
-	load("pbaactivityvolunteers.php?yid=$yearid");
+	header('pbaactivityvolunteers.php?yid=$yearid');
 	exit();
 }
 
@@ -108,8 +102,7 @@ if(isset($_GET['acid'])) //check task is to delete an accolade
 	mysqli_stmt_bind_param($stmt, "i", $accid);
 	mysqli_stmt_execute($stmt);
 	$r = mysqli_stmt_get_result($stmt);
-	require('pbalogin_tools.php');
-	load("pbaactivityaccolades.php?yid=$yearid");
+	header('pbaactivityaccolades.php?yid=$yearid');
 	exit();
 }
 
@@ -134,8 +127,7 @@ if(isset($_GET['inid']))
 		$r = mysqli_stmt_get_result($stmt);
 	}
 	//reload incident list page
-	require('pbalogin_tools.php');
-	load("pbaactivityincident.php");
+	header('pbaactivityincident.php');
 	exit();
 }
 ?>
