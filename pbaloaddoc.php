@@ -6,8 +6,10 @@
 session_start();
 if(!isset($_SESSION['userid']) || time() - $_SESSION['timeoutstart'] > $_SESSION['timeoutlimit']) //check if user is logged in
 {
-	require('pbalogin_tools.php');
-	load(); //redirect to login page
+	session_unset();
+	session_destroy();	
+	header('Location: pbalogin.php'); //redirect to login page
+	exit();
 }
 $page_title = 'Documents';
 include('pbaincludes/pbaheader.html');
