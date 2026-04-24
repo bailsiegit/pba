@@ -60,7 +60,7 @@ if(isset($_POST['update'])) //has form been submitted
 
 
 	//redirect back to memberships list
-	header('pbaactivitymemberships.php?mid=$formmtype&yid=$formyear');
+	header('Location: pbaactivitymemberships.php?mid=$formmtype&yid=$formyear');
 	exit();
 }
 ?>
