@@ -30,7 +30,7 @@ if(isset($_GET['tid'])) //check task is to delete a team member
 	mysqli_stmt_bind_param($stmt, "iii", $teamid, $yearid, $personid);
 	mysqli_stmt_execute($stmt);
 	$r = mysqli_stmt_get_result($stmt);
-	header('pbaactivityteams.php?yid=$yearid&tid=$teamid');
+	header('Location: pbaactivityteams.php?yid=$yearid&tid=$teamid');
 	exit();
 }
 
@@ -74,7 +74,7 @@ if(isset($_GET['eid'])) //check task is to delete an employee
 	mysqli_stmt_bind_param($stmt, "i", $empid);
 	mysqli_stmt_execute($stmt);
 	$r = mysqli_stmt_get_result($stmt);
-	header('pbaactivityemployee.php?yid=$yearid');
+	header('Location: pbaactivityemployee.php?yid=$yearid');
 	exit();
 }
 
@@ -88,7 +88,7 @@ if(isset($_GET['vid'])) //check task is to delete a volunteer
 	mysqli_stmt_bind_param($stmt, "i", $volid);
 	mysqli_stmt_execute($stmt);
 	$r = mysqli_stmt_get_result($stmt);
-	header('pbaactivityvolunteers.php?yid=$yearid');
+	header('Location: pbaactivityvolunteers.php?yid=$yearid');
 	exit();
 }
 
@@ -102,7 +102,7 @@ if(isset($_GET['acid'])) //check task is to delete an accolade
 	mysqli_stmt_bind_param($stmt, "i", $accid);
 	mysqli_stmt_execute($stmt);
 	$r = mysqli_stmt_get_result($stmt);
-	header('pbaactivityaccolades.php?yid=$yearid');
+	header('Location: pbaactivityaccolades.php?yid=$yearid');
 	exit();
 }
 
@@ -127,7 +127,7 @@ if(isset($_GET['inid']))
 		$r = mysqli_stmt_get_result($stmt);
 	}
 	//reload incident list page
-	header('pbaactivityincident.php');
+	header('Location: pbaactivityincident.php');
 	exit();
 }
 ?>

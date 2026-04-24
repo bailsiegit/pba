@@ -112,7 +112,7 @@ if(isset($_POST['savechanges']))
 	
 	echo 'data write success';
 	//redirect to read only page
-	header('pbaperson.php?pid=$formmembid');
+	header('Location: pbaperson.php?pid=$formmembid');
 }
 
 ?>
