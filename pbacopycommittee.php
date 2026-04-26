@@ -65,7 +65,7 @@ if(isset($_POST['copycommittee']))
 			$r = mysqli_stmt_get_result($stmt);
 		}
 		// once new records completed show new committee
-		header('Location: pbaactivitycommittees.php?yid='.$selectedyear.'&cid='.$selectedcommittee.'');
+		header("Location: pbaactivitycommittees.php?yid=$selectedyear&cid=$selectedcommittee");
 		exit();
 	}
 }

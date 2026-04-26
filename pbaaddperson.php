@@ -80,7 +80,7 @@ if(isset($_POST['savechanges']))
 		mysqli_close($link);
 
 		//redirect to read only page
-		header('Location: pbaperson.php?pid=$newmembid');
+		header("Location: pbaperson.php?pid=$newmembid");
 	}
 }
 
