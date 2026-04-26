@@ -65,7 +65,7 @@ if(isset($_POST['copyteam']))
 			$r = mysqli_stmt_get_result($stmt);
 		}
 		// once new records completed show new team
-		header('Location: pbaactivityteams.php?yid='.$selectedyear.'&tid='.$selectedteam.'');
+		header("Location: pbaactivityteams.php?yid=$selectedyear&tid=$selectedteam");
 		exit();
 	}
 }

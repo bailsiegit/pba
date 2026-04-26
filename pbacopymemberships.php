@@ -65,7 +65,7 @@ if(isset($_POST['copymembership']))
 			$r = mysqli_stmt_get_result($stmt);
 		}
 		// once new records completed show new membership group
-		header('Location: pbaactivitymemberships.php?yid='.$selectedyear.'&mid='.$selectedmembership.'');
+		header("Location: pbaactivitymemberships.php?yid=$selectedyear&mid=$selectedmembership");
 		exit();
 	}
 }

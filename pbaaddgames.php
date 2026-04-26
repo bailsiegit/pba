@@ -63,7 +63,7 @@ if(isset($_POST['update'])) //has form been submitted
 	}
 
 //redirect back to team list
-header('Location: pbaactivityteams.php?tid=$formteam&yid=$formyear');
+header("Location: pbaactivityteams.php?tid=$formteam&yid=$formyear");
 }
 ?>
 <div>
