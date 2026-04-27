@@ -260,8 +260,8 @@ $stickyselect = 0; //marker for managing year combo box
 
 <!-- //create form for adding records for selected person -->
 <form action="pbapersonaddactivity.php" method = "POST">
-<table width="50%">
-<tr><th width="15%">Add Activity Records</th><th width="30%"></th></tr>
+<table width="80%">
+<tr><th>Add Activity Records</th><th></th><th></th><th></th></tr>
 <tr><td style="text-align:right; width:25%">
 	<input type="hidden" name="membid" value="<?php if(isset($formmembid))echo $formmembid;?>">
 	<input type="hidden" name="membfn" value="<?php if(isset($formfn))echo $formfn;?>">
@@ -296,7 +296,7 @@ $stickyselect = 0; //reset sticky select
 </select></td></tr>
 
 <!--Team Section of Form-->
-<tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
+<tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
 <tr><td style="text-align:right;">Team: </td><td>
 <!-- //create team select combo box -->
 <select name="selectedteam" id="selectedteam">
@@ -320,11 +320,11 @@ while($pbateams = mysqli_fetch_array($r, MYSQLI_ASSOC))
 }
 
 ?>
-</td></tr>
-<tr><td style="text-align:right;">Team Role: </td><td><input type="text" name="teamrole" value="<?php if(isset($formteamrole)) echo $formteamrole;?>"></td></tr>
+</td>
+<td style="text-align:right;">Team Role: </td><td><input type="text" name="teamrole" value="<?php if(isset($formteamrole)) echo $formteamrole;?>"></td></tr>
 
 <!--Membership Section of Form-->
-<tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
+<tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
 <tr><td style="text-align:right;">Membership Type: </td><td>
 <!-- //create team select combo box -->
 <select name="selectedmembership" id="selectedmembership">
@@ -348,11 +348,11 @@ while($pbamemberships = mysqli_fetch_array($r, MYSQLI_ASSOC))
 }
 
 ?>
-</td></tr>
-<tr><td style="text-align:right;">Start Date: </td><td><input type="date" name="membershipstart" value="<?php if(isset($formmembershipstart)) echo $formmembershipstart;?>"></td></tr>
+</td>
+<td style="text-align:right;">Start Date: </td><td><input type="date" name="membershipstart" value="<?php if(isset($formmembershipstart)) echo $formmembershipstart;?>"></td></tr>
 
 <!--Committee Section of Form-->
-<tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
+<tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
 <tr><td style="text-align:right;">Committee: </td><td>
 <!-- //create committee select combo box -->
 <select name="selectedcommittee" id="selectedcommittee">
@@ -376,9 +376,9 @@ while($pbacommittees = mysqli_fetch_array($r, MYSQLI_ASSOC))
 }
 
 ?>
-</td></tr>
-<tr><td style="text-align:right;">Committee Role: </td><td><input type="text" name="committeerole" value="<?php if(isset($formcommitteerole)) echo $formcommitteerole;?>"></td></tr>
-<tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
+</td>
+<td style="text-align:right;">Committee Role: </td><td><input type="text" name="committeerole" value="<?php if(isset($formcommitteerole)) echo $formcommitteerole;?>"></td></tr>
+<tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
 
 <!--Awards Section of Form-->
 <tr><td style="text-align:right;">Award Name: </td><td>
@@ -405,9 +405,9 @@ while($pbaawards = mysqli_fetch_array($r, MYSQLI_ASSOC))
 $stickyselect = 0; //reset sticky select for next combo box
 ?>
 </select>
-</td></tr>
-<tr><td style="text-align:right;">Award Comment: </td><td><input type="text" name="awardcomment" value="<?php if(isset($formawardcomment)) echo $formawardcomment;?>"></td></tr>
-<tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
+</td>
+<td style="text-align:right;">Award Comment: </td><td><input type="text" name="awardcomment" value="<?php if(isset($formawardcomment)) echo $formawardcomment;?>"></td></tr>
+<tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
 
 <!--Accolades Section of Form-->
 <tr><td style="text-align:right;">Accolade: </td><td>
@@ -429,11 +429,11 @@ while ($accroles = mysqli_fetch_array($r, MYSQLI_ASSOC)) {
 <option value="custom">- Add New Accolade -</option>
 </select>
 <input type="text" id="customacc" name="customacc" style="display:none;" placeholder="Enter new accolade">
-</td></tr>
-<tr><td style="text-align:right;">Accolade Comment: </td><td><input type="text" name="accoladecomment"></td></tr>
+</td>
+<td style="text-align:right;">Accolade Detail: </td><td><input type="text" name="accoladecomment"></td></tr>
 
 <!--Volunteer Section of Form-->
-<tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
+<tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
 <tr><td style="text-align:right;">Volunteer Role: </td>
 <?php
 
@@ -457,7 +457,7 @@ while ($accroles = mysqli_fetch_array($r, MYSQLI_ASSOC)) {
 </td></tr>
 
 <!--Employee Section of Form-->
-<tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
+<tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
 <tr><td style="text-align:right;">Employee Role: </td><td>
 <select name="employeerole" id="selectemprole" onchange="checkCustomOptionEmp()">
 <option value="no selection" selected="selected">Select role...</option>
