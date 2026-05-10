@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 6/5/2026 - added details field to add emp area
 //this page is part if the activity area
 //it displays a list of employees by either year or role
 //new employees can be added when the year display is active
@@ -90,13 +90,14 @@ if(isset($_POST['addperson']) && $_POST['selectname'] > 0 && !empty($_POST['volu
 {
 	$formperson = htmlentities($_POST['selectname']);
 	$formrole = (!empty($_POST['customvolrole'])) ? htmlentities($_POST['customvolrole']) : htmlentities($_POST['volunteerrole']);
+	$formempdetails = (isset($_POST['empdetails'])) ? htmlentities($_POST['empdetails']) : "";
 	$formyear = htmlentities($_POST['selectedyear']);
 	require('../connecttopba.php');
 	
 	//IGNORE will skip error if new entry is a duplicate
-	$q = "INSERT IGNORE INTO employees (MembId, Role, YearId) VALUES (?, ?, ?)";
+	$q = "INSERT IGNORE INTO employees (MembId, Role, YearId, Details) VALUES (?, ?, ?, ?)";
 	$stmt = mysqli_prepare($link, $q);
-	mysqli_stmt_bind_param($stmt, "isi", $formperson, $formrole, $formyear);
+	mysqli_stmt_bind_param($stmt, "isis", $formperson, $formrole, $formyear, $formempdetails);
 	mysqli_stmt_execute($stmt);
 			
 	mysqli_close($link);
@@ -194,7 +195,7 @@ if($_SESSION['accesslevel'] > 1) //only show download button if user has permiss
 if($_SESSION['accesslevel'] > 2) // read write and above get access to add memberships
 {
 ?>
-	<br>Select view by year to add employees.<br style="height:2em">Name:
+	Name:
 	<select style="margin:5px" name="selectname" id="selectname">
 	<option value="0">Select person...</option>
 <?php
@@ -226,6 +227,7 @@ if($_SESSION['accesslevel'] > 2) // read write and above get access to add membe
 </select>
 
 <input type="text" id="customvolrole" name="customvolrole" style="display:none;" placeholder="Enter new role">
+<br>Details: <input type="text" style="margin:5px;" size="30" name="empdetails">
 <?php
 	echo '<input type="submit" value="Add Person to employees" name="addperson">';
 }
