@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 10/5/2026 - reformat back to search button and sort salutation combo
 //this page is part of the people group
 //it is called from the people search screen
 //it collects personal details and creates that new person in the database
@@ -102,7 +102,7 @@ else
 </h2></td>
 <td  style="background-color:white; border:0px; vertical-align:bottom;"></td>
 </tr></table>
-<a href="pbasearch.php">| Back to Search |</a>
+<a class="submenu" href="pbasearch.php"> Back to Search </a>
 
 <!-- //create form for person editing and creating -->
 <form action="pbaaddperson.php" method = "POST">
@@ -116,7 +116,7 @@ else
 <?php
 // get all salutation data for combo box
 require('../connecttopba.php');
-$q = 'SELECT * FROM salutations';
+$q = 'SELECT * FROM salutations ORDER BY SalutationId';
 $r = mysqli_query($link, $q, MYSQLI_STORE_RESULT);
 
 // build salutations combo box from above query
