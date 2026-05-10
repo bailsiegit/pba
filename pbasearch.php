@@ -1,8 +1,8 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 10/5/2026 - made seaerch criteria sticky and add clear button to clear search criteria
 //this page is part of the people group
 //this page uses wild cards to add to the characters provided 
-//then provides a list of people and their DOB that match the criteria
+//then provides a list of people and their YOB that match the criteria
 
 session_start();
 //check that user is logged in and has not been idle for too long
@@ -32,9 +32,10 @@ if($_SESSION['accesslevel'] < 1)
 
 <!-- search form -->
 <form action="pbasearch.php" method = "POST"> 
-First Name: <input type="text" name="first_name">
-Last Name: <input type="text" name="last_name">
+First Name: <input type="text" name="first_name" id="first_name" value="<?php echo isset($_POST['searchbutton']) ? htmlentities($_POST['first_name']) : "";?>">
+Last Name: <input type="text" name="last_name" id="last_name" value="<?php echo isset($_POST['searchbutton']) ? htmlentities($_POST['last_name']) : "";?>">
 <input type="submit" name="searchbutton" value="Search">
+<button type="button" onclick="clearCriteria()">Clear</button>
 <button><a style="text-decoration:none; color:black;" href="pbaaddperson.php">Add New Person</a></button>
 </form>
 <hr>
@@ -88,6 +89,9 @@ include('pbaincludes/pbafooter.html');
 ?>
 
 <script>
-//this is a test script file
+    function clearCriteria() {
+		document.getElementById("first_name").value = ""; // clear firstname field		
+        document.getElementById("last_name").value = ""; //clear last anme field
+    }
 </script>
 </body></html>
