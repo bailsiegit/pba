@@ -62,6 +62,7 @@ if(isset($_POST['copyemployee']))
 			$r = mysqli_stmt_get_result($stmt);
 			}
 		}
+		
 		// once new records completed show new employee
 		//header('Location: pbaactivityemployee.php?yid='.$selectedyear.'');
 		//exit();

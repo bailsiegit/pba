@@ -59,7 +59,7 @@ if(isset($_POST['update'])) //has form been submitted
 
 
 	//redirect back to incident list
-	header('pbaactivityincident.php');
+	header('Location: pbaactivityincident.php');
 	exit();
 }
 ?>

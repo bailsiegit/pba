@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 6/5/2026 - added Details to results table
 //this page is part of the people group
 //this page lists the work history of the person
 
@@ -48,7 +48,7 @@ echo '<h2>'.$person['FirstName'].' '.$person['LastName'].'</h2>';
 require('pbaincludes/pbapersonmenu.php');
 
 // get a list of all the employee roles the person has done
-$q = 'SELECT Role, years.YearText FROM employees INNER JOIN years ON employees.YearId = years.YearId
+$q = 'SELECT Role, Details, years.YearText FROM employees INNER JOIN years ON employees.YearId = years.YearId
  WHERE MembId = ? ORDER BY YearText DESC';
 $stmt = mysqli_prepare($link, $q);
 mysqli_stmt_bind_param($stmt, "i", $pid);
@@ -63,10 +63,10 @@ else
 {
 	echo '<p> </p><table width="90%">';
 		
-	echo '<tr><th width="15%">Year</th><th width="30%">Employee Role</th></tr>';
+	echo '<tr><th width="15%">Year</th><th width="30%">Employee Role</th><th>Details</th></tr>';
 	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
 	{
-		echo '<tr><td>'.$row['YearText'].'</td><td>' . $row['Role'] . '</td></tr>';
+		echo '<tr><td>'.$row['YearText'].'</td><td>' . $row['Role'] . '</td><td>' . $row['Details'] . '</td></tr>';
 	}
 		echo '</table>';
 }

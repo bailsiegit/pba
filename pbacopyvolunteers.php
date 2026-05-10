@@ -51,6 +51,7 @@ if(isset($_POST['copyteam']))
 			mysqli_stmt_execute($stmt);
 			$r = mysqli_stmt_get_result($stmt);
 		}
+
 		header('Location: pbaactivityvolunteers.php?yid='.$formyear.'');
 		exit();
 	}

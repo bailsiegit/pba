@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 6/5/2026 - added details field to volunteer and employee sections
 //this page is part of the reports group
 //it is called from the reports page after the selection of a person
 //a pdf of all activities for the person is generated and downloaded
@@ -184,16 +184,17 @@ class PDF extends FPDF
 		
         $pdf->Ln(10);
 		$pdf->SetFont('Arial', '', 14);
-		$pdf->Cell(180, 10, "Voluteer", "TB", 1);
+		$pdf->Cell(180, 10, "Volunteer", "TB", 1);
 		$pdf->Ln(5);
 		$pdf->SetFont('Arial', '', 12);
 		$pdf->Cell(15, 10, 'Year', 1, 0, 'C');
-		$pdf->Cell(40, 10, 'Role', 1, 1, 'C');
+		$pdf->Cell(50, 10, 'Role', 1, 0, 'C');
+		$pdf->Cell(50, 10, 'Details', 1, 1, 'C');
 		
 
 		$pdf->SetFont('Arial', '', 10);
 		
-		$q = "SELECT Role, years.YearText FROM volunteers 
+		$q = "SELECT Role, Details, years.YearText FROM volunteers 
 		INNER JOIN years ON volunteers.YearId = years.YearId
 		WHERE MembId = ? ORDER BY YearText DESC";	
 		require('../connecttopba.php');
@@ -208,8 +209,10 @@ class PDF extends FPDF
 			{
 				$yr = $row['YearText'];
 				$vr = $row['Role'];
+				$dr = $row['Details'];
 				$pdf->Cell(15, 7, "$yr", 1);
-				$pdf->Cell(40, 7, "$vr", 1, 1); //extra parameter is to start new line
+				$pdf->Cell(50, 7, "$vr", 1);
+				$pdf->Cell(50, 7, "$dr", 1, 1); //extra parameter is to start new line
 			}
 		}
 		else
@@ -265,12 +268,13 @@ class PDF extends FPDF
 		$pdf->Ln(5);
 		$pdf->SetFont('Arial', '', 12);
 		$pdf->Cell(15, 10, 'Year', 1, 0, 'C');
-		$pdf->Cell(40, 10, 'Role', 1, 1, 'C');
+		$pdf->Cell(50, 10, 'Role', 1, 0, 'C');
+		$pdf->Cell(50, 10, 'Details', 1, 1, 'C');
 		
 
 		$pdf->SetFont('Arial', '', 10);
 		
-		$q = "SELECT Role, years.YearText FROM employees 
+		$q = "SELECT Role, Details, years.YearText FROM employees 
 		INNER JOIN years ON employees.YearId = years.YearId
 		WHERE MembId = ? ORDER BY YearText DESC";
 		require('../connecttopba.php');
@@ -285,8 +289,10 @@ class PDF extends FPDF
 			{
 				$yr = $row['YearText'];
 				$er = $row['Role'];
+				$ed = $row['Details'];
 				$pdf->Cell(15, 7, "$yr", 1);
-				$pdf->Cell(40, 7, "$er", 1, 1); //extra parameter is to start new line
+				$pdf->Cell(50, 7, "$er", 1);
+				$pdf->Cell(50, 7, "$ed", 1, 1); //extra parameter is to start new line
 			}
 		}
 		else
