@@ -1,5 +1,5 @@
 <?php
-//Rev 2 21/4/2026 - added timeout check
+//Rev 3 6/5/2026 - added details column to results
 //this page is called either directly or via javascript by the activity employees page
 //this page creates the table for display on that page
 if(isset($_GET['java']) && $_GET['java'] == 1)
@@ -39,7 +39,7 @@ echo '<table style="width:100%;"><tr>';
 echo '<td style="width:50%; background:white; border:0px;">';
 if(strlen($getrole) == 1)//if $getrole is zero then display for selected year
 {
-	$employeeQuery = "SELECT employees.Role, employees.EmpId, members.MemberId, members.FirstName, members.LastName 
+	$employeeQuery = "SELECT employees.Role, employees.Details, employees.EmpId, members.MemberId, members.FirstName, members.LastName 
 	FROM members	 
 	INNER JOIN employees ON members.MemberId = employees.MembId 
 	WHERE employees.YearId = ?";
@@ -49,7 +49,7 @@ if(strlen($getrole) == 1)//if $getrole is zero then display for selected year
 }
 else //if $getrole has something other than zero, display for selected role
 {
-	$employeeQuery = "SELECT years.YearText, employees.Role, employees.EmpId, members.MemberId, members.FirstName, members.LastName 
+	$employeeQuery = "SELECT years.YearText, employees.Role, employees.Details, employees.EmpId, members.MemberId, members.FirstName, members.LastName 
 	FROM members	 
 	INNER JOIN employees ON members.MemberId = employees.MembId
 	INNER JOIN years ON employees.YearId = years.YearId WHERE employees.Role = ?
@@ -71,15 +71,15 @@ if (mysqli_num_rows($employeeResult) > 0)
 {
 	if(strlen($getrole) > 1)
 	{
-		echo '<tr><th>Year</th><th>Name</th><th>Role</th></tr>'; //header for role based list
+		echo '<tr><th>Year</th><th>Name</th><th>Role</th><th>Details</th></tr>'; //header for role based list
 	}
 	elseif($_SESSION['accesslevel'] > 3 && strlen($getrole) == 1)
 	{
-		echo '<tr><th>Name</th><th>Role</th><th>Delete</th></tr>'; //headers for year based list with delete
+		echo '<tr><th>Name</th><th>Role</th><th>Details</th><th>Delete</th></tr>'; //headers for year based list with delete
 	}
 	else
 	{
-		echo '<tr><th>Name</th><th>Role</th></tr>'; //headers for year based list
+		echo '<tr><th>Name</th><th>Role</th><th>Details</th></tr>'; //headers for year based list
 	}
 
 	while ($employee = mysqli_fetch_assoc($employeeResult)) 
@@ -88,18 +88,18 @@ if (mysqli_num_rows($employeeResult) > 0)
 		{
 			echo '<tr><td>'.$employee['YearText'].'</td>
 				<td><a href="pbaperson.php?pid='.$employee['MemberId'].'">'.$employee['FirstName'].' '.$employee['LastName'].'</a></td>
-				<td>'.$employee['Role'].'</td></tr>';
+				<td>'.$employee['Role'].'</td><td>'.$employee['Details'].'</td></tr>';
 		}
 		elseif($_SESSION['accesslevel'] > 3 && strlen($getrole) == 1)
 		{
 			echo '<tr><td><a href="pbaperson.php?pid='.$employee['MemberId'].'">'.$employee['FirstName'].' '.$employee['LastName'].'</a></td>
-				<td>'.$employee['Role'].'</td>
+				<td>'.$employee['Role'].'</td><td>'.$employee['Details'].'</td>
 				<td><a onclick="return confirm(\'Are you sure?\');" class="buttonlink" href="pbadeleterecords.php?eid='.$employee['EmpId'].'&yid='.$getyear.'">Delete</a></td></tr>';
 		}
 		else
 		{
 			echo '<tr><td><a href="pbaperson.php?pid='.$employee['MemberId'].'">'.$employee['FirstName'].' '.$employee['LastName'].'</a></td>
-				<td>'.$employee['Role'].'</td></tr>';
+				<td>'.$employee['Role'].'</td><td>'.$employee['Details'].'</td></tr>';
 		}
 	}		
 }

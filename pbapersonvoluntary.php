@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 6/5/2026 - added details field to results table
 //this age is part of the people group
 //this page lists all the volunteer roles the person has had
 
@@ -52,7 +52,7 @@ echo '<h2>'.$person['FirstName'].' '.$person['LastName'].'</h2>';
 require('pbaincludes/pbapersonmenu.php');
 
 // get a list of all the volunteer roles the person has done
-$q = 'SELECT Role, years.YearText FROM volunteers 
+$q = 'SELECT Role, Details, years.YearText FROM volunteers 
 INNER JOIN years ON volunteers.YearId = years.YearId
  WHERE MembId = ? ORDER BY YearText DESC';
 $stmt = mysqli_prepare($link, $q);
@@ -68,10 +68,10 @@ else
 {
 	echo '<p> </p><table width="90%">';
 		
-	echo '<tr><th width="15%">Year</th><th width="30%">Volunteer Role</th></tr>';
+	echo '<tr><th width="15%">Year</th><th width="30%">Volunteer Role</th><th>Details</th></tr>';
 	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
 	{
-		echo '<tr><td>'.$row['YearText'].'</td><td>' . $row['Role'] . '</td></tr>';
+		echo '<tr><td>'.$row['YearText'].'</td><td>' . $row['Role'] . '</td><td>' . $row['Details'] . '</td></tr>';
 	}
 		echo '</table>';
 }

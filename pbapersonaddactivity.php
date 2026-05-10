@@ -177,12 +177,13 @@ if(isset($_POST['savechanges']))
 		$formvolunteerrole = htmlentities(trim($_POST['volcustomrole']));
 	}
 	if(!empty($formvolunteerrole)){
-		$sql = "INSERT IGNORE INTO volunteers (MembId, Role, YearId) VALUES (?, ?, ?)";
+		$formvoldetail = isset($_POST['voldetails']) ? htmlentities($_POST['voldetails']) : "";
+		$sql = "INSERT IGNORE INTO volunteers (MembId, Role, YearId, Details) VALUES (?, ?, ?, ?)";
 		//connect to database
 		require('../connecttopba.php');
 		// run insert query
 		$stmt = mysqli_prepare($link, $sql);
-		mysqli_stmt_bind_param($stmt, "isi", $formmembid, $formvolunteerrole, $formyear);
+		mysqli_stmt_bind_param($stmt, "isis", $formmembid, $formvolunteerrole, $formyear, $formvoldetail);
 		mysqli_stmt_execute($stmt);
 		if(mysqli_stmt_affected_rows($stmt) == 1)
 		{
@@ -202,12 +203,13 @@ if(isset($_POST['savechanges']))
 		$formemployeerole = htmlentities(trim($_POST['customemprole']));
 	}
 	if(!empty($formemployeerole)){
-		$sql = "INSERT IGNORE INTO employees (MembId, Role, YearId) VALUES (?, ?, ?)";
+		$formempdetail = isset($_POST['empdetails']) ? htmlentities($_POST['empdetails']) : "";
+		$sql = "INSERT IGNORE INTO employees (MembId, Role, YearId, Details) VALUES (?, ?, ?, ?)";
 		//connect to database
 		require('../connecttopba.php');
 		// run insert query
 		$stmt = mysqli_prepare($link, $sql);
-		mysqli_stmt_bind_param($stmt, "isi", $formmembid, $formemployeerole, $formyear);
+		mysqli_stmt_bind_param($stmt, "isis", $formmembid, $formemployeerole, $formyear, $formempdetail);
 		mysqli_stmt_execute($stmt);
 		if(mysqli_stmt_affected_rows($stmt) == 1)
 		{
@@ -260,14 +262,14 @@ $stickyselect = 0; //marker for managing year combo box
 
 <!-- //create form for adding records for selected person -->
 <form action="pbapersonaddactivity.php" method = "POST">
-<table width="80%">
-<tr><th>Add Activity Records</th><th></th><th></th><th></th></tr>
-<tr><td style="text-align:right; width:25%">
+<table width="100%">
+<tr><th>Add Activity Records</th><th></th></tr>
+<tr><td style="text-align:right; width:20%;">
 	<input type="hidden" name="membid" value="<?php if(isset($formmembid))echo $formmembid;?>">
 	<input type="hidden" name="membfn" value="<?php if(isset($formfn))echo $formfn;?>">
 	<input type="hidden" name="membln" value="<?php if(isset($formln))echo $formln;?>">
 	Year: </td>
-<td>
+<td style="width:30%;">
 <!-- //create year select combo box -->
 <select name="selectedyear" id="selectedyear">
 <?php
@@ -321,7 +323,7 @@ while($pbateams = mysqli_fetch_array($r, MYSQLI_ASSOC))
 
 ?>
 </td>
-<td style="text-align:right;">Team Role: </td><td><input type="text" name="teamrole" value="<?php if(isset($formteamrole)) echo $formteamrole;?>"></td></tr>
+<td style="text-align:right; width:20%">Team Role: </td><td style="width:30%;"><input type="text" name="teamrole" value="<?php if(isset($formteamrole)) echo $formteamrole;?>"></td></tr>
 
 <!--Membership Section of Form-->
 <tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
@@ -406,7 +408,7 @@ $stickyselect = 0; //reset sticky select for next combo box
 ?>
 </select>
 </td>
-<td style="text-align:right;">Award Comment: </td><td><input type="text" name="awardcomment" value="<?php if(isset($formawardcomment)) echo $formawardcomment;?>"></td></tr>
+<td style="text-align:right;">Award Comment: </td><td><input type="text" size="30" name="awardcomment" value="<?php if(isset($formawardcomment)) echo $formawardcomment;?>"></td></tr>
 <tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
 
 <!--Accolades Section of Form-->
@@ -430,7 +432,7 @@ while ($accroles = mysqli_fetch_array($r, MYSQLI_ASSOC)) {
 </select>
 <input type="text" id="customacc" name="customacc" style="display:none;" placeholder="Enter new accolade">
 </td>
-<td style="text-align:right;">Accolade Detail: </td><td><input type="text" name="accoladecomment"></td></tr>
+<td style="text-align:right;">Accolade Detail: </td><td><input type="text" size="30" name="accoladecomment"></td></tr>
 
 <!--Volunteer Section of Form-->
 <tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
@@ -454,7 +456,8 @@ while ($accroles = mysqli_fetch_array($r, MYSQLI_ASSOC)) {
 
 <input type="text" id="volcustomrole" name="volcustomrole" style="display:none;" placeholder="Enter new role">
 
-</td></tr>
+</td>
+<td style="text-align:right;">Volunteer Detail: </td><td><input type="text" size="30" name="voldetails"></td></tr>
 
 <!--Employee Section of Form-->
 <tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
@@ -475,7 +478,8 @@ while ($accroles = mysqli_fetch_array($r, MYSQLI_ASSOC)) {
 
 <input type="text" id="customemprole" name="customemprole" style="display:none;" placeholder="Enter new role">
 
-</td></tr></table>
+</td>
+<td style="text-align:right;">Employee Detail: </td><td><input type="text" size="30" name="empdetails"></td></tr></table>
 
 <input type="submit" value="Save" name="savechanges">
 
