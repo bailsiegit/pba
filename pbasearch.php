@@ -52,7 +52,7 @@ if(isset($_POST['searchbutton']))
 		$ln = '%'.mysqli_real_escape_string($link,trim($_POST['last_name'])).'%';
 		
 		//first search query
-		$q = 'SELECT * FROM members WHERE FirstName LIKE ? AND LastName LIKE ? ORDER BY LastName';
+		$q = 'SELECT * FROM members WHERE FirstName LIKE ? AND LastName LIKE ? ORDER BY LastName, FirstName';
 		$stmt = mysqli_prepare($link, $q);
 		mysqli_stmt_bind_param($stmt, "ss", $fn, $ln);
 		mysqli_stmt_execute($stmt);
