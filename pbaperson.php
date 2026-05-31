@@ -1,5 +1,5 @@
 <?php
-// Rev 1 19/11/2025
+// Rev 2 13/5/2026 - added Member number to display details
 //this page is called from various places to show the details of a person
 // Any personal data fields added or removed from this page must also be
 // changed on pbaeditperson.php, pbaaddperson.php
@@ -91,7 +91,8 @@ require('pbaincludes/pbapersonmenu.php');
 		
 	echo '<tr><th width="15%">Details</th><th width="30%"></th><th width="15%"></th><th width="30%"></th></tr>';
 	
-	echo '<tr><td style="text-align:right; width:25%">Salutation: </td><td>' . $person['Salutation'] . '</td></tr>';
+	echo '<tr><td style="text-align:right; width:25%">Salutation: </td><td>' . $person['Salutation'] . '</td>
+	<td style="text-align:right; width:25%">Member No: </td><td>' . $person['MemberID'] . '</td></tr>';
 	echo '<tr><td style="text-align:right;">First Name: </td><td>' . $person['FirstName'] . '</td></tr>';
 	echo '<tr><td style="text-align:right;">Last Name: </td><td>' . $person['LastName'] . '</td></tr>';
 	echo '<tr><td style="text-align:right;">Date of Birth: </td><td>';
