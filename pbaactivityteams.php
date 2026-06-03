@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 3/6/2026 - added team status selection and add button
 //this page is part of the activity group
 //it displays teams when a year and team name is selected
 //the teams pick list is dependent on the year selection
@@ -71,6 +71,22 @@ if(isset($_POST['downloadteam']) && $_POST['selectedteam'] > 0) {
 	header('Location: pbadownloadcsv.php?fn=pbateamlist');
 	exit;
 
+}
+
+//add team Result
+if(isset($_POST['addresult']) && $_POST['teamresult'] > 0)
+{
+	$formresult = htmlentities($_POST['teamresult']);
+	$formyear = htmlentities($_POST['selectedyear']);
+	$formteam = htmlentities($_POST['selectedteam']);
+	require('../connecttopba.php');
+	// use IGNORE to prevent errors if new record is a duplicate	
+	$q = "INSERT IGNORE INTO teamresults (TeamResultId, TeamId, YearId) VALUES (?, ?, ?)";
+	$stmt = mysqli_prepare($link, $q);
+	mysqli_stmt_bind_param($stmt, "iii", $formresult, $formteam, $formyear);
+	mysqli_stmt_execute($stmt);
+	mysqli_stmt_close($stmt);
+	mysqli_close($link);
 }
 	
 //add person to displayed team
@@ -157,13 +173,28 @@ include('pbaget_teams.php');
 if($_SESSION['accesslevel'] > 1) //only show download button if user has permission
 {
 	?>
-Download team list.  <input type="submit" value="Download" name="downloadteam"><hr>
+Download team list.  <input type="submit" value="Download" name="downloadteam">
 <?php
 }
+if($_SESSION['accesslevel'] > 2) //only show add team status if user has permission
+{
+	echo '<select name="teamresult" id="teamresult" style="margin-left:10px;">';
+	echo '<option value="0">Select status...</option>';
+	$q = 'SELECT TeamResultId, TeamResultText FROM teamresultoptions ORDER BY TeamResultId';
+	require('../connecttopba.php');
+	$r = mysqli_query($link, $q);
+	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
+	{
+		echo '<option value="'.$row['TeamResultId'].'">'.$row['TeamResultText'].'</option>';
+	}
+	echo '</select>';
+	echo '<input type="submit" value="Add Team Result" name="addresult" style="margin-left:5px;">';
+}
 ?>
+<hr>
 
 <?php
-if($_SESSION['accesslevel'] > 2)
+if($_SESSION['accesslevel'] > 2) // only show add team members if user has permission
 {
 ?>
 	<br>Name:

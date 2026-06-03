@@ -1,5 +1,5 @@
 <?php
-//Rev 2 21/4/2026 - added timeout check
+//Rev 3 3/6/2026 - added team status display under team name
 //this page is called either directly or via javascript from the team activity page
 //this page creates the table of results to display in that page
 if(isset($_GET['java']) && $_GET['java'] == 1)
@@ -36,7 +36,18 @@ mysqli_stmt_bind_param($stmt, "i", $getteam);
 mysqli_stmt_execute($stmt);
 $rteam = mysqli_stmt_get_result($stmt);
 $teamname = mysqli_fetch_assoc($rteam);
-   
+
+//get any team status records
+$qstatus = "SELECT tro.TeamResultText FROM teamresultoptions tro
+INNER JOIN teamresults tr
+ON tr.TeamResultId = tro.TeamResultId WHERE tr.TeamId = ? AND tr.YearId = ? ORDER BY tr.TeamResultId";
+$stmt = mysqli_prepare($link, $qstatus);
+mysqli_stmt_bind_param($stmt, "ii", $getteam, $getyear);
+mysqli_stmt_execute($stmt);
+$rresults = mysqli_stmt_get_result($stmt);
+//$statuses = mysqli_fetch_assoc($rteam);
+
+//get team members   
 $teamQuery = "SELECT rl, gp, tn, mbid, members.FirstName, members.LastName, tmid, yrid FROM
 	(SELECT 
 	Role AS rl, 
@@ -62,7 +73,26 @@ if (!$teamResult)
 if (mysqli_num_rows($teamResult) > 0) 
 {	
 	echo '<table style="width:100%;"><tr>';
-	echo '<td style="width:50%; background:white; border:0px;"><h4>'.$yeartext['YearText'].' - '.$teamname['TeamName'].'</h4></td>';
+	echo '<td style="width:50%; background:white; border:0px;"><h4 style="margin-bottom:2px;">'.$yeartext['YearText'].' - '.$teamname['TeamName'].'</h4>';
+	if(mysqli_num_rows($rresults) > 0)
+	{
+		while($results = mysqli_fetch_assoc($rresults))
+		{
+			$currentstatus = $results['TeamResultText'];
+			if($currentstatus == "Champions")
+			{
+				echo '<span style="font-size:1.3em; font_weight:bold;">';
+				echo $results['TeamResultText'];
+				echo '!!</span>';
+			}
+			else
+			{
+				echo $results['TeamResultText'];
+			}
+			echo '<br>';
+		}
+	}
+	echo '</td>';
 	echo '<td style="width:50%; background:white; border:0px;">
 	<a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbadocslist.php?yid='.$getyear.'&actid=tm&refid='.$getteam.'">Team Documents</a>';
 	if($_SESSION['accesslevel'] > 3)

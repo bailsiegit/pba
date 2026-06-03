@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 3/6/2026 - odrered teams alphabetically
 //this page is called from either the loading of pbaactivityteams.php
 //or the javascript on that page
 //this page then limits the teams combo box to only those teams 
@@ -30,7 +30,7 @@ $yeartext = mysqli_fetch_assoc($ryear);
 //find teams that have members for selected year
 $teamQuery = "SELECT teammembers.TeamId, TeamName FROM (teams 
 INNER JOIN teammembers ON teams.TeamId = teammembers.TeamId) 
-WHERE teammembers.YearId = ? GROUP BY TeamName";
+WHERE teammembers.YearId = ? GROUP BY TeamName ORDER BY TeamName";
 $stmt = mysqli_prepare($link, $teamQuery);
 mysqli_stmt_bind_param($stmt, "i", $year);
 mysqli_stmt_execute($stmt);
