@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 14/8/2026 - added team column to match new awards structure
 //this page is part of the people group
 //this page lists all the awards the individual has won
 //this page lists all the awards the individual has won
@@ -52,9 +52,17 @@ echo '<h2>'.$person['FirstName'].' '.$person['LastName'].'</h2>';
 require('pbaincludes/pbapersonmenu.php');
 
 // get a list of all the awards the person has received
-$q = 'SELECT Comments, awards.AwardName , years.YearText FROM ((awardwinners 
-INNER JOIN awards ON awardwinners.AwardId = awards.AwardID) INNER JOIN years ON awardwinners.YearId = years.YearId)
- WHERE MembId = ? ORDER BY YearText DESC';
+$q = 'SELECT 
+aw.Comments, 
+t.TeamName,
+a.AwardName, 
+y.YearText 
+FROM awardwinners aw
+JOIN awards a ON aw.AwardId = a.AwardID
+JOIN years y ON aw.YearId = y.YearId
+JOIN teams t ON aw.TeamId = t.TeamId
+ WHERE MembId = ? 
+ ORDER BY y.YearText DESC, a.DisplayOrder';
 $stmt = mysqli_prepare($link, $q);
 mysqli_stmt_bind_param($stmt, "i", $pid);
 mysqli_stmt_execute($stmt);
@@ -67,10 +75,10 @@ else
 {
 	echo '<p> </p><table width="90%">';
 		
-	echo '<tr><th width="15%">Year</th><th width="30%">Award</th><th>Comments</th></tr>';
+	echo '<tr><th width="15%">Year</th><th width="30%">Award</th><th>Team</th><th>Comments</th></tr>';
 	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
 	{
-		echo '<tr><td>'.$row['YearText'].'</td><td>' . $row['AwardName'] . '</td><td>'. $row['Comments'].'</td></tr>';
+		echo '<tr><td>'.$row['YearText'].'</td><td>' . $row['AwardName'] . '</td><td>' . $row['TeamName'] . '</td><td>'. $row['Comments'].'</td></tr>';
 	}
 		echo '</table>';
 }

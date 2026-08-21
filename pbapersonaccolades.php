@@ -1,5 +1,5 @@
 <?php
-//Rev 1 12/12/2025
+//Rev 2 14/8/2026 - removed erroneous hyperlink from Accolade column
 //this age is part of the people group
 //this page lists all the volunteer roles the person has had
 
@@ -70,7 +70,7 @@ else
 	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
 	{
 		echo '<tr><td><a href="pbaactivityaccolades.php?yid='.$row['YearId'].'">'.$row['YearText'].'</a></td>
-		<td><a href="pbaactivityaccolades.php?yid='.$row['YearId'].'">' . $row['Accolade'] . '</a></td><td>'.$row['Details'].'</td></tr>';
+		<td>' . $row['Accolade'] . '</a></td><td>'.$row['Details'].'</td></tr>';
 	}
 		echo '</table>';
 }

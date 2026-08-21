@@ -1,5 +1,5 @@
 <?php
-//Rev 3 31/5/20026 - added incident and accolade section
+//Rev 4 14/8/2026 - Added team column to awards section to match new awards structure
 //this page is part of the reports group
 //it is called from the reports page after the selection of a person
 //a pdf of all activities for the person is generated and downloaded
@@ -21,7 +21,7 @@ class PDF extends FPDF
 		//$this->Cell(30, 10, "(or proxy name)", 'TRB', 1, 'L');
 	}
 	
-	    function Footer()
+	function Footer()
     {
         // Go to 1.5 cm from bottom
         $this->SetY(-15);
@@ -30,7 +30,21 @@ class PDF extends FPDF
         // Print centered page number
         $this->Cell(0, 10, 'Page '.$this->PageNo().' of {nb}', 0, 0, 'C');
     }
+
 }
+	function rowHeight($d1, $d2, $d3, $d4)
+	{
+		//check if any data elements are too long  and increase row for wrap space
+		$rh = 7; // default row height
+		$pdf->SetFont('Arial', '', 10);
+		if($pdf->GetStringWidth($d1) > 68 || $pdf->GetStringWidth($d2) > 68 || $pdf->GetStringWidth($d3) > 68
+		|| $pdf->GetStringWidth($d4) > 68)
+		{
+			$rh = 14;
+		}
+		return $rh;
+	}
+
 	//if activity report button active
 	if(isset($_POST['dlactivityreport']))
 	{
@@ -239,15 +253,23 @@ class PDF extends FPDF
 		$pdf->Cell(180, 10, "Awards", "TB", 1);
 		$pdf->Ln(5);
 		$pdf->SetFont('Arial', '', 12);
-		$pdf->Cell(15, 10, 'Year', 1, 0, 'C');
+		$pdf->Cell(13, 10, 'Year', 1, 0, 'C');
 		$pdf->Cell(70, 10, 'Award', 1, 0, 'C');
+		$pdf->Cell(70, 10, 'Team', 1, 0, 'C');
 		$pdf->Cell(40, 10, 'Comment', 1, 1, 'C');
 		
 
 		$pdf->SetFont('Arial', '', 10);
 		
-		$q = "SELECT Comments, awards.AwardName , years.YearText FROM ((awardwinners 
-		INNER JOIN awards ON awardwinners.AwardId = awards.AwardID) INNER JOIN years ON awardwinners.YearId = years.YearId)
+		$q = "SELECT 
+		aw.Comments, 
+		a.AwardName, 
+		y.YearText, 
+		t.TeamName
+		FROM awardwinners aw
+		JOIN awards a ON aw.AwardId = a.AwardID 
+		JOIN years y ON aw.YearId = y.YearId
+		JOIN teams t ON aw.TeamId = t.TeamId
 		WHERE MembId = ? ORDER BY YearText DESC";	
 		require('../connecttopba.php');
 		$stmt = mysqli_prepare($link, $q);
@@ -261,10 +283,18 @@ class PDF extends FPDF
 			{
 				$yr = $row['YearText'];
 				$an = $row['AwardName'];
+				$tn = $row['TeamName'];
 				$ac = $row['Comments'];
-				$pdf->Cell(15, 7, "$yr", 1);
-				$pdf->Cell(70, 7, "$an", 1);
-				$pdf->Cell(40, 7, "$ac", 1, 1); //extra parameter is to start new line
+				$rh = 7;
+				//if($pdf->GetStringWidth($an) > 60)
+				//{
+				//	$rh = 14;
+				//}
+				//$rheight = rowHeight($yr, $an, $tn, $ac);
+				$pdf->Cell(13, $rh, "$yr", 1);
+				$pdf->Cell(70, $rh, "$an", 1);
+				$pdf->Cell(70, $rh, "$tn", 1);
+				$pdf->Cell(40, $rh, "$ac", 1, 1); //extra parameter is to start new line
 			}
 		}
 		else

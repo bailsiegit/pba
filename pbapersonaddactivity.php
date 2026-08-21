@@ -1,5 +1,5 @@
 <?php
-//Rev 3 23/4/2026 Added accolade to list of activities that can be added
+//Rev 4 14/8/2026 - Added new award structure by adding team into awards area
 //this page is called from the pbaperson page to add activities for that person
 //a year is selected and 1 activity can be added for each activity type
 
@@ -122,24 +122,51 @@ if(isset($_POST['savechanges']))
 	}
 	//process awards records
 	$formaward = htmlentities(trim($_POST['selectedaward']));
+	$formawardteam = htmlentities(trim($_POST['awardteam']));
 	$formawardcomment = htmlentities(trim($_POST['awardcomment']));
 	if($formaward > 0){
-		$sql = "INSERT IGNORE INTO awardwinners (MembId, AwardId, Comments, YearId) VALUES (?, ?, ?, ?)";
+		//check if award is team based
+		$sql = "SELECT IsTeamAward FROM awards WHERE AwardId = ?";
 		//connect to database
 		require('../connecttopba.php');
-		// run insert query
 		$stmt = mysqli_prepare($link, $sql);
-		mysqli_stmt_bind_param($stmt, "iisi", $formmembid, $formaward, $formawardcomment, $formyear);
+		mysqli_stmt_bind_param($stmt, "i", $formaward);
 		mysqli_stmt_execute($stmt);
-		if(mysqli_stmt_affected_rows($stmt) == 1)
+		$awquery = mysqli_stmt_get_result($stmt);
+		$awarddata = mysqli_fetch_assoc($awquery);
+		//check person is in selected team
+		$sql = "SELECT * FROM teammembers WHERE TeamId = ? AND YearId = ? AND MembId = ?";
+		$stmt = mysqli_prepare($link, $sql);
+		mysqli_stmt_bind_param($stmt, "iii", $formawardteam, $formyear, $formmembid);
+		mysqli_stmt_execute($stmt);
+		$results = mysqli_stmt_store_result($stmt);
+		$isinteam = mysqli_stmt_num_rows($stmt);
+		if($awarddata['IsTeamAward'] == "Yes" AND $formawardteam == 0)
 		{
-			$countadds++;
+			echo '<span style="color:red;">Award requires team selection.</span><br>';
 		}
-		elseif(mysqli_stmt_affected_rows($stmt) == 0)
+		elseif($awarddata['IsTeamAward'] == "Yes" AND $isinteam == 0)
 		{
-			$duplicates++;
+			echo '<span style="color:red;">'.$formfn.' is not in the team selected in the award section.</span><br>';
 		}
-		mysqli_close($link);
+		else
+		{
+			$sql = "INSERT IGNORE INTO awardwinners (MembId, AwardId, TeamId, Comments, YearId) VALUES (?, ?, ?, ?, ?)"; 
+			
+			// run insert query
+			$stmt = mysqli_prepare($link, $sql);
+			mysqli_stmt_bind_param($stmt, "iiisi", $formmembid, $formaward, $formawardteam, $formawardcomment, $formyear);
+			mysqli_stmt_execute($stmt);
+			if(mysqli_stmt_affected_rows($stmt) == 1)
+			{
+				$countadds++;
+			}
+			elseif(mysqli_stmt_affected_rows($stmt) == 0)
+			{
+				$duplicates++;
+			}
+		}
+			mysqli_close($link);
 	}
 	
 	//process accolade record
@@ -322,6 +349,7 @@ while($pbateams = mysqli_fetch_array($r, MYSQLI_ASSOC))
 }
 
 ?>
+</select>
 </td>
 <td style="text-align:right; width:20%">Team Role: </td><td style="width:30%;"><input type="text" name="teamrole" value="<?php if(isset($formteamrole)) echo $formteamrole;?>"></td></tr>
 
@@ -398,17 +426,45 @@ while($pbaawards = mysqli_fetch_array($r, MYSQLI_ASSOC))
 {
 	$awardid = $pbaawards['AwardID'];
 	$pbaaward = $pbaawards['AwardName'];
+	$IsTeam = $pbaawards['IsTeamAward'] == "Yes" ? "true" : "false";
 	//make sticky combobox
 	if(isset($formaward) && $formaward == $awardid){
-		echo '<option value = ' . $awardid . ' selected="selected">' . $pbaaward . '</option>';}
+		echo '<option value = ' . $awardid . ' data-team='.$IsTeam.' selected="selected">' . $pbaaward . '</option>';}
 	else{
-		echo '<option value = ' . $awardid . '>' . $pbaaward . '</option>';}
+		echo '<option value = ' . $awardid . ' data-team='.$IsTeam.'>' . $pbaaward . '</option>';}
 }
 $stickyselect = 0; //reset sticky select for next combo box
 ?>
 </select>
 </td>
-<td style="text-align:right;">Award Comment: </td><td><input type="text" size="30" name="awardcomment" value="<?php if(isset($formawardcomment)) echo $formawardcomment;?>"></td></tr>
+<td style="text-align:right;">Award Team: </td><td>
+<input type="text" name="noteam" id="noteam" value="Not Applicable" style="display:none;" disabled>
+<!-- //create team select combo box -->
+<select name="awardteam" id="awardteam">
+<option value = "0" selected="selected">Select a team...</option>
+<?php
+// get all teams for combo box
+require('../connecttopba.php');
+$q = 'SELECT * FROM teams ORDER BY TeamName';
+$r = mysqli_query($link, $q, MYSQLI_STORE_RESULT);
+
+// build teams combo box from above query
+while($pbateams = mysqli_fetch_array($r, MYSQLI_ASSOC))
+{
+	$teamid = $pbateams['TeamId'];
+	$pbateam = $pbateams['TeamName'];
+	//make sticky combobox
+	//if(isset($formteam) && $formteam == $teamid){
+	//	echo '<option value = ' . $teamid . ' selected="selected">' . $pbateam . '</option>';}
+	//else{
+		echo '<option value = ' . $teamid . '>' . $pbateam . '</option>';
+	//}
+}
+?>
+</select>
+</td>
+</tr>
+<tr><td></td><td></td><td style="text-align:right;">Award Comment: </td><td><input type="text" size="30" name="awardcomment" value="<?php //if(isset($formawardcomment)) echo $formawardcomment;?>"></td></tr>
 <tr style="height:3px;"><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td><td style="background-color:black;"></td></tr>
 
 <!--Accolades Section of Form-->
@@ -488,6 +544,26 @@ while ($accroles = mysqli_fetch_array($r, MYSQLI_ASSOC)) {
 <?php
 include('pbaincludes/pbafooter.html');
 ?>
+<script>
+const select = document.getElementById("selectedaward");
+
+select.addEventListener("change", function () {
+
+    const option = this.options[this.selectedIndex];
+    const isTeam = option.dataset.team == "true";
+
+	const notteam = document.getElementById("noteam");
+    const team = document.getElementById("awardteam");
+
+	team.style.display = isTeam ? "block" : "none";
+	notteam.style.display = isTeam ? "none" : "block";
+
+    if (!isTeam)
+        team.value = "54"; //value for Individual - TeamId
+	else
+		team.value = "0"; //reset team list
+});		
+</script>
 <script>
 function checkCustomOptionAcc() {
     var select = document.getElementById("selectedaccolade");

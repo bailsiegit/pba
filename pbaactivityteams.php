@@ -1,5 +1,5 @@
 <?php
-//Rev 2 3/6/2026 - added team status selection and add button
+//Rev 3 14/8/2026 - added team selection into add award area, moved team status, made the add data area as an expand area
 //this page is part of the activity group
 //it displays teams when a year and team name is selected
 //the teams pick list is dependent on the year selection
@@ -29,6 +29,8 @@ if($_SESSION['accesslevel'] < 1)
 ?>
 
 <?php
+$formteam = isset($_POST['selectedteam']) ? htmlentities($_POST['selectedteam']) : 0;
+
 //download team List
 if(isset($_POST['downloadteam']) && $_POST['selectedteam'] > 0) {
 	
@@ -105,6 +107,24 @@ if(isset($_POST['addperson']) && $_POST['selectname'] > 0 && $_POST['selectedtea
 	mysqli_stmt_close($stmt);
 	mysqli_close($link);
 }
+
+//add award winner
+if(isset($_POST['addaward']) && $_POST['playerlist'] > 0 && $_POST['awardlist'] > 0)
+{
+	$formperson = htmlentities($_POST['playerlist']);
+	$formaward = htmlentities($_POST['awardlist']);
+	$formawcomm = htmlentities($_POST['awardcomment']);
+	$formyear = htmlentities($_POST['selectedyear']);
+	$formteam = htmlentities($_POST['selectedteam']);
+	require('../connecttopba.php');
+	// use IGNORE to prevent errors if new record is a duplicate	
+	$q = "INSERT IGNORE INTO awardwinners (AwardId, MembId, Comments, TeamId, YearId) VALUES (?, ?, ?, ?, ?)";
+	$stmt = mysqli_prepare($link, $q);
+	mysqli_stmt_bind_param($stmt, "iisii", $formaward, $formperson, $formawcomm, $formteam, $formyear);
+	mysqli_stmt_execute($stmt);
+	mysqli_stmt_close($stmt);
+	mysqli_close($link);
+}
 //save GET values if sent
 if(isset($_GET['tid']))
 {
@@ -169,31 +189,29 @@ include('pbaget_teams.php');
 <br>
 	
 </td><td style="width:50%; background-color:white; border:0px;">
+
+<div id="showdownload" style="display:<?php if($formteam > 0){echo "block";}else{echo "none";}?>;">
 <?php
+
 if($_SESSION['accesslevel'] > 1) //only show download button if user has permission
 {
-	?>
+?>
 Download team list.  <input type="submit" value="Download" name="downloadteam">
+<hr>
 <?php
 }
-if($_SESSION['accesslevel'] > 2) //only show add team status if user has permission
+if($_SESSION['accesslevel'] > 2) // only show add area if user has permission
 {
-	echo '<select name="teamresult" id="teamresult" style="margin-left:10px;">';
-	echo '<option value="0">Select status...</option>';
-	$q = 'SELECT TeamResultId, TeamResultText FROM teamresultoptions ORDER BY TeamResultId';
-	require('../connecttopba.php');
-	$r = mysqli_query($link, $q);
-	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
-	{
-		echo '<option value="'.$row['TeamResultId'].'">'.$row['TeamResultText'].'</option>';
-	}
-	echo '</select>';
-	echo '<input type="submit" value="Add Team Result" name="addresult" style="margin-left:5px;">';
+?>
+
+<button type="button" id="showadds" style="background-color:lightgrey; width:100%; margin-bottom:3px" onclick="showAdds()">Add players, awards, results...</button>
+<?php
 }
 ?>
-<hr>
-
+</div>
+<div id="addons" style="display:none;">
 <?php
+
 if($_SESSION['accesslevel'] > 2) // only show add team members if user has permission
 {
 ?>
@@ -212,6 +230,52 @@ if($_SESSION['accesslevel'] > 2) // only show add team members if user has permi
 	echo '<br>Role: ';
 	echo '<input type="text" name="addrole" size="35"> ';
 	echo '<input type="submit" value="Add Person to Team" name="addperson">';
+}
+?>
+<hr style="border:1px dotted; margin-bottom:1px;">
+<?php
+if($_SESSION['accesslevel'] > 2 && isset($formteam)) // only show add award if user has permission and team has been loaded
+{
+?>
+	<br>Add an award for a team member
+	<br>Name:
+	<select style="margin-bottom:3px;" name="playerlist" id="playerlist">
+	
+	<?php include('pbaget_players.php'); ?>
+	
+	</select><br>
+	Award: 
+	<select name="awardlist" id="awardlist">
+	<option value = "0">Select award...</option>
+	<?php
+	$q = "SELECT * FROM awards WHERE IsTeamAward = 'Yes' ORDER BY DisplayOrder";
+	require('../connecttopba.php');
+	$r = mysqli_query($link, $q);
+	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
+	{
+		echo '<option value="'.$row['AwardID'].'">'.$row['AwardName'].'</option>';
+	}
+	?>
+	</select>
+	<br>Comment:
+	<input type="text" name="awardcomment" size="35">
+	<input type="submit" value="Add Award" name="addaward">
+	<hr style="border:1px dotted; margin-bottom:1px;">
+<?php 
+} 
+if($_SESSION['accesslevel'] > 2) //only show add team status if user has permission
+{
+	echo '<select name="teamresult" id="teamresult" style="margin-left:10px; margin-top:15px;">';
+	echo '<option value="0">Select team result...</option>';
+	$q = 'SELECT TeamResultId, TeamResultText FROM teamresultoptions ORDER BY TeamResultId';
+	require('../connecttopba.php');
+	$r = mysqli_query($link, $q);
+	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
+	{
+		echo '<option value="'.$row['TeamResultId'].'">'.$row['TeamResultText'].'</option>';
+	}
+	echo '</select>';
+	echo '<input type="submit" value="Add Team Result" name="addresult" style="margin-left:5px;">';
 }
 ?>
 	
@@ -261,6 +325,7 @@ include('pbaincludes/pbafooter.html');
         var year = document.getElementById("selectedyear").value;
 		var add = document.getElementById("addperson");
 		var team = document.getElementById("selectedteam").value;
+		var dnld = document.getElementById("showdownload");
         var xhr = new XMLHttpRequest();
         xhr.open("GET", "pbadisplay_team.php?java=1&yid=" + year + "&tid=" + team, true);
         xhr.onreadystatechange = function() {
@@ -274,11 +339,43 @@ include('pbaincludes/pbafooter.html');
             }
         };
         xhr.send();
+		if(team > 0){
+			dnld.style.display = "block";
+			
+		}
+		else {
+			dnld.style.display = "none";
+		}
+		getPlayers()
     }
-	
-    // Use event listener instead of overwriting window.onload
-    //window.addEventListener("load", function() {
-    //    loadTeams();
-    //});
+	</script>
+	<script>
+	function getPlayers() {
+		var year = document.getElementById("selectedyear").value;
+		var team = document.getElementById("selectedteam").value;
+		var players = document.getElementById("playerlist");
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "pbaget_players.php?java=1&yid=" + year + "&tid=" + team, true);
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState == 4 && xhr.status == 200) {
+				document.getElementById("playerlist").innerHTML = xhr.responseText;
+			}
+		}
+		xhr.send();
+	}
     </script>
+	<script>
+	function showAdds() {
+		var addons = document.getElementById("addons");
+		var styledata = window.getComputedStyle(addons)
+		if(styledata.display == "none") {
+			addons.style.display = "block";
+			document.getElementById("showadds").innerHTML = "Hide add data area";
+		}
+		else {
+			addons.style.display = "none";
+			document.getElementById("showadds").innerHTML = "Add players, awards, results...";
+		}
+	}
+	</script>
 </body></html>

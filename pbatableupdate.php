@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 14/8/2026 - added is team? and pick hierachy to match new awards structure
 //this page is called from the maintenance item on the main menu
 //this page provides the ability to add to the base tables and
 //also make items in each base table active or Inactive
@@ -157,14 +157,45 @@ if(isset($_POST['addaward']) && !empty($_POST['newawardname']))
 {
 	$formnewaward = htmlentities(trim($_POST['newawardname']));
 	$formawarddesc = htmlentities(trim($_POST['newawarddesc']));
-	$q = "INSERT INTO awards (AwardName, AwardDesc, Status) VALUES (?, ?, 'Active')"; 
-	require('../connecttopba.php');
-	$r = mysqli_prepare($link, $q);
-	mysqli_stmt_bind_param($r, "ss", $formnewaward, $formawarddesc);
-	mysqli_stmt_execute($r);
-	mysqli_close($link);
-	if($r){echo '<p style="color:red">New award added</p>';}
-	else {echo '<p style="color:red">Update failed</p>';}
+	$formisteam = (int) htmlentities(trim($_POST['isteamaward']));
+	$formawardhier = (int) htmlentities(trim($_POST['awardhierachy']));
+	//check if isteam has been updated
+	if($formisteam < 1)
+	{
+		echo '<p style="color:red">Update failed. Is this a team player award?</p>';
+	}
+	elseif($formisteam == 1 && $formawardhier == 0)
+	{
+		echo '<p style="color:red">Update failed. Is this a team player award?</p>';
+	}
+	else
+	{
+		require('../connecttopba.php');
+		//open slot in displayorder for new award if team award
+		if($formisteam == 1)
+		{
+			$q = "SELECT * FROM awards WHERE DisplayOrder > $formawardhier ORDER BY DisplayOrder";
+			$r = mysqli_query($link, $q, MYSQLI_STORE_RESULT);
+			while($slideawards = mysqli_fetch_array($r, MYSQLI_ASSOC))
+			{
+				$newdo = $slideawards['DisplayOrder'] + 1;
+				$thisaward = $slideawards['AwardID'];
+				$q2 = "UPDATE awards SET DisplayOrder = $newdo WHERE AwardID = $thisaward";
+				$r2 = mysqli_query($link, $q2, MYSQLI_STORE_RESULT);
+			}
+		}
+		
+		//add new award
+		$formawardhier = ($formisteam == 1) ? $formawardhier + 1 : $formawardhier;
+		$formisteam = $formisteam > 1 ? "No" : "Yes";
+		$q = "INSERT INTO awards (AwardName, AwardDesc, Status, IsTeamAward, DisplayOrder) VALUES (?, ?, 'Active', ?, ?)"; 
+		$r = mysqli_prepare($link, $q);
+		mysqli_stmt_bind_param($r, "sssi", $formnewaward, $formawarddesc, $formisteam, $formawardhier);
+		mysqli_stmt_execute($r);
+		mysqli_close($link);
+		if($r){echo '<p style="color:red">New award added</p>';}
+		else {echo '<p style="color:red">Update failed</p>';}
+	}
 }
 ?>
 <?php
@@ -323,8 +354,31 @@ while($pbacommittees = mysqli_fetch_array($r, MYSQLI_ASSOC))
 Award Name: 
 <input type="text" name="newawardname" size="40" placeholder="Enter new award name"><br>
 Description (optional): 
-<input type="text" name="newawarddesc" size="40">
-<input type="submit" name="addaward" value="Add">
+<input type="text" name="newawarddesc" size="40" style="margin-top:3px; margin-bottom:3px;"><br>
+Will this be awarded to a player? 
+<select name="isteamaward" id="isteamaward">
+<option value="0">Make a selection</option>
+<option value="1">Yes</option>
+<option value="2">No</option>
+</select><br>
+<div id="showhierachy" style="display:none;">
+Select the award that is of next highest significance from the list:
+
+<?php
+//get ordered list of existing team awards
+$sql = "SELECT * FROM awards WHERE IsTeamAward = 'Yes' ORDER BY DisplayOrder";
+require('../connecttopba.php');
+$r = mysqli_query($link, $sql, MYSQLI_STORE_RESULT);
+echo '<select name="awardhierachy" id="awardhierachy">';
+echo '<option value="0">Make a selection</option>';
+while ($awardh = mysqli_fetch_array($r, MYSQLI_ASSOC))
+{
+	echo '<option value = '.$awardh['DisplayOrder'].'>'.$awardh['DisplayOrder'].'. '.$awardh['AwardName'].'</option>';
+}
+?>
+</select>
+</div>
+<input type="submit" name="addaward" value="Add Award">
 
 <br>
 <h4>Change Status</h4>
@@ -369,6 +423,23 @@ include('pbaincludes/pbafooter.html');
 ?>
 
 <script>
-//this is a test script file
+const select = document.getElementById("isteamaward");
+
+select.addEventListener("change", function () {
+
+    const option = this.options[this.selectedIndex];
+    const isTeam = option.value == "1";
+
+	const hierachy = document.getElementById("showhierachy");
+    const hierlist = document.getElementById("awardhierachy");
+
+	hierachy.style.display = isTeam ? "block" : "none";
+	//notteam.style.display = isTeam ? "none" : "block";
+
+    if (!isTeam){
+	hierlist.value = "0";} //value for Individual - TeamId
+	//else
+	//team.value = "0"; //reset team list
+});		
 </script>
 </body></html>

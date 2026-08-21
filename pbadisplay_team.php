@@ -1,5 +1,5 @@
 <?php
-//Rev 3 3/6/2026 - added team status display under team name
+//Rev 4 - added a list of award winners to the team display
 //this page is called either directly or via javascript from the team activity page
 //this page creates the table of results to display in that page
 if(isset($_GET['java']) && $_GET['java'] == 1)
@@ -45,7 +45,17 @@ $stmt = mysqli_prepare($link, $qstatus);
 mysqli_stmt_bind_param($stmt, "ii", $getteam, $getyear);
 mysqli_stmt_execute($stmt);
 $rresults = mysqli_stmt_get_result($stmt);
-//$statuses = mysqli_fetch_assoc($rteam);
+
+//get team awards
+$qawards = "SELECT a.AwardName, m.FirstName, m.LastName
+FROM awards a
+JOIN awardwinners aw ON a.AwardID = aw.AwardID
+JOIN members m ON aw.MembId = m.MemberID
+WHERE aw.TeamId = ? AND aw.YearId = ? ORDER BY a.DisplayOrder";
+$stmt = mysqli_prepare($link, $qawards);
+mysqli_stmt_bind_param($stmt, "ii", $getteam, $getyear);
+mysqli_stmt_execute($stmt);
+$rawards = mysqli_stmt_get_result($stmt);
 
 //get team members   
 $teamQuery = "SELECT rl, gp, tn, mbid, members.FirstName, members.LastName, tmid, yrid FROM
@@ -65,7 +75,14 @@ $stmt = mysqli_prepare($link, $teamQuery);
 mysqli_stmt_bind_param($stmt, "ii", $getyear, $getteam);
 mysqli_stmt_execute($stmt);
 $teamResult = mysqli_stmt_get_result($stmt);
-
+if(empty($teamResult))
+{
+	$_SESSION['emptyteam'] = true;
+}
+else
+{
+	$_SESSION['emptyteam'] = false;
+}
 if (!$teamResult) 
 {
 	die('Team query failed: ' . mysqli_error($link));
@@ -99,6 +116,17 @@ if (mysqli_num_rows($teamResult) > 0)
 	{
 		echo '   <a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbacopyteam.php?yid='.$getyear.'&actid='.$getteam.'">Copy Team</a>';
 	}
+	if(mysqli_num_rows($rawards) > 0)
+	{
+		echo '<br><br>';
+		while($results = mysqli_fetch_assoc($rawards))
+		{
+			echo $results['AwardName'].' - '.$results['FirstName'].' '.$results['LastName'];
+			echo '<br>';
+		}
+	}
+				
+	
 	echo '</td></tr></table>';
 	
 	echo '<p> </p><table width="90%">';
