@@ -1,5 +1,5 @@
 <?php
-//Rev 4 - added a list of award winners to the team display
+//Rev 5 21/8/2026 - added numberof documents to document button
 //this page is called either directly or via javascript from the team activity page
 //this page creates the table of results to display in that page
 if(isset($_GET['java']) && $_GET['java'] == 1)
@@ -75,18 +75,31 @@ $stmt = mysqli_prepare($link, $teamQuery);
 mysqli_stmt_bind_param($stmt, "ii", $getyear, $getteam);
 mysqli_stmt_execute($stmt);
 $teamResult = mysqli_stmt_get_result($stmt);
-if(empty($teamResult))
-{
-	$_SESSION['emptyteam'] = true;
-}
-else
-{
-	$_SESSION['emptyteam'] = false;
-}
+//if(empty($teamResult))
+//{
+//	$_SESSION['emptyteam'] = true;
+//}
+//else
+//{
+//	$_SESSION['emptyteam'] = false;
+//}
 if (!$teamResult) 
 {
 	die('Team query failed: ' . mysqli_error($link));
 }
+//is there any documents attached to the team
+$docsQuery = "SELECT DocName FROM Documents
+WHERE Activity = 'tm' AND ActivityRef = ? AND YearId = ?";
+$stmt = mysqli_prepare($link, $docsQuery);
+mysqli_stmt_bind_param($stmt, "ii", $getteam, $getyear);
+mysqli_stmt_execute($stmt);
+$docsResult = mysqli_stmt_get_result($stmt);
+if (!$docsResult) 
+{
+	die('Docs query failed: ' . mysqli_error($link));
+}
+$numberofdocs = mysqli_num_rows($docsResult);
+
 if (mysqli_num_rows($teamResult) > 0) 
 {	
 	echo '<table style="width:100%;"><tr>';
@@ -111,7 +124,7 @@ if (mysqli_num_rows($teamResult) > 0)
 	}
 	echo '</td>';
 	echo '<td style="width:50%; background:white; border:0px;">
-	<a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbadocslist.php?yid='.$getyear.'&actid=tm&refid='.$getteam.'">Team Documents</a>';
+	<a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbadocslist.php?yid='.$getyear.'&actid=tm&refid='.$getteam.'">Team Documents ('.$numberofdocs.')</a>';
 	if($_SESSION['accesslevel'] > 3)
 	{
 		echo '   <a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbacopyteam.php?yid='.$getyear.'&actid='.$getteam.'">Copy Team</a>';

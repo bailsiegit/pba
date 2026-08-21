@@ -1,5 +1,5 @@
 <?php
-//Rev 2 21/4/2026 - added timeout check
+//Rev 2 21/8/2026 - added number of documents to document button
 //this page is called either directly or from javascript by the committee activity page
 //this page creates the table of results for display on that page
 if(isset($_GET['java']) && $_GET['java'] == 1)
@@ -73,10 +73,23 @@ if (!$committeeResult)
 {
    die('committee query failed: ' . mysqli_error($link));
 }
+//is there any documents attached to the committee
+$docsQuery = "SELECT DocName FROM Documents
+WHERE Activity = 'cm' AND ActivityRef = ? AND YearId = ?";
+$stmt = mysqli_prepare($link, $docsQuery);
+mysqli_stmt_bind_param($stmt, "ii", $getcommittee, $getyear);
+mysqli_stmt_execute($stmt);
+$docsResult = mysqli_stmt_get_result($stmt);
+if (!$docsResult) 
+{
+	die('Docs query failed: ' . mysqli_error($link));
+}
+$numberofdocs = mysqli_num_rows($docsResult);
+
 echo '<table style="width:100%;"><tr>';
 echo '<td style="width:50%; background:white; border:0px;"><h4>'.$yeartext['YearText'].' - '.$committeename['CommitteeName'].'</h4></td>';
 echo '<td style="width:50%; background:white; border:0px;">
-	<a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbadocslist.php?yid='.$getyear.'&actid=cm&refid='.$getcommittee.'">Committee Documents</a>';
+	<a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbadocslist.php?yid='.$getyear.'&actid=cm&refid='.$getcommittee.'">Committee Documents ('.$numberofdocs.')</a>';
 	if($_SESSION['accesslevel'] > 3)
 	{
 		echo '   <a style="margin:40px 0px 0px 0px;" class="buttonlink" href="pbacopycommittee.php?yid='.$getyear.'&actid='.$getcommittee.'">Copy Committee</a>';
