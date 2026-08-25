@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 25/8/2026 - added year of birth to name combo box
 //this page is part of the activity group
 //it displays members after the selection of a year and membersip category
 //members can be added to the displayed year and category
@@ -169,11 +169,19 @@ if($_SESSION['accesslevel'] > 2){?>
 	<select name="selectname" id="selectname">
 	<option value="0">Select person...</option>
 	<?php
-	$q = "SELECT FirstName, LastName, MemberID FROM members ORDER BY LastName, FirstName";
+	$q = "SELECT FirstName, LastName, MemberID, Birthdate FROM members ORDER BY LastName, FirstName";
 	require('../connecttopba.php');
 	$r = mysqli_query($link, $q);
-	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC)){
-	echo '<option value="'.$row['MemberID'].'">'.$row['LastName'].', '.$row['FirstName'].'</option>';
+	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
+	{
+		if($row['Birthdate'] != "0000-00-00")
+		{
+			$yob = '('.substr($row['Birthdate'],0,4).')';
+		}
+		else{
+			$yob = "";
+		}
+		echo '<option value="'.$row['MemberID'].'">'.$row['LastName'].', '.$row['FirstName'].$yob.'</option>';
 	}
 echo '</select>';
 echo '<input type="submit" value="Add Person to Members" name="addperson">';

@@ -1,5 +1,5 @@
 <?php
-//Rev 2 19/02/2026 general update
+//Rev 3 25/8/2026 - added year of birth to name combo box
 //this page displays the incidents
 //activities can be added by authorised users
 //activity entries can be deleted by authorised users
@@ -87,14 +87,21 @@ if($_SESSION['accesslevel'] > 2) // read write and above get access to add disci
 	<select style="margin:5px" name="selectname" id="selectname">
 	<option value="0">Select person...</option>
 <?php
-	$q = "SELECT FirstName, LastName, MemberID 
+	$q = "SELECT FirstName, LastName, MemberID, Birthdate 
 	FROM members 
 	ORDER BY LastName, FirstName";
 	require('../connecttopba.php');
 	$r = mysqli_query($link, $q);
 	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
 	{
-	echo '<option value="'.$row['MemberID'].'">'.$row['LastName'].', '.$row['FirstName'].'</option>';
+		if($row['Birthdate'] != "0000-00-00")
+		{
+			$yob = '('.substr($row['Birthdate'],0,4).')';
+		}
+		else{
+			$yob = "";
+		}
+		echo '<option value="'.$row['MemberID'].'">'.$row['LastName'].', '.$row['FirstName'].$yob.'</option>';
 	}
 ?>
 </select>

@@ -1,5 +1,5 @@
 <?php
-//Rev 1 12/12/2025
+//Rev 2 25/8/2026 - added year of birth to name combo box
 //this page displays the accolade activities
 //the user can only select accolades by year
 //accolades can be added
@@ -49,18 +49,7 @@ if(isset($_POST['downloadaccolades']))
 			$stmt = mysqli_prepare($link, $q);
 			mysqli_stmt_bind_param($stmt, "i", $formyear);
 		}
-		//else // if role is selected, find role for all years
-		//{
-		//	$q = "SELECT years.YearText, volunteers.Role, members.FirstName, members.LastName, 
-		//	members.Mobile, members.Email, members.Numberandstreet, members.Suburb 
-		//	FROM volunteers 
-		//	INNER JOIN members ON volunteers.MembId = members.MemberId
-		//	INNER JOIN years ON volunteers.YearId = years.YearId 
-		//	WHERE volunteers.Role = ? 
-		//	ORDER BY years.YearId DESC";
-		//	$stmt = mysqli_prepare($link, $q);
-		//	mysqli_stmt_bind_param($stmt, "s", $formrole);
-		//}
+
 		mysqli_stmt_execute($stmt);
 		$r = mysqli_stmt_get_result($stmt);
 		//$r = mysqli_query($link, $q);
@@ -176,14 +165,21 @@ if($_SESSION['accesslevel'] > 2) // read write and above get access to add accol
 	<select style="margin:5px" name="selectname" id="selectname">
 	<option value="0">Select person...</option>
 <?php
-	$q = "SELECT FirstName, LastName, MemberID 
+	$q = "SELECT FirstName, LastName, MemberID, Birthdate 
 	FROM members 
 	ORDER BY LastName, FirstName";
 	require('../connecttopba.php');
 	$r = mysqli_query($link, $q);
 	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
 	{
-	echo '<option value="'.$row['MemberID'].'">'.$row['LastName'].', '.$row['FirstName'].'</option>';
+		if($row['Birthdate'] != "0000-00-00")
+		{
+			$yob = '('.substr($row['Birthdate'],0,4).')';
+		}
+		else{
+			$yob = "";
+		}
+		echo '<option value="'.$row['MemberID'].'">'.$row['LastName'].', '.$row['FirstName'].$yob.'</option>';
 	}
 ?>
 </select>

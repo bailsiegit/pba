@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 25/8/2026 - added year of birth to name combo box
 //this page is called from the reports item on the main menu
 //this page is a list of the available reports and has criteria input
 //and report output is downloaded to the browser
@@ -95,8 +95,15 @@ if($_SESSION['accesslevel'] > 0) //check user has permissions for this page
 	{
 		// for each member, add a row to the combo box
 		$pid = $row['MemberID'];
-		$fullname = $row['LastName'] . ', ' . $row['FirstName'];		
-		echo '<option value = ' . $pid . '>' . $fullname . '</option>'; //combo value is member id and display is users name
+		$fullname = $row['LastName'] . ', ' . $row['FirstName'];
+		if($row['Birthdate'] != "0000-00-00")
+		{
+			$yob = '('.substr($row['Birthdate'],0,4).')';
+		}
+		else{
+			$yob = "";
+		}
+		echo '<option value = ' . $pid . '>' . $fullname . $yob .'</option>'; //combo value is member id and display is users name
 	}
 ?>
 	</select>
