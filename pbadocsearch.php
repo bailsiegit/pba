@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 30/8/2026 - corrected errors in keyword search process
 //this page is used to find documents across all categories
 //keywords are entered and searched against the document titles
 //a list of matching files is displayed and hyperlinked for download
@@ -67,6 +67,7 @@ if(isset($_POST['searchbutton']))
 		$keywords[] = $word;
 		$word = strtok(" ");
 	}
+
 	//convert text year input to YearId
 	if(isset($_POST['searchyear']))
 	{
@@ -85,23 +86,22 @@ if(isset($_POST['searchbutton']))
 	if(!empty($keywords) || !empty($_POST['searchyear']) || $_POST['doccategory'] !== "a")
 	{
 		// search query
-		// search with no keywords
 
 		if(!empty($_POST['searchyear']))
 		{
-			$where[] = "YearId = ?";
-			$datatype .= "i";
-			$criteria[] = $rowy['YearId'];
+			$where[] = "YearId = ?"; //to add year criteria to sql
+			$datatype .= "i"; //to add to bind param data types
+			$criteria[] = $rowy['YearId']; //to add yearid to bind parameters
 		}
 		
 		if($_POST['doccategory'] !== "a")
 		{
-			$where[] = "Activity = ?";
-			$datatype .= "s";
-			$criteria[] = $sc;
+			$where[] = "Activity = ?"; // to add doc category to sql
+			$datatype .= "s"; // to add to bind parameter data types
+			$criteria[] = $sc; // to add doc category to bind parameters
 		}
 		
-		if(!isset($keywords))
+		if(!isset($keywords)) //if no keywords supplied, search on year and/or category
 		{	
 			$q = 'SELECT DocumentId FROM documents WHERE '.implode(" AND ", $where);
 			$stmt = mysqli_prepare($link, $q);
@@ -119,13 +119,13 @@ if(isset($_POST['searchbutton']))
 		else
 		{
 			// for each keyword find matching records
+			$datatype = "s".$datatype; // add to bind data types
 			foreach($keywords as $index => $value)
 			{
 				if(isset($where)) //if year and/or category field entered, add to search criteria
 				{
-					//$wildvalue = "%$value%";
-					array_unshift($criteria, "%$value%");
-					$datatype = "s".$datatype;
+					array_unshift($criteria, "%$value%"); //put keyword at start of criteria array
+					
 					$q = 'SELECT DocumentId FROM documents WHERE DocName LIKE ? AND '.implode(" AND ",$where);
 					$stmt = mysqli_prepare($link, $q);
 					mysqli_stmt_bind_param($stmt, $datatype, ...$criteria);
@@ -138,6 +138,7 @@ if(isset($_POST['searchbutton']))
 							$alldocids[] = $row['DocumentId']; //put all found document ids into array
 						}
 					}
+					array_shift($criteria); // remove the processed word from the search criteria ready for the next loop
 				}
 				else //if year and category not set only search doc name
 				{
