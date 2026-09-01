@@ -1,5 +1,5 @@
 <?php
-//Rev 2 10/5/2026 - made seaerch criteria sticky and add clear button to clear search criteria
+//Rev 2 10/5/2026 - made search criteria sticky and add clear button to clear search criteria
 //this page is part of the people group
 //this page uses wild cards to add to the characters provided 
 //then provides a list of people and their YOB that match the criteria
@@ -32,8 +32,8 @@ if($_SESSION['accesslevel'] < 1)
 
 <!-- search form -->
 <form action="pbasearch.php" method = "POST"> 
-First Name: <input type="text" name="first_name" id="first_name" value="<?php echo isset($_POST['searchbutton']) ? htmlentities($_POST['first_name']) : "";?>">
-Last Name: <input type="text" name="last_name" id="last_name" value="<?php echo isset($_POST['searchbutton']) ? htmlentities($_POST['last_name']) : "";?>">
+First Name: <input type="text" name="first_name" id="first_name" value="<?php echo isset($_SESSION['cname']) ? $_SESSION['cname'] : "";?>">
+Last Name: <input type="text" name="last_name" id="last_name" value="<?php echo isset($_SESSION['surname']) ? $_SESSION['surname'] : "";?>">
 <input type="submit" name="searchbutton" value="Search">
 <button type="button" onclick="clearCriteria()">Clear</button>
 <button><a style="text-decoration:none; color:black;" href="pbaaddperson.php">Add New Person</a></button>
@@ -45,11 +45,14 @@ if(isset($_POST['searchbutton']))
 {
 	if(!empty($_POST['first_name']) || !empty($_POST['last_name'])) //has any criteria been entered
 	{
-		$nullqueries = 0; //check count for empty queries (not used as yet)
 		require("../connecttopba.php"); //connect to database
 		// sanitise inputs
-		$fn = '%'.mysqli_real_escape_string($link,trim($_POST['first_name'])).'%'; //clean input plus add wild character
-		$ln = '%'.mysqli_real_escape_string($link,trim($_POST['last_name'])).'%';
+		$fn = mysqli_real_escape_string($link,trim($_POST['first_name'])); //clean input plus add wild character
+		$ln = mysqli_real_escape_string($link,trim($_POST['last_name']));
+		$_SESSION['cname'] = $fn;
+		$_SESSION['surname'] = $ln;
+		$fn = '%'.$fn.'%';
+		$ln = '%'.$ln.'%';
 		
 		//first search query
 		$q = 'SELECT * FROM members WHERE FirstName LIKE ? AND LastName LIKE ? ORDER BY LastName, FirstName';
