@@ -1,5 +1,5 @@
 <?php
-//Rev 2 13/4/2026 - included password hash
+//Rev 3 1/9/2026 - fixed arror in stmt parameters and added more info after successful registration
 //this page is for users to register on the pba database
 //registered users must contact the administrator to be given permission to access any data
 //there are 4 levels of access
@@ -57,14 +57,22 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 			$q = "INSERT INTO pbausers (firstname, lastname, email, password, registered) 
 				VALUES (?, ?, ?, ?, NOW())";
 			$r = mysqli_prepare($link, $q);
-			mysqli_stmt_bind_param($r, "sssss", $fn, $ln, $e, $pw);
+			mysqli_stmt_bind_param($r, "ssss", $fn, $ln, $e, $pw);
 			mysqli_stmt_execute($r);
 			if($r)
 			{
-				echo '<h1>Registered!</h1>
+			?>
+				<h1>Registered!</h1>
 				<p>You are now registered.</p>
-				<p>Contact your administrator to get access</p>
-				<p><a href="pbalogin.php">Login</a></p>';
+				<p>Registering does not provide access to the data.</p>
+				<p>The following levels of access are available:</p>
+					- Basic
+					<br>- Read Only
+					<br>- Read and Write
+					<br>- Super User
+				<p>Contact your <a href="mailto:pbadata@fastmail.com.au?subject=Access Change">administrator</a> to get the access level you require.</p>
+				<p><a href="pbalogin.php">Login</a></p>
+			<?php
 			}
 			mysqli_close($link);
 			include('pbaincludes/pbafooter.html');

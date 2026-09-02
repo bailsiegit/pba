@@ -1,5 +1,5 @@
 <?php
-//Rev 2 21/4/2026 - added GET checks for reduced version to show within activity pages
+//Rev 3 1/9/2026 - added forgotten password link
 //this is a simple login screen
 $page_title = "Login";
 if(!isset($_GET['disp']))
@@ -34,8 +34,10 @@ if(!isset($_GET['disp']))
 <p>
 Email Address: <input type="text" name = "email">
 </p><p>
-Password: <input type="password" name="pass">
-</p><p>
+Password: <input type="password" name="pass"><br>
+<a href="mailto:pbadata@fastmail.com.au?subject=Forgottten Password" style="font-size:0.8em; color:red; decoration:none">Forgotten your password?</a>
+</p>
+<p>
 <input type="submit" value="Login">
 </p>
 </form>
