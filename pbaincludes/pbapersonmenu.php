@@ -1,4 +1,5 @@
 <?php
+// Rev 2 -2/9/2026 - added filter by access level
 # this provides links to find other data about the person
 echo '<a class="submenu" href="pbaperson.php?pid='.$pid.'">Details</a>';
 echo '<a class="submenu" href="pbapersonmemberships.php?pid='.$pid.'">Memberships</a>';
@@ -9,6 +10,8 @@ echo '<a class="submenu" href="pbapersonaccolades.php?pid='.$pid.'">Accolades</a
 echo '<a class="submenu" href="pbapersonvoluntary.php?pid='.$pid.'">Volunteer</a>';
 echo '<a class="submenu" href="pbapersonemployee.php?pid='.$pid.'">Employee</a>';
 echo '<a class="submenu" href="pbapersonincident.php?pid='.$pid.'">Incident</a>';
-echo '<a class="submenu" href="pbapersonaddactivity.php?pid='.$pid.'">Add Activity for '.$person['FirstName'].'</a>';
-
+if($_SESSION['accesslevel'] > 2)
+{
+	echo '<a class="submenu" href="pbapersonaddactivity.php?pid='.$pid.'">Add Activity for '.$person['FirstName'].'</a>';
+}
 ?>
