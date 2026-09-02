@@ -35,7 +35,8 @@ if(!isset($_GET['disp']))
 Email Address: <input type="text" name = "email">
 </p><p>
 Password: <input type="password" name="pass"><br>
-<a href="mailto:pbadata@fastmail.com.au?subject=Forgottten Password" style="font-size:0.8em; color:red; decoration:none">Forgotten your password?</a>
+<a href="mailto:pbadata@fastmail.com.au?subject=Forgottten%20Password&body=Hi%0D%0AI%20have%20forgotten%20my%20password.%0D%0APlease%20reset%20my%20password."
+ style="font-size:0.8em; color:red; decoration:none">Forgotten your password?</a>
 </p>
 <p>
 <input type="submit" value="Login">
