@@ -1,5 +1,5 @@
 <?php
-// Rev 2 13/5/2026 - added Member number to display details
+// Rev 3 4/9/2026 - reformatted name header and relocated update details button
 //this page is called from various places to show the details of a person
 // Any personal data fields added or removed from this page must also be
 // changed on pbaeditperson.php, pbaaddperson.php
@@ -70,24 +70,20 @@ $games = mysqli_fetch_array($rgp, MYSQLI_ASSOC);
 mysqli_close($link);
 
 # display the persons name in large font at the top
-echo '<table style="width:80%;">';
-echo '<tr><td style="background-color:white; border:0px;"><h2>'.$person['FirstName'].' '.$person['LastName'].'</h2> ';
-if($games['games'] > 0){ echo $games['games'].' games played';}
-echo '</td>';
-echo '<td  style="background-color:white; border:0px; vertical-align:bottom;">';
-// show edit button if authorised
-if($_SESSION['accesslevel'] > 2)
-{
-echo '<button><a style="text-decoration:none; color:black; font-weight:bold;" href="pbaeditperson.php?pid='.$pid.'&sid='.$person['memSal'].'">';
-echo 'Update Details</a></button>';
-}
-echo '</td></tr></table>';
+
+echo '<h2 style="margin-bottom:5px;">'.$person['FirstName'].' '.$person['LastName'].'</h2> ';
+if($games['games'] > 0){ echo '<p>'.$games['games'].' games played</p>';}
 
 # add the menu item to see activity records for the person	
 require('pbaincludes/pbapersonmenu.php');
-
+// show edit button if authorised
+if($_SESSION['accesslevel'] > 2)
+{
+echo '<p style="margin:3px;"><button><a style="text-decoration:none; color:black; font-weight:bold; margin-top:0px;" href="pbaeditperson.php?pid='.$pid.'&sid='.$person['memSal'].'">';
+echo 'Update Details</a></button></p>';
+}
 # display all the details for the person
-	echo '<p> </p><table width="90%">';
+	echo '<table width="90%">';
 		
 	echo '<tr><th width="15%">Details</th><th width="30%"></th><th width="15%"></th><th width="30%"></th></tr>';
 	
@@ -138,7 +134,6 @@ require('pbaincludes/pbapersonmenu.php');
 		echo '<tr><td style="text-align:right;">InActive: </td><td>&#x2611</td></tr>';}
 	else {echo '<tr><td style="text-align:right;">InActive: </td><td>&#x2610</td></tr>';}
 	echo '</table>';
-
 
 
 ?>

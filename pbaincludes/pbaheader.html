@@ -1,3 +1,6 @@
+<!-- Rev 2 4/9/2026 - added disabling of option by access level
+This document is the header for every page on the site and includes the main menu.
+-->
 <!DOCTYPE HTML>
 <html lang="en">
 <head><meta charset="UTF-8">
@@ -10,11 +13,17 @@
 <h1 style="vertical-align:center;"><img src="images/Redbacks.png" style="width:50px;height:50px;">  Perth Basketball Association</h1></header>
 <ul id="topmenu"> 
 	<li><a <?php echo ('Home' == $page_title) ? 'class="active"' : ''; ?> href="pbahome.php">Home</a></li>
-	<li><a <?php echo ('People' == $page_title) ? 'class="active"' : ''; ?> href="pbasearch.php">People</a></li>
-	<li><a <?php echo ('Activity' == $page_title) ? 'class="active"' : ''; ?> href="pbaactivityteams.php">Activity</a></li>
-	<li><a <?php echo ('Documents' == $page_title) ? 'class="active"' : ''; ?> href="pbadocsearch.php">Documents</a></li>
-	<li><a <?php echo ('Reports' == $page_title) ? 'class="active"' : ''; ?> href="pbareports.php">Reports</a></li>
-	<li><a <?php echo ('Tables' == $page_title) ? 'class="active"' : ''; ?> href="pbatableupdate.php">Maintenance</a></li>
+	<li><a <?php echo ('People' == $page_title) ? 'class="active"' : '';
+		echo (!isset($_SESSION['accesslevel']) || $_SESSION['accesslevel'] < 1) ? 'style="color:grey;"' : 'href="pbasearch.php"' ?>>People</a></li>
+	<li><a <?php echo ('Activity' == $page_title) ? 'class="active"' : ''; 
+		echo (!isset($_SESSION['accesslevel']) || $_SESSION['accesslevel'] < 1) ? 'style="color:grey;"' : 'href="pbaactivityteams.php"' ?>>Activity</a></li>
+	<li><a <?php echo ('Documents' == $page_title) ? 'class="active"' : '';
+		echo (!isset($_SESSION['accesslevel']) || $_SESSION['accesslevel'] < 1) ? 'style="color:grey;"' : 'href="pbadocsearch.php"' ?>>Documents</a></li>
+	<li><a <?php echo ('Reports' == $page_title) ? 'class="active"' : '';
+		echo (!isset($_SESSION['accesslevel']) || $_SESSION['accesslevel'] < 1) ? 'style="color:grey;"' : 'href="pbareports.php"' ?>>Reports</a></li>
+	<li><a <?php echo ('Admin' == $page_title) ? 'class="active"' : '';
+		echo (!isset($_SESSION['accesslevel']) || $_SESSION['accesslevel'] < 4) ? 'style="color:grey;"' : 'href="pbaadmin.php"' ?>>Admin</a></li>
+	
 
 <?php
 if(isset($_SESSION['userid']))
@@ -27,7 +36,8 @@ else
 	echo ('Login' == $page_title) ? 'class="active"' : '';
 	echo ' href="pbalogin.php"> Login</a></li>';}
 ?>
-<li><a <?php echo ('Admin' == $page_title) ? 'class="active"' : ''; ?> href="pbaadmin.php">Admin</a></li>
+	<li><a <?php echo ('Tables' == $page_title) ? 'class="active"' : '';
+		echo (!isset($_SESSION['accesslevel']) || $_SESSION['accesslevel'] < 4) ? 'style="color:grey;"' : 'href="pbatableupdate.php"' ?>>Maintenance</a></li>
 
 <li style="float: right;">
 
