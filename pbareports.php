@@ -1,5 +1,5 @@
 <?php
-//Rev 2 25/8/2026 - added year of birth to name combo box
+//Rev 3 6/9/2026 - added person activity report by year feature
 //this page is called from the reports item on the main menu
 //this page is a list of the available reports and has criteria input
 //and report output is downloaded to the browser
@@ -109,7 +109,7 @@ if($_SESSION['accesslevel'] > 0) //check user has permissions for this page
 	</select>
 	
 <br>
-<input type="submit" name="dlactivityreport" value="Download Report">
+<input type="submit" name="dlactivityreport" value="Download Report by Activity">   <input type="submit" name="dlyearactivityreport" value="Download Report by Year">
 </form>
 <br><hr><br>
 <b>Club Activity Report</b>
