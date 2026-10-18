@@ -1,5 +1,5 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 18/10/2026 - added super user and renamed god as advanced
 //this page is for changing the access level of users
 
 session_start();
@@ -24,14 +24,14 @@ include("pbaincludes/pbaadminmenu.php");
 <hr>
 	
 <?php
-if($_SESSION['accesslevel'] > 3) //check user has permissions for this page
+if($_SESSION['accesslevel'] > 4) //check user has permissions for this page
 {
 		//if form to change user access level submitted update user record
 	if(isset($_POST['accesschange']) && isset($_POST['access']) && isset($_POST['userid'])){
-		$nal = $_POST['access'];
-		$user = $_POST['userid'];
-		$q = "UPDATE pbausers SET accesslevel = ? WHERE userid = ?";
 		require('../connecttopba.php');
+		$nal = mysqli_real_escape_string($_POST['access']);
+		$user = mysqli_real_escape_string($_POST['userid']);
+		$q = "UPDATE pbausers SET accesslevel = ? WHERE userid = ?";
 		$stmt = mysqli_prepare($link, $q);
 		mysqli_stmt_bind_param($stmt, "ii", $nal, $user);
 		mysqli_stmt_execute($stmt);
@@ -67,8 +67,10 @@ Change User Access<br><br>
 <label for="ro">Read Only</label><br>
 <input type="radio" id="rw" name="access" value="3">
 <label for="rw">Read/Write</label><br>
-<input type="radio" id="god" name="access" value="4">
-<label for="god">God</label><br>
+<input type="radio" id="adv" name="access" value="4">
+<label for="adv">Advanced</label><br>
+<input type="radio" id="super" name="access" value="5">
+<label for="super">Super User</label><br>
 <br><input type="submit" name="accesschange" value="Change Access">
 </form>
 

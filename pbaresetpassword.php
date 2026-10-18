@@ -1,5 +1,5 @@
 <?php
-//Rev 2 13/4/2026 - included password hash
+//Rev 3 18/10/2026 - updated access level to super user
 //this page is the administrator to reset a user password
 //this would be used after a request from a user is received and verified
 
@@ -25,7 +25,7 @@ include("pbaincludes/pbaadminmenu.php");
 <hr>
 	
 <?php
-if($_SESSION['accesslevel'] > 3) //check user has permissions for this page
+if($_SESSION['accesslevel'] > 4) //check user has permissions for this page
 {
 		//if form to reset password submitted update user record
 	if(isset($_POST['pwreset']) && isset($_POST['newpw']) && isset($_POST['pwuserid']) && $_POST['pwuserid'] > 0)

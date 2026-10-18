@@ -1,4 +1,4 @@
-<!-- Rev 2 4/9/2026 - added disabling of option by access level
+<!-- Rev 3 18/10/2026 - added Advanced user type
 This document is the header for every page on the site and includes the main menu.
 -->
 <!DOCTYPE HTML>
@@ -62,7 +62,10 @@ if(isset($_SESSION['userid'])){
 			echo "Read/Write";
 			break;
 		case 4:
-			echo "All Powerful";
+			echo "Advanced";
+			break;
+		case 5:
+			echo "Super User";	
 			}
 }
 ?>
