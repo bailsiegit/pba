@@ -27,6 +27,18 @@ if($_SESSION['accesslevel'] < 1)
 	echo '<br><br>You do not have permission to access this page.';
 	exit();
 }
+// read search criteria to make form sticky
+if(isset($_POST['searchbutton']))
+{
+	require("../connecttopba.php"); //connect to database
+	// sanitise inputs
+	$fn = mysqli_real_escape_string($link,trim($_POST['first_name'])); //clean input plus add wild character
+	$ln = mysqli_real_escape_string($link,trim($_POST['last_name']));
+	$_SESSION['cname'] = $fn;
+	$_SESSION['surname'] = $ln;
+	$fn = '%'.$fn.'%'; //add wildcharacters ready for search
+	$ln = '%'.$ln.'%';
+}
 ?>
 
 
@@ -46,13 +58,6 @@ if(isset($_POST['searchbutton']))
 	if(!empty($_POST['first_name']) || !empty($_POST['last_name'])) //has any criteria been entered
 	{
 		require("../connecttopba.php"); //connect to database
-		// sanitise inputs
-		$fn = mysqli_real_escape_string($link,trim($_POST['first_name'])); //clean input plus add wild character
-		$ln = mysqli_real_escape_string($link,trim($_POST['last_name']));
-		$_SESSION['cname'] = $fn;
-		$_SESSION['surname'] = $ln;
-		$fn = '%'.$fn.'%';
-		$ln = '%'.$ln.'%';
 		
 		//first search query
 		$q = 'SELECT * FROM members WHERE FirstName LIKE ? AND LastName LIKE ? ORDER BY LastName, FirstName';
