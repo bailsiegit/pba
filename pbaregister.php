@@ -1,5 +1,5 @@
 <?php
-//Rev 3 1/9/2026 - fixed arror in stmt parameters and added more info after successful registration
+//Rev 4 23/10/2026 - added advanced user level to options
 //this page is for users to register on the pba database
 //registered users must contact the administrator to be given permission to access any data
 //there are 4 levels of access
@@ -69,6 +69,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST')
 					- Basic
 					<br>- Read Only
 					<br>- Read and Write
+					<br>- Advanced
 					<br>- Super User
 				<p>Contact your <a href="mailto:pbadata@fastmail.com.au?subject=Access Change">administrator</a> to get the access level you require.</p>
 				<p><a href="pbalogin.php">Login</a></p>
