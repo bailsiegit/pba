@@ -1,8 +1,9 @@
 <?php
-//Rev 2 30/8/2026 - corrected errors in keyword search process
+//Rev 3 26/10/2026 - Added file viewer
 //this page is used to find documents across all categories
 //keywords are entered and searched against the document titles
 //a list of matching files is displayed and hyperlinked for download
+//pdf and images can be displayed immediately with the view button
 session_start();
 //check that user is logged in and has not been idle for too long
 if(!isset($_SESSION['userid']) || time() - $_SESSION['timeoutstart'] > $_SESSION['timeoutlimit']) //check if user is logged in
@@ -40,6 +41,7 @@ Category <span style="font-size:0.7em">(Optional)</span>: <select name="doccateg
 <option value="tm">Team</option>
 <option value="cm">Committee</option>
 <option value="in">Incident</option>
+<option value="ac">Accolade</option>
 <option value="gn">General</option>
 <option value="vl">Volunteer</option>
 </select>
@@ -47,7 +49,7 @@ Category <span style="font-size:0.7em">(Optional)</span>: <select name="doccateg
 </form>
 
 <hr>
-
+<table style="width:100%;"><tr><td style="border:0px; background-color:white; width:50%">
 <?php
 if(isset($_POST['searchbutton']))
 {
@@ -167,17 +169,13 @@ if(isset($_POST['searchbutton']))
 			array_unique($alldocids); //remove duplicate doc ids from array
 			// category translation array
 			$activity = array("cm" => "committees", "aw" => "awards", "tm" => "teams", "em" => "employees", 
-			"vl" => "volunteers", "mb" => "members", "gn" => "general");
+			"vl" => "volunteers", "mb" => "members", "gn" => "general", "ac" => "accolade", "in" => "incident");
 			$docids = "";
-			foreach($alldocids as $index => $value)
-			{
-				$docids = $docids . "$value, "; // concatenate all docids into a string
-			}
-			$docids = substr($docids,0,strlen($docids)-2); // trim off the last comma and space
+			$docids = implode(", ",$alldocids);// concatenate all docids into a string
 			$q = "SELECT * FROM documents WHERE DocumentId IN ($docids)";
 			$r = mysqli_query($link, $q);
-			echo '<table style="width:80%"><tr><th style="width:40%">Document</th><th style="width:10%">Year Created</th>
-			<th style="width:15%">Category</th><th style="width:10%">Year Loaded</th></tr>';
+			echo '<table style="width:100%"><tr><th>Document (download)</th><th>Created</th>
+			<th>Category</th><th>View</th></tr>';
 			while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
 			{
 				$row['LastSaved'] = substr($row['LastSaved'],0,4);
@@ -187,7 +185,12 @@ if(isset($_POST['searchbutton']))
 				$ry = mysqli_query($link, $qy);
 				$yrtext = mysqli_fetch_array($ry,MYSQLI_ASSOC);
 				echo '<tr><td><a href="downloadfile.php?did='.$row['DocumentId'].'">'.$row['DocName'].'</a></td><td>'.$yrtext['YearText'].'</td>
-				<td>'.$row['Activity'].'</td><td>'.$row['LastSaved'].'</td></tr>';
+				<td>'.$row['Activity'].'</td><td>';
+				if(in_array(strtolower($row['FileType']),['jpg','jpeg','png','pdf']))
+				{
+					echo '<button type="button" onclick = "openView('.$row['DocumentId'].')">View</button>';
+				}
+				echo '</td></tr>';
 			}
 			echo '</table>';
 		}
@@ -198,8 +201,23 @@ if(isset($_POST['searchbutton']))
 	}
 }
 ?>
+</td><td style="border:0px; background-color:white;" id="viewercell">
+<div style="position: sticky; top: 0; width: 100%; height: 65vh; overflow: hidden;">
+<iframe id="docviewer" style="width:100%; height:100%; border:none; overflow: auto;">
+</iframe></div>
+</td></table>
 
 <?php
 include('pbaincludes/pbafooter.html');
 ?>
+<script>
+	function openView(docid){
+		document.getElementById('docviewer').src = 
+		'viewfile.php?did=' + docid;
+	}
+		
+	
+
+</script>
 </body></html>
+

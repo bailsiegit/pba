@@ -1,7 +1,8 @@
 <?php
-//Rev 1 19/11/2025
+//Rev 2 26/10/2026 - added viewer below results list
 //This page is reached from a button on various pages in the activity area
 //the page displays a list of files associated with the selected activity
+//the files can be viewed by clicking the view button
 //it also has an upload area to add files to the activity
 //back buttons take the user back to the selected activity
 session_start();
@@ -169,11 +170,16 @@ echo '<h2 style="text-align:center; margin:5px; width:100%;">Documents - '.$yrtx
 <?php
 		if(mysqli_num_rows($r) > 0)
 		{
-			echo '<tr><th>Document</th><th>Uploaded</th><th>Type</th><th>Download</th></tr>';
+			echo '<tr><th>Document (download)</th><th>Uploaded</th><th>Type</th><th>View</th></tr>';
 			while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
 			{
-				echo '<tr><td>'.$row['DocName'].'</td><td>'.date("d/m/Y H:i",strtotime($row['LastSaved'])).'</td><td>'.$row['FileType'].'</td>
-				<td><a class="buttonlink" href="downloadfile.php?did='.$row['DocumentId'].'">Download</a></td></tr>';
+				echo '<tr><td><a href="downloadfile.php?did='.$row['DocumentId'].'">'.$row['DocName'].'</a></td><td>'.date("d/m/Y H:i",strtotime($row['LastSaved'])).'</td><td>'.$row['FileType'].'</td>
+				<td>';
+				if(in_array(strtolower($row['FileType']),['jpg','jpeg','png','pdf']))
+				{
+					echo '<button type="button" class="buttonlink" onclick = "openView('.$row['DocumentId'].')">View</button>';
+				}
+				echo '</td></tr>';
 			}
 		}
 		else
@@ -184,6 +190,10 @@ echo '<h2 style="text-align:center; margin:5px; width:100%;">Documents - '.$yrtx
 		}
 ?>
 		</table>
+
+		<iframe id="docviewer" style="width:100%; height:65vh; border:none;">
+		</iframe>
+
 	</td><td style="background:white; border:1px; width:50%">
 	<h4 style="align:center;">Upload a Document</h4>
 <?php
@@ -214,5 +224,11 @@ else
 <?php
 include('pbaincludes/pbafooter.html');
 ?>
-
+<script>
+	function openView(docid){
+		document.getElementById('docviewer').src = 
+		'viewfile.php?did=' + docid;
+	}
+</script>
 </body></html>
+
