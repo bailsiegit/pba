@@ -114,6 +114,7 @@ while($pbayears = mysqli_fetch_array($r, MYSQLI_ASSOC))
 }
 ?>
 </select>
+
  or<br>
 <!-- //create award select combo box -->
 Show all recipients of 
@@ -217,18 +218,15 @@ if($_SESSION['accesslevel'] > 2)
 	</select><br>
 	Team: 
 	<select name="addedteam" id="addedteam">
-	<option value="0">Select team...</option>
 <?php
-	// get all names from table
-	$q = "SELECT TeamName, TeamId FROM teams ORDER BY TeamName";
-	require('../connecttopba.php');
-	$r = mysqli_query($link, $q);
-	while($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
-	{
-		echo '<option value="'.$row['TeamId'].'">'.$row['TeamName'].'</option>';
-	}
+	// get all team entires for the selected year
+	
+	include('pbaget_teamsforawardyear.php');
+	
 ?>
 	</select><br>
+	<!--<input type="hidden" name="addedteam" id="hiddenteam">
+	<br>
 	<!-- add award comment input-->
 	Comment: <input type="text" name="addedcomment" size="40" style="margin-top:3px;">
 	
@@ -279,6 +277,7 @@ function displayByYear() {
     xhr.send();
 	document.getElementById("addwinner").style.display="block";
 	teamfilter.style.display = "none";
+	getAddTeams();
 }
 </script>
 <script>
@@ -330,6 +329,22 @@ function getTeams() {
 }
 </script>
 <script>
+	//this puts the players names in the awards combo
+	function getAddTeams() {
+		var year = document.getElementById("selectedyear").value;
+		//var team = document.getElementById("selectedteam").value;
+		//var players = document.getElementById("addedteam");
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "pbaget_teamsforawardyear.php?java=1&yid=" + year, true);
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState == 4 && xhr.status == 200) {
+				document.getElementById("addedteam").innerHTML = xhr.responseText;
+			}
+		}
+		xhr.send();
+	}
+    </script>
+<script>
 const select = document.getElementById("addedaward");
 
 select.addEventListener("change", function () {
@@ -337,14 +352,18 @@ select.addEventListener("change", function () {
     const option = this.options[this.selectedIndex];
     const isTeam = option.dataset.award == "Yes";
 	var addteam = document.getElementById("addedteam");
+	var hidteam = document.getElementById("hiddenteam");
 
 	if(isTeam) {
 		addteam.disabled = false;
 		addteam.value = 0;
+		hidteam.disabled = true;
 	}
 	else {
 		addteam.disabled = true;
 		addteam.value = 54;
+		hidteam.value = 54;
+		hidteam.disabled = false;
 	}
 });		
 </script>

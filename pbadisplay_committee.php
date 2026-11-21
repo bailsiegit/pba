@@ -53,17 +53,17 @@ mysqli_stmt_execute($stmt);
 $rcommittee = mysqli_stmt_get_result($stmt);
 $committeename = mysqli_fetch_assoc($rcommittee);
     
-$committeeQuery = 'SELECT rl, mbid, members.FirstName, members.LastName FROM
-	(SELECT 
-	Role AS rl, 
-	committees.CommitteeName AS cn, 
-	MembId AS mbid 
-	FROM committeememb 
-	INNER JOIN years ON committeememb.YearId = years.YearId
-	INNER JOIN committees ON committeememb.CommId = committees.CommitteeId 
-	WHERE committeememb.YearId = ? AND committeememb.CommId = ?) 
-	AS committeedata 
-	INNER JOIN members ON committeedata.mbid = members.MemberID';
+$committeeQuery = 'SELECT 
+cm.Role, 
+cm.MembId, 
+cm.CommMembId,
+m.FirstName, 
+m.LastName 
+FROM committeememb cm
+JOIN committees c ON cm.CommId = c.CommitteeId
+JOIN years y ON cm.YearId = y.YearId
+JOIN members m ON cm.MembId = m.MemberID
+WHERE cm.YearId = ? AND cm.CommId = ?';
 $stmt = mysqli_prepare($link, $committeeQuery);
 mysqli_stmt_bind_param($stmt, "ii", $getyear, $getcommittee);
 mysqli_stmt_execute($stmt);
@@ -110,13 +110,13 @@ if (mysqli_num_rows($committeeResult) > 0)
 	{
 		if($_SESSION['accesslevel'] > 3)
 		{
-			echo '<tr><td><a href="pbaperson.php?pid='.$committee['mbid'].'">'.$committee['FirstName'].' '.$committee['LastName'].'</a></td>
-				<td>'.$committee['rl'].'</td><td><a onclick="return confirm(\'Are you sure?\');" class="buttonlink" href="pbadeleterecords.php?yid='.$getyear.'&cid='.$getcommittee.'&pid='.$committee['mbid'].'">Delete</a></td></tr>';
+			echo '<tr><td><a href="pbaperson.php?pid='.$committee['MembId'].'">'.$committee['FirstName'].' '.$committee['LastName'].'</a></td>
+				<td>'.$committee['Role'].'</td><td><a onclick="return confirm(\'Are you sure?\');" class="buttonlink" href="pbadeleterecords.php?yid='.$getyear.'&cid='.$getcommittee.'&cmid='.$committee['CommMembId'].'">Delete</a></td></tr>';
 		}
 		else
 		{
-			echo '<tr><td><a href="pbaperson.php?pid='.$committee['mbid'].'">'.$committee['FirstName'].' '.$committee['LastName'].'</a></td>
-				<td>'.$committee['rl'].'</td></tr>';
+			echo '<tr><td><a href="pbaperson.php?pid='.$committee['MembId'].'">'.$committee['FirstName'].' '.$committee['LastName'].'</a></td>
+				<td>'.$committee['Role'].'</td></tr>';
 		}
 		
 	}

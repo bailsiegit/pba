@@ -33,9 +33,9 @@ if (isset($_GET['yid']) && is_numeric($_GET['yid']) || isset($yid))
 		die('Year query failed: ' . mysqli_error($link));
 	}
 	$yeartext = mysqli_fetch_assoc($ryear);
-    
+	
     // get a list of all the award winners for the year
-	$q = "SELECT 
+	$q = 'SELECT 
     aw.Comments,
     a.AwardName,
     m.FirstName,
@@ -43,14 +43,15 @@ if (isset($_GET['yid']) && is_numeric($_GET['yid']) || isset($yid))
     aw.MembId,
     aw.AwardId,
     aw.YearId,
-	t.TeamName
-	FROM awardwinners aw
+	aw.AwardWinId,
+	IF(aw.TeamId IS NULL," N/A", tt.TeamName) AS TeamName
+    FROM awardwinners aw
+	JOIN teamstext tt ON aw.TeamId = tt.TeamEntryId
     JOIN years y ON aw.YearId = y.YearId
     JOIN awards a ON aw.AwardId = a.AwardID
-	JOIN members m ON aw.MembId = m.MemberID
-	JOIN teams t ON aw.TeamId = t.TeamId
+    JOIN members m ON aw.MembId = m.MemberID
     WHERE aw.YearId = ?
-    ORDER BY t.TeamName, a.DisplayOrder";
+    ORDER BY TeamName, a.DisplayOrder';
 
 	require('../connecttopba.php');
 	$stmt = mysqli_prepare($link, $q);
@@ -82,7 +83,7 @@ if (isset($_GET['yid']) && is_numeric($_GET['yid']) || isset($yid))
 			if($_SESSION['accesslevel'] > 3)
 			{
 				echo '<tr><td>'.$row['AwardName'].'</td><td>'.$row['TeamName'].'<td><a href="pbaperson.php?pid='.$row['MembId'].'">'.$row['FirstName'].' '.$row['LastName'].'</a></td><td>'.$row['Comments'].'</td>
-				<td><a onclick="return confirm(\'Are you sure?\');" class="buttonlink" href="pbadeleterecords.php?pid='.$row['MembId'].'&aid='.$row['AwardId'].'&yid='.$row['YearId'].'">Delete</a></td></tr>';
+				<td><a onclick="return confirm(\'Are you sure?\');" class="buttonlink" href="pbadeleterecords.php?aid='.$row['AwardWinId'].'&yid='.$row['YearId'].'">Delete</a></td></tr>';
 			}
 			else
 			{
@@ -108,21 +109,22 @@ if (isset($_GET['aid']) && is_numeric($_GET['aid']))
 		if($getteam == 0) // show all winners regargless of team
 		{
 			// get a list of all the people who have won the award		
-			$q = "SELECT
+			$q = 'SELECT 
 			aw.Comments,
-			a.AwardName, 
-			y.YearText, 
-			m.FirstName, 
-			m.LastName, 
+			a.AwardName,
+			m.FirstName,
+			m.LastName,
 			aw.MembId,
-			t.TeamName
+			aw.AwardId,
+			y.YearText,
+			IF(aw.TeamId IS NULL," N/A", tt.TeamName) AS TeamName
 			FROM awardwinners aw
+			LEFT JOIN teamstext tt ON aw.TeamId = tt.TeamEntryId
 			JOIN years y ON aw.YearId = y.YearId
-			JOIN awards a ON aw.AwardId = a.AwardID 
+			JOIN awards a ON aw.AwardId = a.AwardID
 			JOIN members m ON aw.MembId = m.MemberID
-			JOIN teams t ON aw.TeamId = t.TeamId
 			WHERE aw.AwardId = ?
-			ORDER BY aw.YearId DESC, t.TeamName";
+			ORDER BY aw.YearId DESC, TeamName';
 			require('../connecttopba.php');
 			$stmt = mysqli_prepare($link, $q);
 			mysqli_stmt_bind_param($stmt, "i", $getaward);
@@ -130,21 +132,22 @@ if (isset($_GET['aid']) && is_numeric($_GET['aid']))
 		else
 		{
 			// get a list of all the people who have won the award for the selected team	
-			$q = "SELECT
+			$q = 'SELECT
 			aw.Comments,
 			a.AwardName, 
 			y.YearText, 
 			m.FirstName, 
 			m.LastName, 
 			aw.MembId,
-			t.TeamName
+			IF(aw.TeamId IS NULL," N/A", tt.TeamName)
 			FROM awardwinners aw
+			JOIN teamentries te ON aw.TeamId = te.TeamEntryId
 			JOIN years y ON aw.YearId = y.YearId
 			JOIN awards a ON aw.AwardId = a.AwardID 
 			JOIN members m ON aw.MembId = m.MemberID
-			JOIN teams t ON aw.TeamId = t.TeamId
-			WHERE aw.AwardId = ? AND aw.TeamId = ?
-			ORDER BY aw.YearId DESC";
+			LEFT JOIN teamstext tt ON aw.TeamId = tt.TeamEntryId
+			WHERE aw.AwardId = ? AND TeamName = ?
+			ORDER BY aw.YearId DESC';
 			require('../connecttopba.php');
 			$stmt = mysqli_prepare($link, $q);
 			mysqli_stmt_bind_param($stmt, "ii", $getaward, $getteam);

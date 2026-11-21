@@ -35,8 +35,8 @@ if(isset($_GET['pid']))
 
 require('../connecttopba.php');
 // get the persons name to put at the top of the page
-$q = 'SELECT *, salutations.Salutation AS salutationtext FROM members 
-	INNER JOIN salutations ON members.Salutation = salutations.Salutationid WHERE members.MemberID = ?';
+$q = 'SELECT FirstName, LastName FROM members 
+WHERE members.MemberID = ?';
 $stmt = mysqli_prepare($link, $q);
 mysqli_stmt_bind_param($stmt, "i", $pid);
 mysqli_stmt_execute($stmt);
@@ -49,9 +49,18 @@ echo '<h2>'.$person['FirstName'].' '.$person['LastName'].'</h2>';
 require('pbaincludes/pbapersonmenu.php');
 
 // get a list of all the teams the person has been on
-$q = 'SELECT Role, GamesPlayed, years.YearText, years.YearId, teams.TeamId, teams.TeamName FROM ((teammembers 
-INNER JOIN years ON teammembers.YearId = years.YearId)
- INNER JOIN teams ON teammembers.TeamId = teams.TeamId) WHERE MembId = ? ORDER BY YearText DESC';
+$q = 'SELECT 
+tm.Role, 
+tm.GamesPlayed, 
+y.YearText, 
+y.YearId, 
+tm.TeamId, 
+tt.TeamName 
+FROM teammembers tm
+JOIN years  y ON tm.YearId = y.YearId
+JOIN teamstext tt ON tm.TeamId = tt.TeamEntryId 
+WHERE tm.MembId = ? 
+ORDER BY YearText DESC';
 $stmt = mysqli_prepare($link, $q);
 mysqli_stmt_bind_param($stmt, "i", $pid);
 mysqli_stmt_execute($stmt);

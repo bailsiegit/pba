@@ -124,10 +124,14 @@ if(isset($_POST['dlactivityreport']))
 	$pdf->SetFont('Arial', '', 10);
 		
 	$q = "
-	SELECT tm.Role, tm.GamesPlayed, y.YearText, t.TeamName 
+	SELECT 
+	tm.Role, 
+	tm.GamesPlayed, 
+	y.YearText, 
+	tt.TeamName 
 	FROM teammembers tm
 	JOIN years y ON tm.YearId = y.YearId
-	JOIN teams t ON tm.TeamId = t.TeamId 
+	JOIN teamstext tt ON tm.TeamId = tt.TeamEntryId 
 	WHERE MembId = ? 
 	ORDER BY y.YearText DESC";
 	require('../connecttopba.php');
@@ -260,17 +264,17 @@ if(isset($_POST['dlactivityreport']))
 
 	$pdf->SetFont('Arial', '', 10);
 		
-	$q = "SELECT 
+	$q = 'SELECT 
 	aw.Comments, 
 	a.AwardName, 
 	y.YearText, 
-	t.TeamName
+	IF(aw.TeamId IS NULL, " N/A", tt.TeamName) AS TeamName
 	FROM awardwinners aw
 	JOIN awards a ON aw.AwardId = a.AwardID 
 	JOIN years y ON aw.YearId = y.YearId
-	JOIN teams t ON aw.TeamId = t.TeamId
+	LEFT JOIN teamstext tt ON aw.TeamId = tt.TeamEntryId
 	WHERE MembId = ? 
-	ORDER BY y.YearText DESC";	
+	ORDER BY y.YearText DESC';	
 	require('../connecttopba.php');
 	$stmt = mysqli_prepare($link, $q);
 	mysqli_stmt_bind_param($stmt, "i", $formperson);
@@ -459,9 +463,12 @@ if(isset($_POST['dlyearactivityreport']))
 	//get all the data into an array
 	$formperson = htmlentities($_POST['personid']);
 	$q = "
-	SELECT 'T' AS Type, t.TeamName, tm.Role, y.YearText
+	SELECT 'T' AS Type, 
+	tt.TeamName, 
+	tm.Role, 
+	y.YearText
 	FROM teammembers tm
-	JOIN teams t ON tm.TeamId = t.TeamId
+	LEFT JOIN teamstext tt ON tm.TeamId = tt.TeamEntryId
 	JOIN years y ON tm.YearId = y.YearId
 	WHERE tm.MembId = ?
 	UNION ALL
@@ -482,10 +489,11 @@ if(isset($_POST['dlyearactivityreport']))
 	JOIN years y ON v.YearId = y.YearId
 	WHERE v.MembId = ?
 	UNION ALL
-	SELECT  'Aw' AS Type,IF(t.TeamName = 'Individual', a.AwardName, CONCAT(a.AwardName, ' ', t.TeamName)) AS Prize, aw.Comments, y.YearText
+	SELECT  'Aw' AS Type,
+	IF(aw.TeamId IS NULL, a.AwardName, CONCAT(a.AwardName, ' ', tt.TeamName)) AS Prize, aw.Comments, y.YearText
 	FROM awardwinners aw
 	JOIN awards a ON aw.AwardId = a.AwardID
-	JOIN teams t ON aw.TeamId = t.TeamId
+	LEFT JOIN teamstext tt ON aw.TeamId = tt.TeamEntryId
 	JOIN years y ON aw.YearId = y.YearId
 	WHERE aw.MembId = ?
 	UNION ALL

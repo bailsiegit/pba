@@ -36,8 +36,8 @@ if(isset($_GET['pid']))
 
 require('../connecttopba.php');
 // get the persons name to put at the top of the page
-$q = 'SELECT *, salutations.Salutation AS salutationtext FROM members 
-INNER JOIN salutations ON members.Salutation = salutations.Salutationid WHERE members.MemberID = ?';
+$q = 'SELECT FirstName, LastName FROM members 
+WHERE members.MemberID = ?';
 $stmt = mysqli_prepare($link, $q);
 mysqli_stmt_bind_param($stmt, "i", $pid);
 mysqli_stmt_execute($stmt);
@@ -54,15 +54,15 @@ require('pbaincludes/pbapersonmenu.php');
 // get a list of all the awards the person has received
 $q = 'SELECT 
 aw.Comments, 
-t.TeamName,
+IF(aw.TeamId IS NULL, " N/A", tt.TeamName) AS TeamName,
 a.AwardName, 
 y.YearText 
 FROM awardwinners aw
 JOIN awards a ON aw.AwardId = a.AwardID
 JOIN years y ON aw.YearId = y.YearId
-JOIN teams t ON aw.TeamId = t.TeamId
- WHERE MembId = ? 
- ORDER BY y.YearText DESC, a.DisplayOrder';
+LEFT JOIN teamstext tt ON aw.TeamId = tt.TeamEntryId
+WHERE MembId = ? 
+ORDER BY y.YearText DESC, a.DisplayOrder';
 $stmt = mysqli_prepare($link, $q);
 mysqli_stmt_bind_param($stmt, "i", $pid);
 mysqli_stmt_execute($stmt);

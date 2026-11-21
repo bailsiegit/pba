@@ -28,9 +28,34 @@ if (!$ryear)
 }
 $yeartext = mysqli_fetch_assoc($ryear);
 //find teams that have members for selected year
-$teamQuery = "SELECT teammembers.TeamId, TeamName FROM (teams 
-INNER JOIN teammembers ON teams.TeamId = teammembers.TeamId) 
-WHERE teammembers.YearId = ? GROUP BY TeamName ORDER BY TeamName";
+
+//$teamQuery = "SELECT teammembers.TeamId, TeamName FROM (teams 
+//INNER JOIN teammembers ON teams.TeamId = teammembers.TeamId) 
+//WHERE teammembers.YearId = ? GROUP BY TeamName ORDER BY TeamName";
+//$stmt = mysqli_prepare($link, $teamQuery);
+//mysqli_stmt_bind_param($stmt, "i", $year);
+//mysqli_stmt_execute($stmt);
+//$teamResult = mysqli_stmt_get_result($stmt);
+echo "year is $year";
+//find teams for the year
+$teamQuery = "SELECT
+te.TeamEntryId,
+y.YearText,
+l.LeagueName,
+s.SeasonName,
+gr.GradeName,
+ge.GenderName,
+d.DivisionName,
+tn.TeamName
+FROM teamentries te
+JOIN years y ON te.YearId = y.YearId
+JOIN leagues l ON te.LeagueId = l.LeagueId
+JOIN seasons s ON te.SeasonId = s.SeasonId
+JOIN grades gr ON te.GradeId = gr.GradeId
+JOIN genders ge ON te.GenderId = ge.GenderId
+JOIN divisions d ON te.DivisionId = d.DivisionId
+JOIN teamnames tn ON te.TeamNameId = tn.TeamNameId
+WHERE te.YearId = ?";
 $stmt = mysqli_prepare($link, $teamQuery);
 mysqli_stmt_bind_param($stmt, "i", $year);
 mysqli_stmt_execute($stmt);
@@ -45,8 +70,12 @@ if (mysqli_num_rows($teamResult) > 0) //if teams are found populate combo box
 	echo '<option value="0">Select team...</option>';
     while ($team = mysqli_fetch_assoc($teamResult)) 
 	{
-		$selected = ($getteam == $team['TeamId']) ? ' selected="selected"' : '';
-        echo '<option value="' . $team['TeamId'] . '"'.$selected.'>' . $team['TeamName'] . '</option>';
+		$team['GradeName'] = ($team['GradeName'] == "None") ? "" : " ".$team['GradeName'];
+		$team['DivisionName'] = ($team['DivisionName'] == "None") ? "" : " ".$team['DivisionName'];
+		$team['TeamName'] = ($team['TeamName'] == "None") ? "" : " ".$team['TeamName'];
+		$fullteamname = $team['LeagueName']." ".$team['SeasonName'].$team['GradeName']." ".$team['GenderName'].$team['DivisionName'].$team['TeamName'];
+		$selected = ($getteam == $team['TeamEntryId']) ? ' selected="selected"' : '';
+        echo '<option value="' . $team['TeamEntryId'] . '"'.$selected.'>' . $fullteamname . '</option>';
     }
 } 
 else 

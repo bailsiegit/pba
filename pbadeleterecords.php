@@ -9,25 +9,25 @@ if(isset($_GET['aid'])) //check the task is to delete an award recipient
 	$awardid = htmlentities($_GET['aid']);
 	$yearid = htmlentities($_GET['yid']);
 	$personid = htmlentities($_GET['pid']);
-	$q = "DELETE FROM awardwinners WHERE AwardId = ? AND YearId = ? AND MembId = ?";
+	$q = "DELETE FROM awardwinners WHERE AwardWinId = ?";
 	require('../connecttopba.php');
 	$stmt = mysqli_prepare($link, $q);
-	mysqli_stmt_bind_param($stmt, "iii", $awardid, $yearid, $personid);
+	mysqli_stmt_bind_param($stmt, "i", $awardid);
 	mysqli_stmt_execute($stmt);
 	$r = mysqli_stmt_get_result($stmt);
 	header("Location: pbaactivityawards.php?yid=$yearid");
 	exit();
 }
 
-if(isset($_GET['tid'])) //check task is to delete a team member
+if(isset($_GET['tmid'])) //check task is to delete a team member
 {
 	$yearid = htmlentities($_GET['yid']);
-	$personid = htmlentities($_GET['pid']);
 	$teamid = htmlentities($_GET['tid']);
-	$q = "DELETE FROM teammembers WHERE TeamId = ? AND YearId = ? AND MembId = ?";
+	$teammemberid = htmlentities($_GET['tmid']);
+	$q = "DELETE FROM teammembers WHERE TeamMembId = ?";
 	require('../connecttopba.php');
 	$stmt = mysqli_prepare($link, $q);
-	mysqli_stmt_bind_param($stmt, "iii", $teamid, $yearid, $personid);
+	mysqli_stmt_bind_param($stmt, "i", $teammemberid);
 	mysqli_stmt_execute($stmt);
 	$r = mysqli_stmt_get_result($stmt);
 	header("Location: pbaactivityteams.php?yid=$yearid&tid=$teamid");
@@ -52,12 +52,12 @@ if(isset($_GET['msid'])) //check task is to delete a membership
 if(isset($_GET['cid'])) //check task is to delete a committee member
 {
 	$yearid = htmlentities($_GET['yid']);
-	$personid = htmlentities($_GET['pid']);
 	$commid = htmlentities($_GET['cid']);
-	$q = "DELETE FROM committeememb WHERE CommId = ? AND YearId = ? AND MembId = ?";
+	$commmembid = htmlentities($_GET['cmid']);
+	$q = "DELETE FROM committeememb WHERE CommMembId = ?";
 	require('../connecttopba.php');
 	$stmt = mysqli_prepare($link, $q);
-	mysqli_stmt_bind_param($stmt, "iii", $commid, $yearid, $personid);
+	mysqli_stmt_bind_param($stmt, "i", $commmembid);
 	mysqli_stmt_execute($stmt);
 	$r = mysqli_stmt_get_result($stmt);
 	header("Location: pbaactivitycommittees.php?yid=$yearid&cid=$commid");
@@ -128,6 +128,38 @@ if(isset($_GET['inid']))
 	}
 	//reload incident list page
 	header("Location: pbaactivityincident.php");
+	exit();
+}
+
+// delete team entry
+if(isset($_GET['teid']))
+{
+	$teamentryid = htmlentities($_GET['teid']);
+	$entryyear = htmlentities($_GET['yid']);
+	//check if there are any related records
+	$q = "SELECT DocumentId FROM documents WHERE Activity = 'tm' AND ActivityRef = ? AND YearId = ?
+	UNION
+	SELECT TResultsId FROM teamresults WHERE TeamId = ? AND YearId = ?
+	UNION
+	SELECT AwardId FROM awardwinners WHERE TeamId = ? AND YearId = ?
+	UNION
+	SELECT TeamMembId FROM teammembers WHERE TeamId = ? AND YearId = ?";
+	require('../connecttopba.php');
+	$stmt = mysqli_prepare($link, $q);
+	mysqli_stmt_bind_param($stmt, "iiiiiiii", $teamentryid, $entryyear, $teamentryid, $entryyear, $teamentryid, $entryyear, $teamentryid, $entryyear);
+	mysqli_stmt_execute($stmt);
+	$r = mysqli_stmt_get_result($stmt);
+	// if no related records then delete
+	if(mysqli_num_rows($r) < 1)
+	{
+		$q = "DELETE FROM teamentries WHERE TeamEntryId = ?";
+		$stmt = mysqli_prepare($link, $q);
+		mysqli_stmt_bind_param($stmt, "i", $teamentryid);
+		mysqli_stmt_execute($stmt);
+		$r = mysqli_stmt_get_result($stmt);
+	}
+	//reload incident list page
+	header("Location: pbateamentries.php?yid=$entryyear");
 	exit();
 }
 ?>

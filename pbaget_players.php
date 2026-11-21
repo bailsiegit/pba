@@ -16,9 +16,10 @@ require('../connecttopba.php');
 $year = (isset($_GET['yid'])) ? (int) $_GET['yid'] : $formyear;
 $getteam = (isset($_GET['tid'])) ? (int)$_GET['tid'] : $formteam;
 //find teams that have members for selected year
-	$q = "SELECT mb.FirstName, mb.LastName, mb.MemberID FROM members mb
+	$q = "SELECT mb.FirstName, mb.LastName, mb.MemberID 
+	FROM members mb
 	JOIN teammembers tm ON mb.MemberID = tm.MembId
-	WHERE tm.YearId = $year AND TeamId = $getteam
+	WHERE TeamId = $getteam
 	ORDER BY LastName, FirstName";
 	require('../connecttopba.php');
 	$r = mysqli_query($link, $q);

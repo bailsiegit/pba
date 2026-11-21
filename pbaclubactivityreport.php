@@ -116,7 +116,9 @@ class PDF extends FPDF
 		
 		// start teams section
 		//Find total teams
-		$q = 'SELECT COUNT(DISTINCT TeamId) AS Qty FROM teammembers WHERE YearId = ?';
+		$q = 'SELECT COUNT(TeamEntryId) AS Qty FROM teamentries te
+		WHERE YearId = ?
+		GROUP BY te.LeagueId';
 		require('../connecttopba.php');
 		$stmt = mysqli_prepare($link, $q);
 		mysqli_stmt_bind_param($stmt, "i", $reportyear);
@@ -145,15 +147,15 @@ class PDF extends FPDF
 		
 		//get the number of teams in each league
 		$q = 'SELECT 
-			LEFT(t.TeamName, 4) AS League,
-			COUNT(DISTINCT tm.TeamId) AS Qty,
+			l.LeagueName,
+			COUNT(DISTINCT te.TeamEntryId) AS Qty,
 			COUNT(tm.MembId) AS Players
 		FROM teammembers tm
-		INNER JOIN teams t
-		ON t.TeamId = tm.TeamId
+		JOIN teamentries te	ON te.TeamEntryId = tm.TeamId
+		JOIN leagues l ON te.LeagueId = l.LeagueId
 		WHERE tm.YearId = ?
-		GROUP BY LEFT(t.TeamName, 4)
-		ORDER BY t.TeamName';
+		GROUP BY te.LeagueId
+		ORDER BY l.LeagueName';
 		$stmt = mysqli_prepare($link, $q);
 		mysqli_stmt_bind_param($stmt, "i", $reportyear);
 		mysqli_stmt_execute($stmt);
@@ -167,7 +169,7 @@ class PDF extends FPDF
 		{
 			while($row = mysqli_fetch_array($rtbl,MYSQLI_ASSOC))
 			{
-				$lg = $row['League'];
+				$lg = $row['LeagueName'];
 				$qt = $row['Qty'];
 				$pl = $row['Players'];
 				$pdf->Cell(25, 7, "$lg", 1);
@@ -175,7 +177,8 @@ class PDF extends FPDF
 				$pdf->Cell(30, 7, "$pl", 1, 1, 'C'); //extra parameter is to start new line
 			}
 			$pdf->SetFont('Arial', '', 8);
-			$pdf->Cell(80, 7, 'Note: Team members include coaches, manager, etc.');
+			$pdf->Cell(80, 4, 'Note: Team members include coaches, manager, etc.', 0, 1);
+			$pdf->Cell(80, 4, 'Note: WABL teams include 1 referees team.');
 		}
 		else
 		{

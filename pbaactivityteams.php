@@ -328,7 +328,7 @@ include('pbaincludes/pbafooter.html');
     }
     </script>
 	<script>
-    function displayTeam() {
+    function displayTeamold() {
         var year = document.getElementById("selectedyear").value;
 		var add = document.getElementById("addperson");
 		var team = document.getElementById("selectedteam").value;
@@ -357,6 +357,35 @@ include('pbaincludes/pbafooter.html');
     }
 	</script>
 	<script>
+    function displayTeam() {
+        var year = document.getElementById("selectedyear").value;
+		var team = document.getElementById("selectedteam").value;
+		var dnld = document.getElementById("showdownload");
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "pbadisplay_team.php?java=1&yid=" + year + "&tid=" + team, true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+				if(team < 1) {
+					document.getElementById("displaydata").innerHTML = "";
+				}
+				else {
+					document.getElementById("displaydata").innerHTML = xhr.responseText;
+				}
+            }
+        };
+        xhr.send();
+		if(team > 0){
+			dnld.style.display = "block";
+			
+		}
+		else {
+			dnld.style.display = "none";
+		}
+		getPlayers()
+    }
+	</script>
+	<script>
+	//this puts the players names in the awards combo
 	function getPlayers() {
 		var year = document.getElementById("selectedyear").value;
 		var team = document.getElementById("selectedteam").value;
@@ -372,6 +401,7 @@ include('pbaincludes/pbafooter.html');
 	}
     </script>
 	<script>
+	//this toggles the data input area on and off
 	function showAdds() {
 		var addons = document.getElementById("addons");
 		var styledata = window.getComputedStyle(addons)

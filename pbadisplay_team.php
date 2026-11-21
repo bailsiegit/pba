@@ -30,19 +30,27 @@ if (!$ryear)
 }
 $yeartext = mysqli_fetch_assoc($ryear);
 
-$qteam = "SELECT TeamName FROM teams WHERE TeamId = ?";
+$qteam = 'SELECT 
+	CONCAT(
+	y.YearText, " - ",
+	tt.TeamName) AS TeamName
+	FROM teamentries te
+	JOIN teamstext tt ON te.TeamEntryId = tt.TeamEntryId
+	JOIN years y ON te.YearId = y.YearId
+	WHERE te.TeamEntryId = ?';
 $stmt = mysqli_prepare($link, $qteam);
 mysqli_stmt_bind_param($stmt, "i", $getteam);
 mysqli_stmt_execute($stmt);
 $rteam = mysqli_stmt_get_result($stmt);
 $teamname = mysqli_fetch_assoc($rteam);
+$fullteamname = $teamname['TeamName'];
 
 //get any team status records
 $qstatus = "SELECT tro.TeamResultText FROM teamresultoptions tro
 INNER JOIN teamresults tr
-ON tr.TeamResultId = tro.TeamResultId WHERE tr.TeamId = ? AND tr.YearId = ? ORDER BY tr.TeamResultId";
+ON tr.TeamResultId = tro.TeamResultId WHERE tr.TeamId = ? ORDER BY tr.TeamResultId";
 $stmt = mysqli_prepare($link, $qstatus);
-mysqli_stmt_bind_param($stmt, "ii", $getteam, $getyear);
+mysqli_stmt_bind_param($stmt, "i", $getteam);
 mysqli_stmt_execute($stmt);
 $rresults = mysqli_stmt_get_result($stmt);
 
@@ -51,28 +59,25 @@ $qawards = "SELECT a.AwardName, m.FirstName, m.LastName
 FROM awards a
 JOIN awardwinners aw ON a.AwardID = aw.AwardID
 JOIN members m ON aw.MembId = m.MemberID
-WHERE aw.TeamId = ? AND aw.YearId = ? ORDER BY a.DisplayOrder";
+WHERE aw.TeamId = ? ORDER BY a.DisplayOrder";
 $stmt = mysqli_prepare($link, $qawards);
-mysqli_stmt_bind_param($stmt, "ii", $getteam, $getyear);
+mysqli_stmt_bind_param($stmt, "i", $getteam);
 mysqli_stmt_execute($stmt);
 $rawards = mysqli_stmt_get_result($stmt);
 
 //get team members   
-$teamQuery = "SELECT rl, gp, tn, mbid, members.FirstName, members.LastName, tmid, yrid FROM
-	(SELECT 
-	Role AS rl, 
-	GamesPlayed AS gp, 
-	teams.TeamName AS tn, 
-	MembId AS mbid, 
-	teammembers.TeamId AS tmid, 
-	teammembers.YearId AS yrid 
-	FROM teammembers 
-	INNER JOIN years ON teammembers.YearId = years.YearId
-	INNER JOIN teams ON teammembers.TeamId = teams.TeamId WHERE teammembers.YearId = ? AND teammembers.TeamId = ?) 
-	AS teamdata 
-	INNER JOIN members ON teamdata.mbid = members.MemberID";
+$teamQuery = "SELECT
+tm.TeamMembId,
+tm.Role, 
+tm.GamesPlayed, 
+m.MemberID, 
+m.FirstName, 
+m.LastName 
+FROM teammembers tm
+JOIN members m ON tm.MembId = m.MemberID
+WHERE tm.TeamId = ?";
 $stmt = mysqli_prepare($link, $teamQuery);
-mysqli_stmt_bind_param($stmt, "ii", $getyear, $getteam);
+mysqli_stmt_bind_param($stmt, "i", $getteam);
 mysqli_stmt_execute($stmt);
 $teamResult = mysqli_stmt_get_result($stmt);
 //if(empty($teamResult))
@@ -89,9 +94,9 @@ if (!$teamResult)
 }
 //is there any documents attached to the team
 $docsQuery = "SELECT DocName FROM Documents
-WHERE Activity = 'tm' AND ActivityRef = ? AND YearId = ?";
+WHERE Activity = 'tm' AND ActivityRef = ?";
 $stmt = mysqli_prepare($link, $docsQuery);
-mysqli_stmt_bind_param($stmt, "ii", $getteam, $getyear);
+mysqli_stmt_bind_param($stmt, "i", $getteam);
 mysqli_stmt_execute($stmt);
 $docsResult = mysqli_stmt_get_result($stmt);
 if (!$docsResult) 
@@ -103,7 +108,7 @@ $numberofdocs = mysqli_num_rows($docsResult);
 if (mysqli_num_rows($teamResult) > 0) 
 {	
 	echo '<table style="width:100%;"><tr>';
-	echo '<td style="width:50%; background:white; border:0px;"><h4 style="margin-bottom:2px;">'.$yeartext['YearText'].' - '.$teamname['TeamName'].'</h4>';
+	echo '<td style="width:50%; background:white; border:0px;"><h4 style="margin-bottom:2px;">'.$fullteamname.'</h4>';
 	if(mysqli_num_rows($rresults) > 0)
 	{
 		while($results = mysqli_fetch_assoc($rresults))
@@ -160,24 +165,28 @@ if (mysqli_num_rows($teamResult) > 0)
 		{
 			if($_SESSION['accesslevel'] > 3) // God access shows delete buton
 			{
-				echo '<tr><td><a href="pbaperson.php?pid='.$team['mbid'].'">'.$team['FirstName'].' '.$team['LastName'].'</a></td>
-					<td>'.$team['rl'].'</td>
-					<td><a href="pbaaddgames.php?pid='.$team['mbid'].'&tid='.$getteam.'&yid='.$getyear.'&gp='.$team['gp'].'">'.$team['gp'].'</a></td>
-					<td><a onclick="return confirm(\'Are you sure?\');" class="buttonlink" href="pbadeleterecords.php?pid='.$team['mbid'].'&tid='.$team['tmid'].'&yid='.$team['yrid'].'">
+				echo '<tr><td><a href="pbaperson.php?pid='.$team['MemberID'].'">'.$team['FirstName'].' '.$team['LastName'].'</a></td>
+					<td>'.$team['Role'].'</td>
+					<td><a href="pbaaddgames.php?pid='.$team['MemberID'].'&tid='.$getteam.'&yid='.$getyear.'&gp='.$team['GamesPlayed'].'">'.$team['GamesPlayed'].'</a></td>
+					<td><a onclick="return confirm(\'Are you sure?\');" class="buttonlink" href="pbadeleterecords.php?tmid='.$team['TeamMembId'].'&yid='.$getyear.'&tid='.$getteam.'">
 					Delete</a></td></tr>';
 			}
 			elseif($_SESSION['accesslevel'] > 2)
 			{
-				echo '<tr><td><a href="pbaperson.php?pid='.$team['mbid'].'">'.$team['FirstName'].' '.$team['LastName'].'</a></td><td>'.$team['rl'].'</td>
-					<td><a href="pbaaddgames.php?pid='.$team['mbid'].'&tid='.$getteam.'&yid='.$getyear.'&gp='.$team['gp'].'">'.$team['gp'].'</a>
+				echo '<tr><td><a href="pbaperson.php?pid='.$team['MemberID'].'">'.$team['FirstName'].' '.$team['LastName'].'</a></td><td>'.$team['Role'].'</td>
+					<td><a href="pbaaddgames.php?pid='.$team['MemberID'].'&tid='.$getteam.'&yid='.$getyear.'&gp='.$team['GamesPlayed'].'">'.$team['GamesPlayed'].'</a>
 					</td></tr>';
 			}
 			else
 			{
-				echo '<tr><td><a href="pbaperson.php?pid='.$team['mbid'].'">'.$team['FirstName'].' '.$team['LastName'].'</a></td><td>'.$team['rl'].'</td>
-					<td>'.$team['gp'].'</td></tr>';
+				echo '<tr><td><a href="pbaperson.php?pid='.$team['MemberID'].'">'.$team['FirstName'].' '.$team['LastName'].'</a></td><td>'.$team['Role'].'</td>
+					<td>'.$team['GamesPlayed'].'</td></tr>';
 			}
 		}
 	echo '</table>';	
+}
+else
+{
+	echo "This team does not have any members.";
 }
 ?>

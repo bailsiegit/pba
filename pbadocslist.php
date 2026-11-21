@@ -30,16 +30,16 @@ if($_SESSION['accesslevel'] < 1)
 
 <?php
 // set up cross reference fields
-$activity = array("cm" => "committees", "aw" => "awards", "tm" => "teams", "em" => "employees", "vl" => "volunteers", "mb" => "members");
+$activity = array("cm" => "committees", "aw" => "awards", "tm" => "teams", "em" => "employees", "vl" => "volunteers", "mb" => "members"); //reference to tables
 $fields = array("cm" => "CommitteeName", "aw" => "AwardName", "tm" => "TeamName", "em" => "employees", "vl" => "volunteers", "mb" => "members");
 $actref = array("cm" => "CommitteeId", "aw" => "AwardId", "tm" => "TeamId", "em" => "EmployeeId", "vl" => "VolunteerId", "mb" => "MemberId");
 
 
-if(isset($_GET['actid']))
+if(isset($_GET['actid']) || isset($_POST['actid']))
 {
-	$getactivity = strtolower(trim($_GET['actid']));
-	$getyear = strtolower(trim($_GET['yid']));
-	$getactref = strtolower(trim($_GET['refid']));
+	$getactivity = (isset($_GET['actid'])) ? strtolower(trim($_GET['actid'])) : strtolower(trim($_POST['actid']));
+	$getyear = (isset($_GET['yid'])) ? strtolower(trim($_GET['yid'])) : strtolower(trim($_POST['yid']));
+	$getactref = (isset($_GET['refid'])) ? strtolower(trim($_GET['refid'])) : strtolower(trim($_POST['actrefid']));
 	
 	// confirm the GET reference exists in the lookup arrays
 	if (!array_key_exists($getactivity, $activity)) {
@@ -53,7 +53,22 @@ if(isset($_GET['actid']))
 	}	
 	
 	$qyr = "SELECT * FROM years WHERE YearId = ?";
-	$qact = "SELECT $fields[$getactivity] FROM $activity[$getactivity] WHERE $actref[$getactivity] = ?";
+	$qact = ($getactivity != "tm") ? "SELECT $fields[$getactivity] FROM $activity[$getactivity] WHERE $actref[$getactivity] = ?" :
+	'SELECT 
+	CONCAT(
+	l.LeagueName, " ",
+	IF(gr.GradeName = "None","",CONCAT(gr.GradeName, " ")),
+	ge.GenderName, " ",
+	IF(d.DivisionName = "None","",CONCAT(d.DivisionName, " ")),
+	IF(tn.TeamName = "None","",CONCAT(tn.TeamName, " "))) AS TeamName
+	FROM teamentries te
+	JOIN leagues l ON te.LeagueId = l.LeagueId
+	JOIN seasons s ON te.SeasonId = s.SeasonId
+	JOIN grades gr ON te.GradeId = gr.GradeId
+	JOIN genders ge ON te.GenderID = ge.GenderID
+	JOIN divisions d ON te.DivisionId = d.DivisionId
+	JOIN teamnames tn ON te.TeamNameId = tn.TeamNameId
+	WHERE te.TeamEntryId = ?';
 	require('../connecttopba.php');
 	$stmt = mysqli_prepare($link, $qyr);
 	mysqli_stmt_bind_param($stmt, "i", $getyear);
@@ -73,25 +88,25 @@ if(isset($_GET['actid']))
 if(isset($_POST['uploadfile']) && !empty($_POST['docname']) && !empty($_FILES['filname']['name']))
 {
 	//save all the POST values into same variables as GET to refresh page after upload
-	$getyear = htmlentities($_POST['yid']);
-	$getactivity = htmlentities($_POST['actid']);
-	$getactref = htmlentities($_POST['actrefid']);
+//	$getyear = htmlentities($_POST['yid']);
+//	$getactivity = htmlentities($_POST['actid']);
+//	$getactref = htmlentities($_POST['actrefid']);
 	$postfiltitle = htmlentities($_POST['docname']);
-	$qyr = "SELECT * FROM years WHERE YearId = ?";
-	$qact = "SELECT $fields[$getactivity] FROM $activity[$getactivity] WHERE $actref[$getactivity] = ?";
-	require('../connecttopba.php');
-	$stmt = mysqli_prepare($link, $qyr);
-	mysqli_stmt_bind_param($stmt, "i", $getyear);
-	mysqli_stmt_execute($stmt);
-	$ryr = mysqli_stmt_get_result($stmt);
-	$yrrow = mysqli_fetch_array($ryr, MYSQLI_ASSOC);
-	$stmt = mysqli_prepare($link, $qact);
-	mysqli_stmt_bind_param($stmt, "i", $getactref);
-	mysqli_stmt_execute($stmt);
-	$ract = mysqli_stmt_get_result($stmt);
-	$actrow = mysqli_fetch_array($ract, MYSQLI_ASSOC);
-	$yrtxt = $yrrow['YearText'];
-	$actname = $actrow[$fields[$getactivity]];
+//	$qyr = "SELECT * FROM years WHERE YearId = ?";
+//	$qact = "SELECT $fields[$getactivity] FROM $activity[$getactivity] WHERE $actref[$getactivity] = ?";
+//	require('../connecttopba.php');
+//	$stmt = mysqli_prepare($link, $qyr);
+//	mysqli_stmt_bind_param($stmt, "i", $getyear);
+//	mysqli_stmt_execute($stmt);
+//	$ryr = mysqli_stmt_get_result($stmt);
+//	$yrrow = mysqli_fetch_array($ryr, MYSQLI_ASSOC);
+//	$stmt = mysqli_prepare($link, $qact);
+//	mysqli_stmt_bind_param($stmt, "i", $getactref);
+//	mysqli_stmt_execute($stmt);
+//	$ract = mysqli_stmt_get_result($stmt);
+//	$actrow = mysqli_fetch_array($ract, MYSQLI_ASSOC);
+//	$yrtxt = $yrrow['YearText'];
+//	$actname = $actrow[$fields[$getactivity]];
 	// work out document number
 	$q = "SELECT MAX(DocIndex) as maxindex FROM documents WHERE Activity = ?";
 	$stmt = mysqli_prepare($link, $q);
@@ -104,10 +119,12 @@ if(isset($_POST['uploadfile']) && !empty($_POST['docname']) && !empty($_FILES['f
 	$tmpfullpath = $_FILES['filname']['tmp_name'];
 	$fileextension = pathinfo($_FILES['filname']['name'], PATHINFO_EXTENSION);
 	$newfilename = $getactivity.$newfileindex.'.'.$fileextension;
-	//$newfullpath = "C:\wamp64\www\\documents\\$getactivity\\$newfilename";
-	$root = dirname($_SERVER['DOCUMENT_ROOT']); // one level above public_html
-	$uploadDir = $root . "/documents/$getactivity/";
-	$newfullpath = $uploadDir . $newfilename;
+	//WAMP64 path info
+	$newfullpath = "C:\wamp64\www\\documents\\$getactivity\\$newfilename";
+	//live server path info
+//	$root = dirname($_SERVER['DOCUMENT_ROOT']); // one level above public_html
+//	$uploadDir = $root . "/documents/$getactivity/";
+//	$newfullpath = $uploadDir . $newfilename;
 
 	date_default_timezone_set("Australia/Perth");
 	$lastsaved = date("Y-m-d H:i", time());
@@ -118,30 +135,30 @@ if(isset($_POST['uploadfile']) && !empty($_POST['docname']) && !empty($_FILES['f
 	mysqli_stmt_bind_param($stmt, "ssii", $postfiltitle, $getactivity, $getactref, $getyear);
 	mysqli_stmt_execute($stmt);
 }
-elseif(isset($_POST['uploadfile'])) //if doc name and/or upload file not entered, refresh page
-{
+//elseif(isset($_POST['uploadfile'])) //if doc name and/or upload file not entered, refresh page
+//{
 	// reset GET values from POST data to refresh page after POST failure
-	$getyear = htmlentities($_POST['yid']);
-	$getactivity = htmlentities($_POST['actid']);
-	$getactref = htmlentities($_POST['actrefid']);
+//	$getyear = htmlentities($_POST['yid']);
+//	$getactivity = htmlentities($_POST['actid']);
+//	$getactref = htmlentities($_POST['actrefid']);
 	// get text for year and activity
-	$qyr = "SELECT * FROM years WHERE YearId = ?";
+//	$qyr = "SELECT * FROM years WHERE YearId = ?";
 	// redo doc query
-	$qact = "SELECT $fields[$getactivity] FROM $activity[$getactivity] WHERE $actref[$getactivity] = ?";
-	require('../connecttopba.php');
-	$stmt = mysqli_prepare($link, $qyr);
-	mysqli_stmt_bind_param($stmt, "i", $getyear);
-	mysqli_stmt_execute($stmt);
-	$ryr = mysqli_stmt_get_result($stmt);
-	$yrrow = mysqli_fetch_array($ryr, MYSQLI_ASSOC);
-	$stmt = mysqli_prepare($link, $qact);
-	mysqli_stmt_bind_param($stmt, "i", $getactref);
-	mysqli_stmt_execute($stmt);
-	$ract = mysqli_stmt_get_result($stmt);
-	$actrow = mysqli_fetch_array($ract, MYSQLI_ASSOC);
-	$yrtxt = $yrrow['YearText'];
-	$actname = $actrow[$fields[$getactivity]];
-}
+//	$qact = "SELECT $fields[$getactivity] FROM $activity[$getactivity] WHERE $actref[$getactivity] = ?";
+//	require('../connecttopba.php');
+//	$stmt = mysqli_prepare($link, $qyr);
+//	mysqli_stmt_bind_param($stmt, "i", $getyear);
+//	mysqli_stmt_execute($stmt);
+//	$ryr = mysqli_stmt_get_result($stmt);
+//	$yrrow = mysqli_fetch_array($ryr, MYSQLI_ASSOC);
+//	$stmt = mysqli_prepare($link, $qact);
+//	mysqli_stmt_bind_param($stmt, "i", $getactref);
+//	mysqli_stmt_execute($stmt);
+//	$ract = mysqli_stmt_get_result($stmt);
+//	$actrow = mysqli_fetch_array($ract, MYSQLI_ASSOC);
+//	$yrtxt = $yrrow['YearText'];
+//	$actname = $actrow[$fields[$getactivity]];
+//}
 // page header
 echo '<h2>Document List</h2>';
 
@@ -191,8 +208,7 @@ echo '<h2 style="text-align:center; margin:5px; width:100%;">Documents - '.$yrtx
 ?>
 		</table>
 
-		<iframe id="docviewer" style="width:100%; height:65vh; border:none;">
-		</iframe>
+		<iframe id="docviewer" style="width:100%; height:65vh; border:none;"></iframe>
 
 	</td><td style="background:white; border:1px; width:50%">
 	<h4 style="align:center;">Upload a Document</h4>
